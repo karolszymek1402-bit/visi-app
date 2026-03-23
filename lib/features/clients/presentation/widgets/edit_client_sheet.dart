@@ -19,10 +19,13 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _addressCtrl;
   late final TextEditingController _rateCtrl;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _messageController;
+  late final TextEditingController _noteController;
   late Set<int> _selectedDays;
   late int _intervalWeeks;
   late int _selectedColorValue;
-  late int _startHour;
+  late TimeOfDay _selectedTime;
   late int _durationMinutes;
 
   bool get _isNew => widget.client == null;
@@ -36,11 +39,17 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
     _rateCtrl = TextEditingController(
       text: c != null ? c.defaultRate.toStringAsFixed(0) : '',
     );
+    _phoneController = TextEditingController(text: c?.phoneNumber ?? '');
+    _messageController = TextEditingController(text: c?.smsTemplate ?? '');
+    _noteController = TextEditingController(text: c?.note ?? '');
     _selectedDays = DaySelector.daysFromRRule(c?.recurrencePattern);
     _intervalWeeks = _parseInterval(c?.recurrencePattern);
     _selectedColorValue =
         c?.colorValue ?? VisiColorPicker.presets[0].toARGB32();
-    _startHour = c?.defaultStartHour ?? 8;
+    _selectedTime = TimeOfDay(
+      hour: c?.defaultStartHour ?? 8,
+      minute: c?.defaultStartMinute ?? 0,
+    );
     _durationMinutes = c?.defaultDurationMinutes ?? 120;
   }
 
@@ -55,6 +64,9 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
     _nameCtrl.dispose();
     _addressCtrl.dispose();
     _rateCtrl.dispose();
+    _phoneController.dispose();
+    _messageController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -63,6 +75,9 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -116,6 +131,46 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
               decoration: const InputDecoration(
                 labelText: 'Adres (opcjonalnie)',
                 prefixIcon: Icon(Icons.location_on),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Numer telefonu
+            TextFormField(
+              controller: _phoneController,
+              decoration: const InputDecoration(
+                labelText: 'Numer telefonu',
+                prefixIcon: Icon(Icons.phone_iphone_rounded),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 12),
+
+            // Treść wiadomości (Automatyczny SMS)
+            TextFormField(
+              controller: _messageController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Treść wiadomości do wysłania',
+                prefixIcon: Icon(Icons.message_rounded),
+                hintText: 'Cześć! Przypominam o wizycie...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Notatka o kliencie
+            TextFormField(
+              controller: _noteController,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Notatka o kliencie (opcjonalnie)',
+                prefixIcon: Icon(Icons.edit_note_rounded),
+                hintText: 'Np. Uczulenie na hybrydę, ulubiona kawa...',
+                alignLabelWithHint: true,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -215,20 +270,32 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             const SizedBox(height: 12),
 
             // Godzina startu
-            DropdownButtonFormField<int>(
-              initialValue: _startHour,
-              decoration: const InputDecoration(
-                labelText: 'Godzina startu',
-                prefixIcon: Icon(Icons.schedule),
-                border: OutlineInputBorder(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Godzina rozpoczęcia'),
+              trailing: Text(
+                _selectedTime.format(context),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              items: List.generate(
-                11,
-                (i) =>
-                    DropdownMenuItem(value: 8 + i, child: Text('${8 + i}:00')),
-              ),
-              onChanged: (v) {
-                if (v != null) setState(() => _startHour = v);
+              onTap: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: _selectedTime,
+                  builder: (context, child) => Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: Colors.purpleAccent,
+                      ),
+                    ),
+                    child: child!,
+                  ),
+                );
+                if (picked != null) {
+                  setState(() => _selectedTime = picked);
+                }
               },
             ),
             const SizedBox(height: 16),
@@ -317,8 +384,18 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
       defaultRate: rate,
       colorValue: _selectedColorValue,
       recurrencePattern: DaySelector.buildRRule(_selectedDays, _intervalWeeks),
-      defaultStartHour: _startHour,
+      defaultStartHour: _selectedTime.hour,
       defaultDurationMinutes: _durationMinutes,
+      defaultStartMinute: _selectedTime.minute,
+      phoneNumber: _phoneController.text.trim().isEmpty
+          ? null
+          : _phoneController.text.trim(),
+      smsTemplate: _messageController.text.trim().isEmpty
+          ? null
+          : _messageController.text.trim(),
+      note: _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim(),
     );
 
     ref.read(clientsProvider.notifier).saveClient(client);

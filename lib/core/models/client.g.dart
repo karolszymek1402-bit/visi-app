@@ -23,13 +23,16 @@ class ClientAdapter extends TypeAdapter<Client> {
       defaultDurationMinutes: (fields[7] as int?) ?? 120,
       phoneNumber: fields[8] as String?,
       smsTemplate: fields[9] as String?,
+      defaultStartMinute: (fields[10] as int?) ?? 0,
+      note: fields[11] as String?,
+      updatedAt: fields[12] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Client obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -49,6 +52,12 @@ class ClientAdapter extends TypeAdapter<Client> {
       ..writeByte(8)
       ..write(obj.phoneNumber)
       ..writeByte(9)
-      ..write(obj.smsTemplate);
+      ..write(obj.smsTemplate)
+      ..writeByte(10)
+      ..write(obj.defaultStartMinute)
+      ..writeByte(11)
+      ..write(obj.note)
+      ..writeByte(12)
+      ..write(obj.updatedAt);
   }
 }

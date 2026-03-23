@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/models/visi_user.dart';
-import '../../../core/presentation/visi_logo.dart';
-import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/locale_provider.dart';
-import '../../../core/services/profile_service.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../calendar/presentation/widgets/ai_orb_widget.dart';
-import '../../calendar/providers/ai_orb_provider.dart';
+import 'package:visi/core/presentation/visi_logo.dart';
+import 'package:visi/core/providers/auth_provider.dart';
+import 'package:visi/core/providers/locale_provider.dart';
+import 'package:visi/core/theme/app_theme.dart';
+import 'package:visi/l10n/app_localizations.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -18,332 +14,225 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
-  late final TextEditingController _nameController;
-  late final TextEditingController _rateController;
+  final _formKey = GlobalKey<FormState>();
+  final _locationController = TextEditingController();
+  String _currentLocation = '';
   bool _isSaving = false;
-
-  static const _languages = [
-    ('pl', '🇵🇱', 'Polski'),
-    ('nb', '🇳🇴', 'Norsk'),
-    ('en', '🇬🇧', 'English'),
-  ];
 
   @override
   void initState() {
     super.initState();
-    final authState = ref.read(authProvider);
-    _nameController = TextEditingController(text: authState.displayName ?? '');
-    _rateController = TextEditingController(text: '250');
+    _locationController.addListener(() {
+      setState(() {
+        _currentLocation = _locationController.text;
+      });
+    });
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _rateController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
-  bool get _isFormValid =>
-      _nameController.text.trim().isNotEmpty &&
-      _rateController.text.trim().isNotEmpty &&
-      double.tryParse(_rateController.text.trim()) != null;
-
-  Future<void> _handleSave() async {
-    if (!_isFormValid) return;
-
+  Future<void> _onGetStarted() async {
     setState(() => _isSaving = true);
-    ref.read(aiOrbProvider.notifier).setToThinking();
 
-    final name = _nameController.text.trim();
-    final rate = double.parse(_rateController.text.trim());
-    final lang = ref.read(localeProvider).languageCode;
-    final uid = ref.read(authProvider).userId ?? 'local_user';
-
-    final profile = VisiUser(
-      uid: uid,
-      name: name,
-      defaultRate: rate,
-      language: lang,
-    );
-
-    await ref.read(profileServiceProvider).saveProfile(profile);
-    await ref
-        .read(authProvider.notifier)
-        .completeProfile(displayName: name, hourlyRate: rate);
+    await ref.read(authProvider.notifier).createProfile(hourlyRate: 250);
 
     if (mounted) {
-      ref.read(aiOrbProvider.notifier).setToIdle();
       setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentLocale = ref.watch(localeProvider).languageCode;
-    final name = _nameController.text.trim();
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    // Pobieramy imię z Google Auth, jeśli dostępne
+    final authState = ref.watch(authProvider);
+    final userName = (authState.displayName ?? '').split(' ').firstOrNull ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
-        child: Stack(
-          children: [
-            // AI Orb — prawy górny róg
-            const Positioned(top: 24, right: 24, child: AIOrbWidget()),
-
-            Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo z gradientem
-                    ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [Color(0xFFE040FB), Color(0xFF7C4DFF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      blendMode: BlendMode.srcIn,
-                      child: const VisiLogo(height: 60),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Spersonalizowane powitanie
+                    // 1. Sekcja Powitania (Logo + Tytuł)
+                    const Center(child: VisiLogo(height: 60)),
+                    const SizedBox(height: 40),
                     Text(
-                      name.isNotEmpty ? 'Cześć, $name!' : 'Personalizuj visi',
-                      style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
+                      l10n.setupProfileTitle(userName),
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
-                    if (name.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          'Jak mija dzień w Hamar?',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryDark,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.setupProfileSubtitle(
+                        _currentLocation.isEmpty ? 'empty' : _currentLocation,
                       ),
-                    const SizedBox(height: 28),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
 
-                    // ── Imię ──
-                    _buildTextField(
-                      controller: _nameController,
-                      label: 'Imię',
-                      icon: Icons.person_outline,
-                    ),
+                    // 2. Miejsce pracy
+                    _buildSectionTitle(theme, l10n.labelWorkLocation),
                     const SizedBox(height: 16),
-
-                    // ── Stawka godzinowa ──
-                    _buildTextField(
-                      controller: _rateController,
-                      label: 'Domyślna stawka (NOK/h)',
-                      icon: Icons.payments_outlined,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ── Język – duże kafelki z flagami ──
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Język',
-                        style: TextStyle(
-                          color: AppColors.textSecondaryDark,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                    TextField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        hintText: l10n.hintWorkLocation,
+                        prefixIcon: const Icon(Icons.location_on_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        for (final (code, flag, label) in _languages)
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: GestureDetector(
-                                onTap: () => ref
-                                    .read(localeProvider.notifier)
-                                    .setLocale(code),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: currentLocale == code
-                                        ? const Color(
-                                            0xFF7C4DFF,
-                                          ).withValues(alpha: 0.15)
-                                        : AppColors.surfaceDark,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: currentLocale == code
-                                          ? const Color(0xFF7C4DFF)
-                                          : AppColors.borderDark,
-                                      width: currentLocale == code ? 2 : 1,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        flag,
-                                        style: const TextStyle(fontSize: 32),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        label,
-                                        style: TextStyle(
-                                          color: currentLocale == code
-                                              ? AppColors.textDark
-                                              : AppColors.textSecondaryDark,
-                                          fontSize: 12,
-                                          fontWeight: currentLocale == code
-                                              ? FontWeight.w600
-                                              : FontWeight.w400,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 48),
 
-                    // ── Precyzja czasu ──
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceDark,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.borderDark),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.timer_outlined,
-                            color: AppColors.textSecondaryDark,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Start co 5 min · Trwanie co 15 min',
-                              style: TextStyle(
-                                color: AppColors.textSecondaryDark,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.check_circle,
-                            color: const Color(0xFF7C4DFF),
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                    // 3. Wybór Języka (Trzy duże kafelki z flagami)
+                    _buildSectionTitle(theme, l10n.labelSelectLanguage),
+                    const SizedBox(height: 16),
+                    _buildLanguageSelector(context, ref),
+                    const SizedBox(height: 64),
 
-                    // ── Przycisk "Zaczynamy!" ──
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton.icon(
-                        onPressed: _isSaving || !_isFormValid
-                            ? null
-                            : _handleSave,
-                        icon: _isSaving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.rocket_launch, size: 20),
-                        label: Text(
-                          _isSaving ? 'Zapisuję...' : 'Zaczynamy!',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7C4DFF),
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: const Color(
-                            0xFF7C4DFF,
-                          ).withValues(alpha: 0.4),
-                          disabledForegroundColor: Colors.white.withValues(
-                            alpha: 0.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
+                    // 4. Przycisk "Zaczynamy" (Rose/Violet Gradient)
+                    _buildGradientButton(context, l10n.btnGetStarted),
                   ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      style: TextStyle(color: AppColors.textDark, fontSize: 16),
-      onChanged: (_) => setState(() {}),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: AppColors.textSecondaryDark),
-        prefixIcon: Icon(icon, color: AppColors.textSecondaryDark),
-        filled: true,
-        fillColor: AppColors.surfaceDark,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.borderDark),
+  // --- Helper Widgets ---
+
+  Widget _buildSectionTitle(ThemeData theme, String text) {
+    return Text(
+      text.toUpperCase(),
+      style: theme.textTheme.titleSmall?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: theme.colorScheme.outline,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.watch(localeProvider);
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final languages = [
+      ('pl', '🇵🇱', l10n.langPolish),
+      ('nb', '🇳🇴', l10n.langNorwegian),
+      ('en', '🇬🇧', l10n.langEnglish),
+    ];
+
+    return Row(
+      children: languages.map((lang) {
+        final code = lang.$1;
+        final flag = lang.$2;
+        final name = lang.$3;
+        final isSelected = currentLocale.languageCode == code;
+
+        return Expanded(
+          child: GestureDetector(
+            onTap: () {
+              ref.read(localeProvider.notifier).setLocale(code);
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? theme.colorScheme.primary.withValues(alpha: 0.08)
+                    : theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outline.withValues(alpha: 0.2),
+                  width: isSelected ? 2 : 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(flag, style: const TextStyle(fontSize: 40)),
+                  const SizedBox(height: 12),
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildGradientButton(BuildContext context, String text) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: _isSaving ? null : _onGetStarted,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.roseColor.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.borderDark),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF7C4DFF), width: 2),
+        child: Center(
+          child: _isSaving
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  text,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ),
     );

@@ -85,36 +85,77 @@ class _CalendarGridState extends ConsumerState<CalendarGrid> {
           },
           onPointerUp: (_) => _cancelEdgeTimer(),
           onPointerCancel: (_) => _cancelEdgeTimer(),
-          child: Stack(
-            children: [
-              Column(
-                children: List.generate(
-                  calendarHourCount,
-                  (i) => _buildHourRow(
-                    context,
-                    ref,
-                    i + calendarStartHour,
-                    slotHeight,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Oś czasu (lewa kolumna)
+                SizedBox(
+                  width: 50,
+                  child: Column(
+                    children: List.generate(
+                      calendarHourCount,
+                      (i) => SizedBox(
+                        height: slotHeight,
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Transform.translate(
+                              offset: const Offset(0, -8),
+                              child: Text(
+                                '${i + calendarStartHour}:00',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              ...visits.map((v) {
-                final client = clients[v.clientId];
-                if (client == null) return const SizedBox.shrink();
-                return VisitBlock(
-                  visit: v,
-                  client: client,
-                  slotHeight: slotHeight,
-                );
-              }),
-            ],
+
+                // 2. Siatka + wizyty
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: List.generate(
+                          calendarHourCount,
+                          (i) => _buildGridRow(
+                            context,
+                            ref,
+                            i + calendarStartHour,
+                            slotHeight,
+                          ),
+                        ),
+                      ),
+                      ...visits.map((v) {
+                        final client = clients[v.clientId];
+                        if (client == null) return const SizedBox.shrink();
+                        return VisitBlock(
+                          visit: v,
+                          client: client,
+                          slotHeight: slotHeight,
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildHourRow(
+  Widget _buildGridRow(
     BuildContext context,
     WidgetRef ref,
     int hour,
@@ -135,54 +176,40 @@ class _CalendarGridState extends ConsumerState<CalendarGrid> {
       },
       child: SizedBox(
         height: slotHeight,
-        child: Row(
+        child: Column(
           children: [
-            SizedBox(
-              width: 60,
-              child: Text(
-                '$hour:00',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textSecondaryLight),
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  for (final minute in quarters)
-                    Expanded(
-                      child: DragTarget<Visit>(
-                        onAcceptWithDetails: (details) {
-                          ref
-                              .read(calendarProvider.notifier)
-                              .moveVisit(details.data.id, hour, minute: minute);
-                        },
-                        builder: (context, candidateData, rejectedData) {
-                          return Container(
-                            color: candidateData.isNotEmpty
-                                ? AppColors.primary.withValues(alpha: 0.1)
-                                : Colors.transparent,
-                            foregroundDecoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: minute == 0
-                                      ? AppColors.borderLight
-                                      : AppColors.borderLight.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                  width: minute == 0 ? 1.0 : 0.5,
-                                ),
-                                left: const BorderSide(
-                                  color: AppColors.borderLight,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+            for (final minute in quarters)
+              Expanded(
+                child: DragTarget<Visit>(
+                  onAcceptWithDetails: (details) {
+                    ref
+                        .read(calendarProvider.notifier)
+                        .moveVisit(details.data.id, hour, minute: minute);
+                  },
+                  builder: (context, candidateData, rejectedData) {
+                    return Container(
+                      color: candidateData.isNotEmpty
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      foregroundDecoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: minute == 0
+                                ? Theme.of(context).dividerColor
+                                : Theme.of(
+                                    context,
+                                  ).dividerColor.withValues(alpha: 0.3),
+                            width: minute == 0 ? 1.0 : 0.5,
+                          ),
+                          left: BorderSide(
+                            color: Theme.of(context).dividerColor,
+                          ),
+                        ),
                       ),
-                    ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),

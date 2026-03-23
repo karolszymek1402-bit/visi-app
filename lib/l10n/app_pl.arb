@@ -7,5 +7,34 @@
   "completeVisit": "Zakończ wizytę",
   "save": "Zapisz",
   "nok": "NOK",
-  "clients": "Klienci"
+  "clients": "Klienci",
+  "setupProfileTitle": "Hei, {name}!",
+  "@setupProfileTitle": {
+    "description": "Welcome message",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Ola"
+      }
+    }
+  },
+  "setupProfileSubtitle": "Witaj w visi. Skonfigurujmy Twoją pracę{location, select, empty{.} other{ w {location}.}}",
+  "@setupProfileSubtitle": {
+    "description": "Subtitle with optional location",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "labelWorkLocation": "Gdzie zazwyczaj pracujesz?",
+  "hintWorkLocation": "np. Bergen, Oslo, Warszawa",
+  "labelHourlyRate": "Domyślna stawka godzinowa (NOK)",
+  "hintHourlyRate": "np. 250",
+  "errorInvalidRate": "Wpisz poprawną stawkę",
+  "labelSelectLanguage": "Wybierz język",
+  "langPolish": "Polski",
+  "langNorwegian": "Norweski",
+  "langEnglish": "Angielski",
+  "btnGetStarted": "Zaczynamy"
 }

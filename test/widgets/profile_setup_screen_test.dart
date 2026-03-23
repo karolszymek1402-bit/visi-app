@@ -2,25 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:visi/core/database/database_service.dart';
+import 'package:visi/core/presentation/visi_logo.dart';
 import 'package:visi/core/providers/locale_provider.dart';
+import 'package:visi/core/services/auth_service.dart';
 import 'package:visi/features/auth/presentation/profile_setup_screen.dart';
-import 'package:visi/features/calendar/presentation/widgets/ai_orb_widget.dart';
 import 'package:visi/l10n/app_localizations.dart';
+import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
 void main() {
   late FakeDatabaseService fakeDb;
+  late FakeAuthService fakeAuth;
 
   setUp(() {
     fakeDb = FakeDatabaseService();
-    // Pre-authenticate so ProfileSetupScreen can read displayName
-    fakeDb.saveSetting('auth_user_id', 'local_user');
+    fakeAuth = FakeAuthService(
+      const AuthUser(uid: 'google_user_123', displayName: 'Ola'),
+    );
     fakeDb.saveSetting('auth_display_name', 'Ola');
   });
 
-  Widget buildTestWidget() {
+  Widget buildTestWidget({FakeAuthService? auth}) {
     return ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(fakeDb)],
+      overrides: [
+        authServiceProvider.overrideWithValue(auth ?? fakeAuth),
+        databaseProvider.overrideWithValue(fakeDb),
+      ],
       child: const MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -30,72 +37,74 @@ void main() {
   }
 
   group('ProfileSetupScreen', () {
-    testWidgets('shows personalized greeting with name', (tester) async {
+    testWidgets('shows personalized greeting with l10n title', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Name pre-filled as 'Ola', so greeting is personalized
-      expect(find.text('Cześć, Ola!'), findsOneWidget);
-      expect(find.text('Jak mija dzień w Hamar?'), findsOneWidget);
+      // Uses l10n setupProfileTitle with first name from auth
+      expect(find.text('Hei, Ola!'), findsOneWidget);
     });
 
-    testWidgets('shows generic title when name is empty', (tester) async {
-      fakeDb.saveSetting('auth_display_name', '');
+    testWidgets('shows subtitle from l10n', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text('Personalizuj visi'), findsOneWidget);
-      expect(find.text('Jak mija dzień w Hamar?'), findsNothing);
-    });
-
-    testWidgets('shows form fields and button', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pump();
-
-      expect(find.text('Imię'), findsOneWidget);
-      expect(find.text('Domyślna stawka (NOK/h)'), findsOneWidget);
-      expect(find.text('Język'), findsOneWidget);
-      expect(find.text('Zaczynamy!'), findsOneWidget);
-    });
-
-    testWidgets('pre-fills name from auth displayName', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pump();
-
-      final nameField = tester.widget<TextField>(
-        find.widgetWithText(TextField, 'Ola'),
+      expect(
+        find.text('Witaj w visi. Skonfigurujmy Twoją pracę w Hamar.'),
+        findsOneWidget,
       );
-      expect(nameField.controller!.text, 'Ola');
+    });
+
+    testWidgets('shows empty name in title when displayName is null', (
+      tester,
+    ) async {
+      final noNameAuth = FakeAuthService(
+        const AuthUser(uid: 'google_user_123'),
+      );
+      fakeDb.saveSetting('auth_display_name', '');
+      await tester.pumpWidget(buildTestWidget(auth: noNameAuth));
+      await tester.pump();
+
+      expect(find.text('Hei, !'), findsOneWidget);
+    });
+
+    testWidgets('shows hourly rate field with label and hint', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      // Section title (uppercased)
+      expect(find.text('DOMYŚLNA STAWKA GODZINOWA (NOK)'), findsOneWidget);
+      expect(find.byIcon(Icons.payments_outlined), findsOneWidget);
     });
 
     testWidgets('defaults hourly rate to 250', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      final rateField = tester.widget<TextField>(
-        find.widgetWithText(TextField, '250'),
+      final rateField = tester.widget<TextFormField>(
+        find.byType(TextFormField),
       );
       expect(rateField.controller!.text, '250');
     });
 
-    testWidgets('shows three large flag tiles with labels', (tester) async {
+    testWidgets('shows language selector with three flag tiles', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
       expect(find.text('🇵🇱'), findsOneWidget);
       expect(find.text('🇳🇴'), findsOneWidget);
       expect(find.text('🇬🇧'), findsOneWidget);
-      // Labels under flags
       expect(find.text('Polski'), findsOneWidget);
-      expect(find.text('Norsk'), findsOneWidget);
-      expect(find.text('English'), findsOneWidget);
+      expect(find.text('Norweski'), findsOneWidget);
+      expect(find.text('Angielski'), findsOneWidget);
     });
 
     testWidgets('tapping flag tile changes locale', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Default is PL. Tap Norwegian flag.
       await tester.tap(find.text('🇳🇴'));
       await tester.pump();
 
@@ -105,57 +114,58 @@ void main() {
       expect(container.read(localeProvider).languageCode, 'nb');
     });
 
-    testWidgets('shows time precision info', (tester) async {
+    testWidgets('shows gradient button with l10n text', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text('Start co 5 min · Trwanie co 15 min'), findsOneWidget);
-      expect(find.byIcon(Icons.timer_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.text('Zaczynamy'), findsOneWidget);
+      // Gradient button uses InkWell, not ElevatedButton
+      expect(find.byType(InkWell), findsWidgets);
     });
 
-    testWidgets('dark background', (tester) async {
+    testWidgets('flags are large (fontSize 40)', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      expect(scaffold.backgroundColor, const Color(0xFF0D1117));
+      final flagText = tester.widget<Text>(find.text('🇵🇱'));
+      expect(flagText.style?.fontSize, 40);
     });
 
-    testWidgets('Orb positioned in top-right corner', (tester) async {
+    testWidgets('VisiLogo is displayed', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      final positioned = tester.widget<Positioned>(
-        find.ancestor(
-          of: find.byType(AIOrbWidget),
-          matching: find.byType(Positioned),
-        ),
-      );
-      expect(positioned.top, 24);
-      expect(positioned.right, 24);
+      expect(find.byType(VisiLogo), findsOneWidget);
     });
 
-    testWidgets('completeProfile saves data and updates state', (tester) async {
+    testWidgets('tapping button with valid rate saves profile', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Clear name and type a new one
-      await tester.enterText(find.widgetWithText(TextField, 'Ola'), 'Ola K');
+      // Rate 250 is pre-filled and valid — tap "Zaczynamy"
+      await tester.tap(find.text('Zaczynamy'));
+      await tester.pump();
       await tester.pump();
 
-      // Clear rate and type a custom one
-      await tester.enterText(find.widgetWithText(TextField, '250'), '300');
-      await tester.pump();
-
-      // Tap "Zaczynamy!"
-      await tester.tap(find.text('Zaczynamy!'));
-      await tester.pump();
-
-      // Verify data saved to DB
-      expect(fakeDb.getSetting('auth_display_name'), 'Ola K');
-      expect(fakeDb.getSetting('profile_hourly_rate'), '300.0');
       expect(fakeDb.getSetting('profile_complete'), 'true');
+    });
+
+    testWidgets('validator rejects empty rate', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      // Clear the rate field
+      await tester.enterText(find.byType(TextFormField), '');
+      await tester.pump();
+
+      // Tap button
+      await tester.tap(find.text('Zaczynamy'));
+      await tester.pump();
+
+      // Validation error shown
+      expect(find.text('Wpisz poprawną stawkę'), findsOneWidget);
+      // Profile NOT saved
+      expect(fakeDb.getSetting('profile_complete'), isNull);
     });
   });
 }

@@ -3,19 +3,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/providers/auth_provider.dart';
+import 'package:visi/core/services/auth_service.dart';
 import 'package:visi/features/auth/presentation/welcome_screen.dart';
+import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
 void main() {
   late FakeDatabaseService fakeDb;
+  late FakeAuthService fakeAuth;
 
   setUp(() {
     fakeDb = FakeDatabaseService();
+    fakeAuth = FakeAuthService();
   });
 
   Widget buildTestWidget() {
     return ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(fakeDb)],
+      overrides: [
+        authServiceProvider.overrideWithValue(fakeAuth),
+        databaseProvider.overrideWithValue(fakeDb),
+      ],
       child: const MaterialApp(home: WelcomeScreen()),
     );
   }
@@ -27,18 +34,20 @@ void main() {
       expect(find.text('Planuj wizyty. Zarabiaj więcej.'), findsOneWidget);
     });
 
-    testWidgets('renders Google sign-in button', (tester) async {
+    testWidgets('renders all auth buttons', (tester) async {
       await tester.pumpWidget(buildTestWidget());
 
-      expect(find.text('Zaloguj przez Google'), findsOneWidget);
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(find.text('Zaloguj się e-mailem'), findsOneWidget);
+      expect(find.text('Stwórz konto'), findsOneWidget);
+      expect(find.text('Kontynuuj z Google'), findsOneWidget);
+      expect(find.text('LUB'), findsOneWidget);
     });
 
-    testWidgets('tapping sign-in button triggers auth', (tester) async {
+    testWidgets('tapping Google button triggers auth', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      await tester.tap(find.text('Zaloguj przez Google'));
+      await tester.tap(find.text('Kontynuuj z Google'));
       await tester.pump();
       await tester.pump();
 
@@ -77,13 +86,11 @@ void main() {
       expect(fade1.opacity.value, closeTo(1.0, 0.05));
     });
 
-    testWidgets('AI Orb is positioned in top-right corner', (tester) async {
+    testWidgets('sparkle icon is positioned in logo', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      final positioned = tester.widget<Positioned>(find.byType(Positioned));
-      expect(positioned.top, 24);
-      expect(positioned.right, 24);
+      expect(find.byIcon(Icons.auto_awesome), findsOneWidget);
     });
   });
 }

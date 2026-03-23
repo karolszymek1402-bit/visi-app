@@ -153,6 +153,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clients'**
   String get clients;
+
+  /// Welcome message
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, {name}!'**
+  String setupProfileTitle(String name);
+
+  /// Subtitle with optional location
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to visi. Let\'s set up your work{location, select, empty{.} other{ in {location}.}}'**
+  String setupProfileSubtitle(String location);
+
+  /// No description provided for @labelWorkLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do you usually work?'**
+  String get labelWorkLocation;
+
+  /// No description provided for @hintWorkLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Bergen, Oslo, Warsaw'**
+  String get hintWorkLocation;
+
+  /// No description provided for @labelHourlyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Default hourly rate (NOK)'**
+  String get labelHourlyRate;
+
+  /// No description provided for @hintHourlyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 250'**
+  String get hintHourlyRate;
+
+  /// No description provided for @errorInvalidRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid hourly rate'**
+  String get errorInvalidRate;
+
+  /// No description provided for @labelSelectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select language'**
+  String get labelSelectLanguage;
+
+  /// No description provided for @langPolish.
+  ///
+  /// In en, this message translates to:
+  /// **'Polish'**
+  String get langPolish;
+
+  /// No description provided for @langNorwegian.
+  ///
+  /// In en, this message translates to:
+  /// **'Norwegian'**
+  String get langNorwegian;
+
+  /// No description provided for @langEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEnglish;
+
+  /// No description provided for @btnGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get btnGetStarted;
 }
 
 class _AppLocalizationsDelegate

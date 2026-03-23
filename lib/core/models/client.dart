@@ -33,6 +33,10 @@ class Client extends HiveObject {
   @HiveField(7)
   final int defaultDurationMinutes;
 
+  /// Domyślna minuta rozpoczęcia wizyt cyklicznych
+  @HiveField(10)
+  final int defaultStartMinute;
+
   /// Numer telefonu klienta
   @HiveField(8)
   final String? phoneNumber;
@@ -40,6 +44,14 @@ class Client extends HiveObject {
   /// Szablon SMS z tagami {data} i {godzina}
   @HiveField(9)
   final String? smsTemplate;
+
+  /// Notatka o kliencie
+  @HiveField(11)
+  final String? note;
+
+  /// Data ostatniej modyfikacji — do synchronizacji z Firestore
+  @HiveField(12)
+  final DateTime updatedAt;
 
   Client({
     required this.id,
@@ -50,9 +62,47 @@ class Client extends HiveObject {
     this.recurrencePattern,
     this.defaultStartHour = 8,
     this.defaultDurationMinutes = 120,
+    this.defaultStartMinute = 0,
     this.phoneNumber,
     this.smsTemplate,
-  });
+    this.note,
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   Color? get color => colorValue != null ? Color(colorValue!) : null;
+
+  Map<String, dynamic> toMap() => {
+    'name': name,
+    'address': address,
+    'defaultRate': defaultRate,
+    'colorValue': colorValue,
+    'recurrencePattern': recurrencePattern,
+    'startHour': defaultStartHour,
+    'startMinute': defaultStartMinute,
+    'durationMinutes': defaultDurationMinutes,
+    'phone': phoneNumber,
+    'reminderMessage': smsTemplate,
+    'note': note,
+    'updatedAt': updatedAt.toIso8601String(),
+  };
+
+  factory Client.fromMap(String id, Map<String, dynamic> map) {
+    return Client(
+      id: id,
+      name: map['name'] as String,
+      address: map['address'] as String?,
+      defaultRate: (map['defaultRate'] as num).toDouble(),
+      colorValue: map['colorValue'] as int?,
+      recurrencePattern: map['recurrencePattern'] as String?,
+      defaultStartHour: (map['startHour'] as int?) ?? 8,
+      defaultStartMinute: (map['startMinute'] as int?) ?? 0,
+      defaultDurationMinutes: (map['durationMinutes'] as int?) ?? 120,
+      phoneNumber: map['phone'] as String?,
+      smsTemplate: map['reminderMessage'] as String?,
+      note: map['note'] as String?,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'] as String)
+          : null,
+    );
+  }
 }

@@ -7,5 +7,34 @@
   "completeVisit": "Complete Visit",
   "save": "Save",
   "nok": "NOK",
-  "clients": "Clients"
+  "clients": "Clients",
+  "setupProfileTitle": "Hi, {name}!",
+  "@setupProfileTitle": {
+    "description": "Welcome message",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kari"
+      }
+    }
+  },
+  "setupProfileSubtitle": "Welcome to visi. Let's set up your work{location, select, empty{.} other{ in {location}.}}",
+  "@setupProfileSubtitle": {
+    "description": "Subtitle with optional location",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "labelWorkLocation": "Where do you usually work?",
+  "hintWorkLocation": "e.g. Bergen, Oslo, Warsaw",
+  "labelHourlyRate": "Default hourly rate (NOK)",
+  "hintHourlyRate": "e.g. 250",
+  "errorInvalidRate": "Please enter a valid hourly rate",
+  "labelSelectLanguage": "Select language",
+  "langPolish": "Polish",
+  "langNorwegian": "Norwegian",
+  "langEnglish": "English",
+  "btnGetStarted": "Get started"
 }

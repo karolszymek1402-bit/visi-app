@@ -2,16 +2,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/providers/auth_provider.dart';
+import 'package:visi/core/services/auth_service.dart';
+import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
 void main() {
   late ProviderContainer container;
   late FakeDatabaseService fakeDb;
+  late FakeAuthService fakeAuth;
 
   setUp(() {
     fakeDb = FakeDatabaseService();
+    fakeAuth = FakeAuthService();
     container = ProviderContainer(
-      overrides: [databaseProvider.overrideWithValue(fakeDb)],
+      overrides: [
+        authServiceProvider.overrideWithValue(fakeAuth),
+        databaseProvider.overrideWithValue(fakeDb),
+      ],
     );
   });
 
@@ -26,16 +33,21 @@ void main() {
     });
 
     test('restores authenticated state from saved session', () {
-      fakeDb.saveSetting('auth_user_id', 'local_user');
+      final auth = FakeAuthService(
+        const AuthUser(uid: 'google_user_123', displayName: 'Karol'),
+      );
       fakeDb.saveSetting('auth_display_name', 'Karol');
       final c = ProviderContainer(
-        overrides: [databaseProvider.overrideWithValue(fakeDb)],
+        overrides: [
+          authServiceProvider.overrideWithValue(auth),
+          databaseProvider.overrideWithValue(fakeDb),
+        ],
       );
 
       final state = c.read(authProvider);
       expect(state.status, AuthStatus.authenticated);
       expect(state.isAuthenticated, isTrue);
-      expect(state.userId, 'local_user');
+      expect(state.userId, 'google_user_123');
       expect(state.displayName, 'Karol');
       c.dispose();
     });
@@ -46,7 +58,6 @@ void main() {
       final state = container.read(authProvider);
       expect(state.status, AuthStatus.authenticated);
       expect(state.displayName, 'Ola');
-      expect(fakeDb.getSetting('auth_user_id'), 'local_user');
       expect(fakeDb.getSetting('auth_display_name'), 'Ola');
     });
 
@@ -93,9 +104,12 @@ void main() {
       await container.read(authProvider.notifier).signIn();
       await container.read(authProvider.notifier).signOut();
 
-      // New container (simulating app restart)
+      // New container (simulating app restart) — fakeAuth.currentUser is null after signOut
       final c = ProviderContainer(
-        overrides: [databaseProvider.overrideWithValue(fakeDb)],
+        overrides: [
+          authServiceProvider.overrideWithValue(fakeAuth),
+          databaseProvider.overrideWithValue(fakeDb),
+        ],
       );
       final state = c.read(authProvider);
       expect(state.status, AuthStatus.unauthenticated);
@@ -123,11 +137,16 @@ void main() {
     });
 
     test('restores profileComplete from saved session', () {
-      fakeDb.saveSetting('auth_user_id', 'local_user');
+      final auth = FakeAuthService(
+        const AuthUser(uid: 'google_user_123', displayName: 'Karol'),
+      );
       fakeDb.saveSetting('auth_display_name', 'Karol');
       fakeDb.saveSetting('profile_complete', 'true');
       final c = ProviderContainer(
-        overrides: [databaseProvider.overrideWithValue(fakeDb)],
+        overrides: [
+          authServiceProvider.overrideWithValue(auth),
+          databaseProvider.overrideWithValue(fakeDb),
+        ],
       );
 
       final state = c.read(authProvider);

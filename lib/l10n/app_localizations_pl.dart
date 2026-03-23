@@ -34,4 +34,48 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get clients => 'Klienci';
+
+  @override
+  String setupProfileTitle(String name) {
+    return 'Hei, $name!';
+  }
+
+  @override
+  String setupProfileSubtitle(String location) {
+    String _temp0 = intl.Intl.selectLogic(location, {
+      'empty': '.',
+      'other': ' w $location.',
+    });
+    return 'Witaj w visi. Skonfigurujmy Twoją pracę$_temp0';
+  }
+
+  @override
+  String get labelWorkLocation => 'Gdzie zazwyczaj pracujesz?';
+
+  @override
+  String get hintWorkLocation => 'np. Bergen, Oslo, Warszawa';
+
+  @override
+  String get labelHourlyRate => 'Domyślna stawka godzinowa (NOK)';
+
+  @override
+  String get hintHourlyRate => 'np. 250';
+
+  @override
+  String get errorInvalidRate => 'Wpisz poprawną stawkę';
+
+  @override
+  String get labelSelectLanguage => 'Wybierz język';
+
+  @override
+  String get langPolish => 'Polski';
+
+  @override
+  String get langNorwegian => 'Norweski';
+
+  @override
+  String get langEnglish => 'Angielski';
+
+  @override
+  String get btnGetStarted => 'Zaczynamy';
 }

@@ -36,7 +36,7 @@ class RRuleService {
         date.month,
         date.day,
         client.defaultStartHour,
-        0,
+        client.defaultStartMinute,
       );
       final visitEnd = visitStart.add(
         Duration(minutes: client.defaultDurationMinutes),

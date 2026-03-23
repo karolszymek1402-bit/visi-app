@@ -29,6 +29,15 @@ class AppColors {
 }
 
 class AppTheme {
+  static const Color roseColor = Color(0xFFE040FB);
+  static const Color violetColor = Color(0xFF7C4DFF);
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [roseColor, violetColor],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,

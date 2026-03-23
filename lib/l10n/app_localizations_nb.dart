@@ -34,4 +34,48 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get clients => 'Klienter';
+
+  @override
+  String setupProfileTitle(String name) {
+    return 'Hei, $name!';
+  }
+
+  @override
+  String setupProfileSubtitle(String location) {
+    String _temp0 = intl.Intl.selectLogic(location, {
+      'empty': '.',
+      'other': ' i $location.',
+    });
+    return 'Velkommen til visi. La oss sette opp jobben din$_temp0';
+  }
+
+  @override
+  String get labelWorkLocation => 'Hvor jobber du vanligvis?';
+
+  @override
+  String get hintWorkLocation => 'f.eks. Bergen, Oslo, Warszawa';
+
+  @override
+  String get labelHourlyRate => 'Standard timepris (NOK)';
+
+  @override
+  String get hintHourlyRate => 'f.eks. 250';
+
+  @override
+  String get errorInvalidRate => 'Vennligst skriv inn en gyldig timepris';
+
+  @override
+  String get labelSelectLanguage => 'Velg språk';
+
+  @override
+  String get langPolish => 'Polsk';
+
+  @override
+  String get langNorwegian => 'Norsk';
+
+  @override
+  String get langEnglish => 'Engelsk';
+
+  @override
+  String get btnGetStarted => 'Kom i gang';
 }

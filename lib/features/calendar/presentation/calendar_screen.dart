@@ -5,7 +5,6 @@ import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/date_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../providers/calendar_view_mode_provider.dart';
-import 'widgets/ai_orb_widget.dart';
 import 'widgets/calendar_grid.dart';
 import 'widgets/date_navigation_bar.dart';
 import 'widgets/month_view.dart';
@@ -55,10 +54,6 @@ class CalendarScreen extends ConsumerWidget {
               'Dziś',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: AIOrbWidget(),
           ),
         ],
         backgroundColor: Colors.white,

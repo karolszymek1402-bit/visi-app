@@ -5,6 +5,7 @@ class VisiUser {
   final String name;
   final double defaultRate;
   final String language;
+  final String workLocation;
   final DateTime? updatedAt;
 
   const VisiUser({
@@ -12,6 +13,7 @@ class VisiUser {
     required this.name,
     required this.defaultRate,
     required this.language,
+    this.workLocation = '',
     this.updatedAt,
   });
 
@@ -19,6 +21,7 @@ class VisiUser {
     'name': name,
     'defaultRate': defaultRate,
     'language': language,
+    'workLocation': workLocation,
     'updatedAt': updatedAt?.toIso8601String(),
   };
 
@@ -28,6 +31,7 @@ class VisiUser {
       name: map['name'] as String? ?? '',
       defaultRate: (map['defaultRate'] as num?)?.toDouble() ?? 0,
       language: map['language'] as String? ?? 'pl',
+      workLocation: map['workLocation'] as String? ?? '',
       updatedAt: map['updatedAt'] != null
           ? DateTime.tryParse(map['updatedAt'] as String)
           : null,
@@ -38,6 +42,7 @@ class VisiUser {
     String? name,
     double? defaultRate,
     String? language,
+    String? workLocation,
     DateTime? updatedAt,
   }) {
     return VisiUser(
@@ -45,6 +50,7 @@ class VisiUser {
       name: name ?? this.name,
       defaultRate: defaultRate ?? this.defaultRate,
       language: language ?? this.language,
+      workLocation: workLocation ?? this.workLocation,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

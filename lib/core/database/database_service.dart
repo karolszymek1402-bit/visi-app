@@ -6,12 +6,14 @@ import '../models/client.dart';
 const _visitsBoxName = 'visits';
 const _clientsBoxName = 'clients';
 const _settingsBoxName = 'settings';
+const _syncQueueBoxName = 'sync_queue';
 
 /// Serwis bazy danych — Hive (NoSQL, offline-first)
 class DatabaseService {
   late Box<Visit> _visitsBox;
   late Box<Client> _clientsBox;
   late Box<String> _settingsBox;
+  late Box<String> _syncQueueBox;
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -24,6 +26,7 @@ class DatabaseService {
     _visitsBox = await Hive.openBox<Visit>(_visitsBoxName);
     _clientsBox = await Hive.openBox<Client>(_clientsBoxName);
     _settingsBox = await Hive.openBox<String>(_settingsBoxName);
+    _syncQueueBox = await Hive.openBox<String>(_syncQueueBoxName);
 
     // Seedujemy klientów jeśli baza jest pusta (pierwszy start)
     if (_clientsBox.isEmpty) {
@@ -70,6 +73,8 @@ class DatabaseService {
     return {for (final c in _clientsBox.values) c.id: c};
   }
 
+  Client? getClient(String id) => _clientsBox.get(id);
+
   Future<void> putClient(Client client) async {
     await _clientsBox.put(client.id, client);
   }
@@ -95,6 +100,26 @@ class DatabaseService {
   Future<void> saveSetting(String key, String value) async {
     await _settingsBox.put(key, value);
   }
+
+  // ─── Sync Queue ───
+
+  /// Dodaj ID klienta do kolejki synchronizacji.
+  Future<void> enqueueSync(String clientId) async {
+    if (!_syncQueueBox.containsKey(clientId)) {
+      await _syncQueueBox.put(clientId, clientId);
+    }
+  }
+
+  /// Pobierz wszystkie ID z kolejki synchronizacji.
+  List<String> getSyncQueue() => _syncQueueBox.values.toList();
+
+  /// Usuń ID z kolejki po udanej synchronizacji.
+  Future<void> dequeueSynced(String clientId) async {
+    await _syncQueueBox.delete(clientId);
+  }
+
+  /// Czy kolejka synchronizacji jest pusta?
+  bool isSyncQueueEmpty() => _syncQueueBox.isEmpty;
 
   // ─── Seed Data ───
 

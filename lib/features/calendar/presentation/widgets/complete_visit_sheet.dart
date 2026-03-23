@@ -26,6 +26,7 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
   // Lokalne stany suwaka
   double _actualDurationInHours = 0.0;
   double _earnedAmount = 0.0;
+  final TextEditingController _noteController = TextEditingController();
 
   @override
   void initState() {
@@ -43,6 +44,12 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
       _actualDurationInHours = duration.inMinutes / 60.0;
     }
     _calculateEarnings();
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   void _calculateEarnings() {

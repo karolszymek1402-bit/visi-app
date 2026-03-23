@@ -21,7 +21,7 @@ class DateNavigationBar extends ConsumerWidget {
     );
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           // Nagłówek z miesiącem i strzałkami tygodnia
@@ -32,6 +32,7 @@ class DateNavigationBar extends ConsumerWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
+                  color: Theme.of(context).colorScheme.onSurface,
                   onPressed: () {
                     ref
                         .read(selectedDateProvider.notifier)
@@ -44,15 +45,16 @@ class DateNavigationBar extends ConsumerWidget {
                   onTap: () => _showDatePicker(context, ref, selectedDate),
                   child: Text(
                     _formatMonth(selectedDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textLight,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
+                  color: Theme.of(context).colorScheme.onSurface,
                   onPressed: () {
                     ref
                         .read(selectedDateProvider.notifier)

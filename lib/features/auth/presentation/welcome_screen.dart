@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../calendar/presentation/widgets/ai_orb_widget.dart';
-import '../../calendar/providers/ai_orb_provider.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -41,12 +40,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isSigningIn = true);
-    ref.read(aiOrbProvider.notifier).setToThinking();
 
     await ref.read(authProvider.notifier).signIn();
 
     if (mounted) {
-      ref.read(aiOrbProvider.notifier).setToIdle();
       setState(() => _isSigningIn = false);
     }
   }
@@ -58,93 +55,194 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            // AI Orb — prawy górny róg, pulsuje delikatnie
-            const Positioned(top: 24, right: 24, child: AIOrbWidget()),
-
             // Główna treść z fade-in
             Center(
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo SVG 120px z Rose/Violet gradientem
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFFE040FB), Color(0xFF7C4DFF)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        blendMode: BlendMode.srcIn,
-                        child: const VisiLogo(height: 120),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Tagline
-                      Text(
-                        'Planuj wizyty. Zarabiaj więcej.',
-                        style: TextStyle(
-                          color: AppColors.textSecondaryDark,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 64),
-
-                      // Premium Google Sign-In
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _isSigningIn ? null : _handleGoogleSignIn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppColors.textLight,
-                            disabledBackgroundColor: Colors.white.withValues(
-                              alpha: 0.7,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo "visi" z gradientem i sparkle
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Sparkle — pozycjonowany nad napisem
+                            const Positioned(
+                              top: 0,
+                              right: 20,
+                              child: Icon(
+                                Icons.auto_awesome,
+                                size: 30,
+                                color: Color(0xFFF43F5E),
+                              ),
                             ),
+                            // Napis "visi" z gradientem Rose → Violet
+                            ShaderMask(
+                              blendMode: BlendMode.srcIn,
+                              shaderCallback: (bounds) => const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFF43F5E), // Rose
+                                  Color(0xFF8B5CF6), // Violet
+                                ],
+                              ).createShader(bounds),
+                              child: const Text(
+                                'visi',
+                                style: TextStyle(
+                                  fontSize: 85,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Tagline
+                        Text(
+                          'Planuj wizyty. Zarabiaj więcej.',
+                          style: TextStyle(
+                            color: AppColors.textSecondaryDark,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+
+                        // 1. Główny przycisk — Zaloguj się e-mailem
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LoginScreen(),
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 56),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
                             ),
                             elevation: 0,
                           ),
-                          child: _isSigningIn
+                          icon: const Icon(Icons.email_outlined, size: 22),
+                          label: const Text(
+                            'Zaloguj się e-mailem',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // 2. Przycisk pomocniczy — Stwórz konto
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const RegisterScreen(),
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            side: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          icon: const Icon(Icons.person_add_outlined, size: 22),
+                          label: const Text(
+                            'Stwórz konto',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // 3. Separator "LUB"
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: Colors.white.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Text(
+                                'LUB',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Colors.white.withValues(alpha: 0.2),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // 4. Social Login — Google
+                        ElevatedButton.icon(
+                          onPressed: _isSigningIn ? null : _handleGoogleSignIn,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black87,
+                            disabledBackgroundColor: Colors.white.withValues(
+                              alpha: 0.7,
+                            ),
+                            minimumSize: const Size(double.infinity, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            elevation: 0,
+                          ),
+                          icon: _isSigningIn
                               ? SizedBox(
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    color: AppColors.textLight,
+                                    color: Colors.black87,
                                   ),
                                 )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Google "G" logo
-                                    SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CustomPaint(
-                                        painter: _GoogleLogoPainter(),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text(
-                                      'Zaloguj przez Google',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        letterSpacing: 0.2,
-                                      ),
-                                    ),
-                                  ],
+                              : SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CustomPaint(
+                                    painter: _GoogleLogoPainter(),
+                                  ),
                                 ),
+                          label: const Text(
+                            'Kontynuuj z Google',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

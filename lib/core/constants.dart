@@ -18,8 +18,8 @@ double calculateSlotHeight(double availableHeight) {
 }
 
 /// Horizontal offsets for visit blocks in the calendar.
-const double visitBlockLeftOffset = 65.0;
-const double visitBlockRightOffset = 12.0;
+const double visitBlockLeftOffset = 4.0;
+const double visitBlockRightOffset = 4.0;
 
 /// Polish month names (index 0 = Styczeń … 11 = Grudzień).
 const List<String> polishMonthNames = [

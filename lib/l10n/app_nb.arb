@@ -7,5 +7,34 @@
   "completeVisit": "Fullfør besøk",
   "save": "Lagre",
   "nok": "kr",
-  "clients": "Klienter"
+  "clients": "Klienter",
+  "setupProfileTitle": "Hei, {name}!",
+  "@setupProfileTitle": {
+    "description": "Welcome message",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kari"
+      }
+    }
+  },
+  "setupProfileSubtitle": "Velkommen til visi. La oss sette opp jobben din{location, select, empty{.} other{ i {location}.}}",
+  "@setupProfileSubtitle": {
+    "description": "Subtitle with optional location",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "labelWorkLocation": "Hvor jobber du vanligvis?",
+  "hintWorkLocation": "f.eks. Bergen, Oslo, Warszawa",
+  "labelHourlyRate": "Standard timepris (NOK)",
+  "hintHourlyRate": "f.eks. 250",
+  "errorInvalidRate": "Vennligst skriv inn en gyldig timepris",
+  "labelSelectLanguage": "Velg språk",
+  "langPolish": "Polsk",
+  "langNorwegian": "Norsk",
+  "langEnglish": "Engelsk",
+  "btnGetStarted": "Kom i gang"
 }

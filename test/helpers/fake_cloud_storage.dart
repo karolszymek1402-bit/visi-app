@@ -25,4 +25,16 @@ class FakeCloudStorage implements CloudStorage {
   bool hasDocument(String collection, String docId) {
     return _store[collection]?.containsKey(docId) ?? false;
   }
+
+  @override
+  Future<void> deleteDocument(String collection, String docId) async {
+    _store[collection]?.remove(docId);
+  }
+
+  @override
+  Future<Map<String, Map<String, dynamic>>> getAllDocuments(
+    String collection,
+  ) async {
+    return Map.from(_store[collection] ?? {});
+  }
 }
