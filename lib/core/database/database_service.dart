@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/visit.dart';
 import '../models/client.dart';
+import '../models/visi_user.dart';
 
 const _visitsBoxName = 'visits';
 const _clientsBoxName = 'clients';
@@ -19,6 +20,7 @@ class DatabaseService {
     await Hive.initFlutter();
 
     // Rejestracja adapterów
+    Hive.registerAdapter(VisiUserAdapter());
     Hive.registerAdapter(VisitStatusAdapter());
     Hive.registerAdapter(VisitAdapter());
     Hive.registerAdapter(ClientAdapter());

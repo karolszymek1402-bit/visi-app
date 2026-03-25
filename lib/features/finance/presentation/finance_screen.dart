@@ -20,6 +20,7 @@ class FinanceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final summary = ref.watch(monthlyFinanceProvider);
     final selectedDate = ref.watch(selectedDateProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +42,7 @@ class FinanceScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.content_copy_rounded),
-            tooltip: 'Kopiuj raport',
+            tooltip: l10n.copyReport,
             onPressed: () => _copyReport(context, ref),
           ),
         ],
@@ -69,9 +70,9 @@ class FinanceScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           MonthProgressCard(summary: summary),
           const SizedBox(height: 24),
-          const Text(
-            'Podział na klientów',
-            style: TextStyle(
+          Text(
+            l10n.clientBreakdown,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.textLight,
@@ -91,9 +92,9 @@ class FinanceScreen extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () => _showReportPreview(context, ref),
               icon: const Icon(Icons.description_outlined),
-              label: const Text(
-                'Podgląd raportu godzin',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              label: Text(
+                l10n.hoursReportPreview,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
@@ -114,8 +115,8 @@ class FinanceScreen extends ConsumerWidget {
     final report = ref.read(monthlyReportProvider);
     Clipboard.setData(ClipboardData(text: report));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Raport skopiowany do schowka'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.reportCopied),
         behavior: SnackBarBehavior.floating,
       ),
     );

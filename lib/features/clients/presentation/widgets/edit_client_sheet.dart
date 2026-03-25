@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/clients_provider.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'day_selector.dart';
 import 'visi_color_picker.dart';
 
@@ -73,6 +74,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       constraints: BoxConstraints(
@@ -105,7 +107,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             ),
             const SizedBox(height: 16),
             Text(
-              _isNew ? 'Nowy klient' : 'Edytuj klienta',
+              _isNew ? l10n.newClient : l10n.editClient,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -117,10 +119,10 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             // Nazwa
             TextField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Nazwa klienta',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.clientName,
+                prefixIcon: const Icon(Icons.person),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -128,10 +130,10 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             // Adres
             TextField(
               controller: _addressCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Adres (opcjonalnie)',
-                prefixIcon: Icon(Icons.location_on),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.addressOptional,
+                prefixIcon: const Icon(Icons.location_on),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -139,10 +141,10 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             // Numer telefonu
             TextFormField(
               controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Numer telefonu',
-                prefixIcon: Icon(Icons.phone_iphone_rounded),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.phoneNumber,
+                prefixIcon: const Icon(Icons.phone_iphone_rounded),
+                border: const OutlineInputBorder(),
               ),
               keyboardType: TextInputType.phone,
             ),
@@ -152,11 +154,11 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             TextFormField(
               controller: _messageController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Treść wiadomości do wysłania',
-                prefixIcon: Icon(Icons.message_rounded),
-                hintText: 'Cześć! Przypominam o wizycie...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.smsMessageContent,
+                prefixIcon: const Icon(Icons.message_rounded),
+                hintText: l10n.smsHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -166,12 +168,12 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
               controller: _noteController,
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Notatka o kliencie (opcjonalnie)',
-                prefixIcon: Icon(Icons.edit_note_rounded),
-                hintText: 'Np. Uczulenie na hybrydę, ulubiona kawa...',
+              decoration: InputDecoration(
+                labelText: l10n.clientNote,
+                prefixIcon: const Icon(Icons.edit_note_rounded),
+                hintText: l10n.clientNoteHint,
                 alignLabelWithHint: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -180,10 +182,10 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             TextField(
               controller: _rateCtrl,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Stawka (NOK/h)',
-                prefixIcon: Icon(Icons.payments),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.rateNokH,
+                prefixIcon: const Icon(Icons.payments),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -197,7 +199,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
 
             // Cykl wizyt
             Text(
-              'Cykl wizyt',
+              l10n.visitCycle,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isDark ? AppColors.textDark : AppColors.textLight,
@@ -205,9 +207,9 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             ),
             const SizedBox(height: 8),
             SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 1, label: Text('1 tydzień')),
-                ButtonSegment(value: 2, label: Text('2 tygodnie')),
+              segments: [
+                ButtonSegment(value: 1, label: Text(l10n.oneWeek)),
+                ButtonSegment(value: 2, label: Text(l10n.twoWeeks)),
               ],
               selected: {_intervalWeeks},
               onSelectionChanged: (v) =>
@@ -221,7 +223,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
 
             // Obciążenie
             Text(
-              'Obciążenie: ${_selectedDays.length} dni/tyg.',
+              l10n.workloadDays(_selectedDays.length),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isDark ? AppColors.textDark : AppColors.textLight,
@@ -272,7 +274,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
             // Godzina startu
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Godzina rozpoczęcia'),
+              title: Text(l10n.startTime),
               trailing: Text(
                 _selectedTime.format(context),
                 style: const TextStyle(
@@ -302,7 +304,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
 
             // Czas trwania
             Text(
-              'Czas trwania',
+              l10n.duration,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isDark ? AppColors.textDark : AppColors.textLight,
@@ -349,7 +351,7 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
               child: FilledButton.icon(
                 onPressed: _save,
                 icon: Icon(_isNew ? Icons.person_add : Icons.save),
-                label: Text(_isNew ? 'Dodaj klienta' : 'Zapisz zmiany'),
+                label: Text(_isNew ? l10n.addClient : l10n.saveChanges),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
@@ -370,7 +372,9 @@ class _EditClientSheetState extends ConsumerState<EditClientSheet> {
 
     if (name.isEmpty || rate == null || rate <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Podaj nazwę i prawidłową stawkę')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.invalidNameOrRate),
+        ),
       );
       return;
     }

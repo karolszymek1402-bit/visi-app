@@ -36,5 +36,150 @@
   "langPolish": "Polish",
   "langNorwegian": "Norwegian",
   "langEnglish": "English",
-  "btnGetStarted": "Get started"
+  "btnGetStarted": "Get started",
+  "tagline": "Plan visits. Earn more.",
+  "loginEmail": "Log in with email",
+  "createAccount": "Create account",
+  "continueWithGoogle": "Continue with Google",
+  "or": "OR",
+  "login": "Log in",
+  "rememberMe": "Remember me",
+  "forgotPassword": "Forgot password",
+  "invalidEmail": "Invalid email",
+  "passwordRequired": "Enter password",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "resetPasswordPrompt": "Enter email to reset password",
+  "resetPasswordSent": "Password reset link sent to email",
+  "errorSave": "Save error: {error}",
+  "@errorSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAuth": "Authentication error: {error}",
+  "@errorAuth": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "clientsDatabase": "Client Database",
+  "noClients": "No clients",
+  "newClient": "New client",
+  "editClient": "Edit client",
+  "clientName": "Client name",
+  "addressOptional": "Address (optional)",
+  "phoneNumber": "Phone number",
+  "smsMessageContent": "Message to send",
+  "smsHint": "Hi! Reminder about your appointment...",
+  "clientNote": "Client note (optional)",
+  "clientNoteHint": "E.g. Allergy to gel, favorite coffee...",
+  "rateNokH": "Rate (NOK/h)",
+  "visitCycle": "Visit cycle",
+  "oneWeek": "1 week",
+  "twoWeeks": "2 weeks",
+  "workloadDays": "Workload: {count} days/wk",
+  "@workloadDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startTime": "Start time",
+  "duration": "Duration",
+  "invalidNameOrRate": "Enter a name and valid rate",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "deleteClient": "Delete client",
+  "deleteClientConfirm": "Are you sure you want to delete \"{name}\"?",
+  "@deleteClientConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "today": "Today",
+  "viewDay": "View: day",
+  "viewWeek": "View: week",
+  "viewMonth": "View: month",
+  "moveVisit": "Move visit",
+  "move": "Move",
+  "disableReminder": "Disable reminder",
+  "copyReport": "Copy report",
+  "reportCopied": "Report copied to clipboard",
+  "copy": "Copy",
+  "hue": "Hue",
+  "brightness": "Brightness",
+  "monthProgress": "Month progress",
+  "percentComplete": "% completed",
+  "clientBreakdown": "Client breakdown",
+  "hoursReportPreview": "Hours report preview",
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
+  "everyWeek": "Every week: {days}",
+  "@everyWeek": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "addClient": "Add client",
+  "saveChanges": "Save changes",
+  "clientColor": "Client color",
+  "saturation": "Saturation",
+  "chooseColor": "Choose color",
+  "reminder": "Reminder",
+  "minBefore": "{min} min before",
+  "@minBefore": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "hourBefore": "{hours} hour(s) before",
+  "@hourBefore": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursReport": "Work hours report",
+  "visits": "visits",
+  "everyNWeeks": "Every {n} wk: {days}",
+  "@everyNWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "earned": "Earned",
+  "planned": "Planned",
+  "hours": "Hours",
+  "daily": "Every day",
+  "everyNDays": "Every {n} days",
+  "@everyNDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

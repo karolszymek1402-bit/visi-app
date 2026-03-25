@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../services/sync_service.dart';
 
-/// Czy urządzenie ma aktywne połączenie sieciowe.
-final connectivityProvider = NotifierProvider<ConnectivityNotifier, bool>(
-  ConnectivityNotifier.new,
-);
+part 'connectivity_provider.g.dart';
 
-class ConnectivityNotifier extends Notifier<bool> {
+/// Czy urządzenie ma aktywne połączenie sieciowe.
+final connectivityProvider = connectivityControllerProvider;
+
+@riverpod
+class ConnectivityController extends _$ConnectivityController {
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
   @override

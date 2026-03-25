@@ -58,7 +58,7 @@ void main() {
         reminderServiceProvider.overrideWithValue(FakeReminderService()),
         smsServiceProvider.overrideWithValue(fakeSms),
         selectedDateProvider.overrideWith(() {
-          final n = SelectedDateNotifier();
+          final n = SelectedDateController();
           return n;
         }),
       ],

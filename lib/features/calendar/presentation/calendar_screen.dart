@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/presentation/language_switcher.dart';
 import '../../../core/presentation/visi_logo.dart';
+import '../../../core/presentation/language_switcher.dart';
 import '../../../core/providers/date_provider.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../providers/calendar_view_mode_provider.dart';
 import 'widgets/calendar_grid.dart';
 import 'widgets/date_navigation_bar.dart';
@@ -15,14 +16,21 @@ class CalendarScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const VisiLogo(height: 30),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: const VisiLogo(),
+        ),
         actions: [
           // Przełącznik widoku: dzień → tydzień → miesiąc
           IconButton(
             icon: Icon(_viewModeIcon(ref.watch(calendarViewModeProvider))),
-            tooltip: _viewModeTooltip(ref.watch(calendarViewModeProvider)),
+            tooltip: _viewModeTooltip(
+              ref.watch(calendarViewModeProvider),
+              l10n,
+            ),
             onPressed: () {
               final current = ref.read(calendarViewModeProvider);
               final next = switch (current) {
@@ -50,9 +58,9 @@ class CalendarScreen extends ConsumerWidget {
           // Przycisk "Dziś"
           TextButton(
             onPressed: () => ref.read(selectedDateProvider.notifier).today(),
-            child: const Text(
-              'Dziś',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              l10n.today,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -81,9 +89,12 @@ class CalendarScreen extends ConsumerWidget {
     CalendarViewMode.month => Icons.calendar_month_outlined,
   };
 
-  static String _viewModeTooltip(CalendarViewMode mode) => switch (mode) {
-    CalendarViewMode.day => 'Widok: dzień',
-    CalendarViewMode.week => 'Widok: tydzień',
-    CalendarViewMode.month => 'Widok: miesiąc',
+  static String _viewModeTooltip(
+    CalendarViewMode mode,
+    AppLocalizations l10n,
+  ) => switch (mode) {
+    CalendarViewMode.day => l10n.viewDay,
+    CalendarViewMode.week => l10n.viewWeek,
+    CalendarViewMode.month => l10n.viewMonth,
   };
 }

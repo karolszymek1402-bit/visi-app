@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -52,6 +54,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       appBar: AppBar(
@@ -72,8 +75,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Stwórz konto',
-                      style: TextStyle(
+                      l10n.createAccount,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -92,13 +95,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         Icons.email_outlined,
                       ),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
-                          return 'Podaj e-mail';
+                        if (v == null || v.trim().isEmpty) {
+                          return l10n.invalidEmail;
+                        }
                         final emailRegex = RegExp(
                           r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                         );
                         if (!emailRegex.hasMatch(v.trim())) {
-                          return 'Nieprawidłowy e-mail';
+                          return l10n.invalidEmail;
                         }
                         return null;
                       },
@@ -113,7 +117,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       decoration: _inputDecoration('Hasło', Icons.lock_outline),
                       validator: (v) {
                         if (v == null || v.length < 8) {
-                          return 'Hasło musi mieć min. 8 znaków';
+                          return l10n.passwordTooShort;
                         }
                         return null;
                       },
@@ -131,7 +135,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       validator: (v) {
                         if (v != _passwordController.text) {
-                          return 'Hasła się nie zgadzają';
+                          return l10n.passwordsDoNotMatch;
                         }
                         return null;
                       },
@@ -173,9 +177,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Stwórz konto',
-                              style: TextStyle(
+                          : Text(
+                              l10n.createAccount,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

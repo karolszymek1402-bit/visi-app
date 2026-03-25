@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/clients_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import 'widgets/client_tile.dart';
 import 'widgets/edit_client_sheet.dart';
 
@@ -14,12 +15,13 @@ class ClientsScreen extends ConsumerWidget {
     final clientsMap = ref.watch(clientsProvider);
     final clients = clientsMap.values.toList();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Baza Klientów',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.clientsDatabase,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
@@ -31,7 +33,7 @@ class ClientsScreen extends ConsumerWidget {
         ],
       ),
       body: clients.isEmpty
-          ? const Center(child: Text('Brak klientów'))
+          ? Center(child: Text(l10n.noClients))
           : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: clients.length,

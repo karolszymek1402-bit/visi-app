@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Autorski "Visi Artist Picker" — paleta kolorów z presetami + custom HSL picker.
 class VisiColorPicker extends StatelessWidget {
@@ -34,7 +35,7 @@ class VisiColorPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Kolor klienta',
+          AppLocalizations.of(context)!.clientColor,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: isDark ? AppColors.textDark : AppColors.textLight,
@@ -142,7 +143,7 @@ class VisiColorPicker extends StatelessWidget {
                 const SizedBox(height: 20),
                 // Hue slider
                 _SliderRow(
-                  label: 'Odcień',
+                  label: AppLocalizations.of(context)!.hue,
                   value: hsl.hue,
                   max: 360,
                   activeColor: preview,
@@ -150,7 +151,7 @@ class VisiColorPicker extends StatelessWidget {
                 ),
                 // Saturation slider
                 _SliderRow(
-                  label: 'Nasycenie',
+                  label: AppLocalizations.of(context)!.saturation,
                   value: hsl.saturation,
                   max: 1,
                   activeColor: preview,
@@ -159,7 +160,7 @@ class VisiColorPicker extends StatelessWidget {
                 ),
                 // Lightness slider
                 _SliderRow(
-                  label: 'Jasność',
+                  label: AppLocalizations.of(context)!.brightness,
                   value: hsl.lightness,
                   max: 1,
                   activeColor: preview,
@@ -181,9 +182,9 @@ class VisiColorPicker extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Wybierz kolor',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.chooseColor,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),

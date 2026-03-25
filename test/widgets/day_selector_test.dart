@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/features/clients/presentation/widgets/day_selector.dart';
+import 'package:visi/l10n/app_localizations.dart';
 
 void main() {
   group('DaySelector.daysFromRRule', () {
@@ -105,6 +106,9 @@ void main() {
     testWidgets('should render 7 day labels', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: DaySelector(
               selectedDays: const {},
@@ -129,6 +133,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: DaySelector(
               selectedDays: const {},
@@ -148,6 +155,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: DaySelector(
               selectedDays: const {1, 3},
@@ -167,6 +177,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('pl'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: DaySelector(
               selectedDays: const {1},

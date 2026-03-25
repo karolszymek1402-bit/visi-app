@@ -69,7 +69,7 @@ void main() {
         databaseProvider.overrideWithValue(fakeDb),
         reminderServiceProvider.overrideWithValue(fakeReminder),
         selectedDateProvider.overrideWith(() {
-          final notifier = SelectedDateNotifier();
+          final notifier = SelectedDateController();
           return notifier;
         }),
       ],
@@ -459,7 +459,7 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(FakeDatabaseService()),
           reminderServiceProvider.overrideWithValue(FakeReminderService()),
-          selectedDateProvider.overrideWith(() => SelectedDateNotifier()),
+          selectedDateProvider.overrideWith(() => SelectedDateController()),
         ],
       );
       addTearDown(rrContainer.dispose);
@@ -515,7 +515,7 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(db),
           reminderServiceProvider.overrideWithValue(FakeReminderService()),
-          selectedDateProvider.overrideWith(() => SelectedDateNotifier()),
+          selectedDateProvider.overrideWith(() => SelectedDateController()),
         ],
       );
       addTearDown(rrContainer.dispose);
@@ -551,7 +551,7 @@ void main() {
         overrides: [
           databaseProvider.overrideWithValue(db),
           reminderServiceProvider.overrideWithValue(FakeReminderService()),
-          selectedDateProvider.overrideWith(() => SelectedDateNotifier()),
+          selectedDateProvider.overrideWith(() => SelectedDateController()),
         ],
       );
       addTearDown(rrContainer.dispose);

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/core/models/visit.dart';
 import 'package:visi/core/providers/date_provider.dart';
 import 'package:visi/features/calendar/presentation/widgets/week_view.dart';
 import 'package:visi/features/calendar/providers/calendar_view_mode_provider.dart';
+import 'package:visi/l10n/app_localizations.dart';
+
 import '../helpers/fake_database_service.dart';
 
 void main() {
@@ -55,9 +57,12 @@ void main() {
     return ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(fakeDb),
-        selectedDateProvider.overrideWith(() => SelectedDateNotifier()),
+        selectedDateProvider.overrideWith(() => SelectedDateController()),
       ],
       child: MaterialApp(
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Builder(
             builder: (context) {

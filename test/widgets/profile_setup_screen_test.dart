@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/presentation/visi_logo.dart';
 import 'package:visi/core/providers/locale_provider.dart';
 import 'package:visi/core/services/auth_service.dart';
-import 'package:visi/features/auth/presentation/profile_setup_screen.dart';
+import 'package:visi/features/profile/presentation/profile_setup_screen.dart';
 import 'package:visi/l10n/app_localizations.dart';
+
 import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
@@ -29,6 +30,7 @@ void main() {
         databaseProvider.overrideWithValue(fakeDb),
       ],
       child: const MaterialApp(
+        locale: Locale('pl'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: ProfileSetupScreen(),
@@ -41,7 +43,6 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Uses l10n setupProfileTitle with first name from auth
       expect(find.text('Hei, Ola!'), findsOneWidget);
     });
 
@@ -49,8 +50,9 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
+      // No location typed yet → subtitle without location
       expect(
-        find.text('Witaj w visi. Skonfigurujmy Twoją pracę w Hamar.'),
+        find.text('Witaj w visi. Skonfigurujmy Twoją pracę.'),
         findsOneWidget,
       );
     });
@@ -68,23 +70,27 @@ void main() {
       expect(find.text('Hei, !'), findsOneWidget);
     });
 
-    testWidgets('shows hourly rate field with label and hint', (tester) async {
+    testWidgets('shows work location field with label and hint', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Section title (uppercased)
-      expect(find.text('DOMYŚLNA STAWKA GODZINOWA (NOK)'), findsOneWidget);
-      expect(find.byIcon(Icons.payments_outlined), findsOneWidget);
+      expect(find.text('GDZIE ZAZWYCZAJ PRACUJESZ?'), findsOneWidget);
+      expect(find.byIcon(Icons.location_on_rounded), findsOneWidget);
     });
 
-    testWidgets('defaults hourly rate to 250', (tester) async {
+    testWidgets('subtitle updates when location is typed', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      final rateField = tester.widget<TextFormField>(
-        find.byType(TextFormField),
+      await tester.enterText(find.byType(TextField).first, 'Hamar');
+      await tester.pump();
+
+      expect(
+        find.text('Witaj w visi. Skonfigurujmy Twoją pracę w Hamar.'),
+        findsOneWidget,
       );
-      expect(rateField.controller!.text, '250');
     });
 
     testWidgets('shows language selector with three flag tiles', (
@@ -119,8 +125,6 @@ void main() {
       await tester.pump();
 
       expect(find.text('Zaczynamy'), findsOneWidget);
-      // Gradient button uses InkWell, not ElevatedButton
-      expect(find.byType(InkWell), findsWidgets);
     });
 
     testWidgets('flags are large (fontSize 40)', (tester) async {
@@ -138,11 +142,21 @@ void main() {
       expect(find.byType(VisiLogo), findsOneWidget);
     });
 
-    testWidgets('tapping button with valid rate saves profile', (tester) async {
+    testWidgets('tapping button with valid location saves profile', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Rate 250 is pre-filled and valid — tap "Zaczynamy"
+      // Enter location
+      await tester.enterText(find.byType(TextField).first, 'Hamar');
+      await tester.pump();
+
+      // Tap "Zaczynamy"
       await tester.tap(find.text('Zaczynamy'));
       await tester.pump();
       await tester.pump();
@@ -150,20 +164,20 @@ void main() {
       expect(fakeDb.getSetting('profile_complete'), 'true');
     });
 
-    testWidgets('validator rejects empty rate', (tester) async {
+    testWidgets('shows snackbar when location is empty', (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // Clear the rate field
-      await tester.enterText(find.byType(TextFormField), '');
-      await tester.pump();
-
-      // Tap button
+      // Tap button without entering location
       await tester.tap(find.text('Zaczynamy'));
       await tester.pump();
 
-      // Validation error shown
-      expect(find.text('Wpisz poprawną stawkę'), findsOneWidget);
+      // SnackBar shown
+      expect(find.byType(SnackBar), findsOneWidget);
       // Profile NOT saved
       expect(fakeDb.getSetting('profile_complete'), isNull);
     });

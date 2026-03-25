@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/services/finance_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Gradient dashboard z zarobkami, planowanymi i godzinami.
 class EarningsDashboard extends StatelessWidget {
@@ -10,6 +12,7 @@ class EarningsDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -30,8 +33,8 @@ class EarningsDashboard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Zarobione',
+          Text(
+            l10n.earned,
             style: TextStyle(
               color: Colors.white70,
               fontSize: 14,
@@ -51,12 +54,12 @@ class EarningsDashboard extends StatelessWidget {
           Row(
             children: [
               _DashboardStat(
-                label: 'Planowane',
+                label: l10n.planned,
                 value: '${summary.totalPlanned.toStringAsFixed(0)} NOK',
               ),
               const SizedBox(width: 24),
               _DashboardStat(
-                label: 'Godziny',
+                label: l10n.hours,
                 value:
                     '${summary.totalHoursWorked.toStringAsFixed(1)}h / '
                     '${(summary.totalHoursWorked + summary.totalHoursPlanned).toStringAsFixed(1)}h',

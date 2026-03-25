@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Wizualny selektor dni tygodnia — kółka z literami P W Ś C P S N.
 /// Zaznaczone kółko przyjmuje [activeColor] (kolor klienta).
@@ -14,10 +15,18 @@ class DaySelector extends StatelessWidget {
     required this.activeColor,
   });
 
-  static const _labels = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final labels = [
+      l10n.dayMon,
+      l10n.dayTue,
+      l10n.dayWed,
+      l10n.dayThu,
+      l10n.dayFri,
+      l10n.daySat,
+      l10n.daySun,
+    ];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: List.generate(7, (i) {
@@ -57,7 +66,7 @@ class DaySelector extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              _labels[i],
+              labels[i],
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,

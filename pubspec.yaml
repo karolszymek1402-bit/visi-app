@@ -2,7 +2,7 @@ name: visi
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -34,7 +34,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^3.3.1
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  rive: ^0.13.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   rrule: ^0.2.18
@@ -64,6 +66,10 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.8
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -78,8 +84,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/logo.svg
-    - assets/images/logo.png
+    - assets/images/
+    - assets/animations/logo_visi.riv
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

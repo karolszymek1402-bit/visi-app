@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../database/database_service.dart';
 
-final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
-  ThemeNotifier.new,
-);
+part 'theme_provider.g.dart';
 
-class ThemeNotifier extends Notifier<ThemeMode> {
+final themeProvider = themeModeControllerProvider;
+
+@riverpod
+class ThemeModeController extends _$ThemeModeController {
   static const _themeKey = 'user_theme_mode';
 
   @override

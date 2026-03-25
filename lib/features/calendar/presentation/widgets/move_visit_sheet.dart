@@ -4,6 +4,7 @@ import '../../../../core/constants.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../providers/calendar_provider.dart';
 
 /// Bottom sheet z precyzyjnym selektorem czasu (WheelPicker).
@@ -76,6 +77,7 @@ class _MoveVisitSheetState extends ConsumerState<MoveVisitSheet> {
   @override
   Widget build(BuildContext context) {
     final accentColor = widget.client.color ?? AppColors.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: const BoxDecoration(
@@ -94,9 +96,9 @@ class _MoveVisitSheetState extends ConsumerState<MoveVisitSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Przenieś wizytę',
-                  style: TextStyle(
+                Text(
+                  l10n.moveVisit,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textLight,
@@ -195,9 +197,12 @@ class _MoveVisitSheetState extends ConsumerState<MoveVisitSheet> {
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.schedule),
-                label: const Text(
-                  'Przenieś',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                label: Text(
+                  l10n.move,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,

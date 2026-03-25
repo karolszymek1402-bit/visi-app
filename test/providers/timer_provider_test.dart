@@ -42,7 +42,7 @@ void main() {
         databaseProvider.overrideWithValue(fakeDb),
         reminderServiceProvider.overrideWithValue(FakeReminderService()),
         selectedDateProvider.overrideWith(() {
-          final notifier = SelectedDateNotifier();
+          final notifier = SelectedDateController();
           return notifier;
         }),
       ],
@@ -111,7 +111,7 @@ void main() {
           databaseProvider.overrideWithValue(fakeDb),
           reminderServiceProvider.overrideWithValue(FakeReminderService()),
           selectedDateProvider.overrideWith(() {
-            final notifier = SelectedDateNotifier();
+            final notifier = SelectedDateController();
             return notifier;
           }),
         ],

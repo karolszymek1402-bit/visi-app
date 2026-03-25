@@ -3,17 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/date_provider.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Pasek nawigacji po tygodniu — 7 dni z podświetleniem wybranego.
 class DateNavigationBar extends ConsumerWidget {
   const DateNavigationBar({super.key});
 
-  static const _dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedDateProvider);
     final today = DateTime.now();
+    final l10n = AppLocalizations.of(context)!;
+    final dayNames = [
+      l10n.dayMon,
+      l10n.dayTue,
+      l10n.dayWed,
+      l10n.dayThu,
+      l10n.dayFri,
+      l10n.daySat,
+      l10n.daySun,
+    ];
 
     // Oblicz poniedziałek bieżącego tygodnia wybranej daty
     final monday = selectedDate.subtract(
@@ -92,7 +101,7 @@ class DateNavigationBar extends ConsumerWidget {
                       child: Column(
                         children: [
                           Text(
-                            _dayNames[i],
+                            dayNames[i],
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,

@@ -13,7 +13,7 @@ void main() {
     container.dispose();
   });
 
-  group('SelectedDateNotifier', () {
+  group('SelectedDateController', () {
     test('should start with today', () {
       final date = container.read(selectedDateProvider);
       final now = DateTime.now();

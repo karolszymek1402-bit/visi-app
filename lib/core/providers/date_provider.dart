@@ -1,11 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'date_provider.g.dart';
 
 /// Wybrany dzień w kalendarzu. Domyślnie — dziś.
-final selectedDateProvider = NotifierProvider<SelectedDateNotifier, DateTime>(
-  SelectedDateNotifier.new,
-);
+final selectedDateProvider = selectedDateControllerProvider;
 
-class SelectedDateNotifier extends Notifier<DateTime> {
+@riverpod
+class SelectedDateController extends _$SelectedDateController {
   @override
   DateTime build() {
     final now = DateTime.now();

@@ -36,5 +36,150 @@
   "langPolish": "Polski",
   "langNorwegian": "Norweski",
   "langEnglish": "Angielski",
-  "btnGetStarted": "Zaczynamy"
+  "btnGetStarted": "Zaczynamy",
+  "tagline": "Planuj wizyty. Zarabiaj więcej.",
+  "loginEmail": "Zaloguj się e-mailem",
+  "createAccount": "Stwórz konto",
+  "continueWithGoogle": "Kontynuuj z Google",
+  "or": "LUB",
+  "login": "Zaloguj się",
+  "rememberMe": "Zapamiętaj mnie",
+  "forgotPassword": "Zapomniałem hasła",
+  "invalidEmail": "Nieprawidłowy e-mail",
+  "passwordRequired": "Podaj hasło",
+  "passwordTooShort": "Hasło musi mieć min. 8 znaków",
+  "passwordsDoNotMatch": "Hasła się nie zgadzają",
+  "resetPasswordPrompt": "Wpisz e-mail, aby zresetować hasło",
+  "resetPasswordSent": "Link do resetowania hasła wysłany na e-mail",
+  "errorSave": "Błąd zapisu: {error}",
+  "@errorSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAuth": "Błąd autoryzacji: {error}",
+  "@errorAuth": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "clientsDatabase": "Baza Klientów",
+  "noClients": "Brak klientów",
+  "newClient": "Nowy klient",
+  "editClient": "Edytuj klienta",
+  "clientName": "Nazwa klienta",
+  "addressOptional": "Adres (opcjonalnie)",
+  "phoneNumber": "Numer telefonu",
+  "smsMessageContent": "Treść wiadomości do wysłania",
+  "smsHint": "Cześć! Przypominam o wizycie...",
+  "clientNote": "Notatka o kliencie (opcjonalnie)",
+  "clientNoteHint": "Np. Uczulenie na hybrydę, ulubiona kawa...",
+  "rateNokH": "Stawka (NOK/h)",
+  "visitCycle": "Cykl wizyt",
+  "oneWeek": "1 tydzień",
+  "twoWeeks": "2 tygodnie",
+  "workloadDays": "Obciążenie: {count} dni/tyg.",
+  "@workloadDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startTime": "Godzina rozpoczęcia",
+  "duration": "Czas trwania",
+  "invalidNameOrRate": "Podaj nazwę i prawidłową stawkę",
+  "delete": "Usuń",
+  "cancel": "Anuluj",
+  "deleteClient": "Usuń klienta",
+  "deleteClientConfirm": "Czy na pewno chcesz usunąć \"{name}\"?",
+  "@deleteClientConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "today": "Dziś",
+  "viewDay": "Widok: dzień",
+  "viewWeek": "Widok: tydzień",
+  "viewMonth": "Widok: miesiąc",
+  "moveVisit": "Przenieś wizytę",
+  "move": "Przenieś",
+  "disableReminder": "Wyłącz przypomnienie",
+  "copyReport": "Kopiuj raport",
+  "reportCopied": "Raport skopiowany do schowka",
+  "copy": "Kopiuj",
+  "hue": "Odcień",
+  "brightness": "Jasność",
+  "monthProgress": "Postęp miesiąca",
+  "percentComplete": "% ukończono",
+  "clientBreakdown": "Podział na klientów",
+  "hoursReportPreview": "Podgląd raportu godzin",
+  "dayMon": "Pn",
+  "dayTue": "Wt",
+  "dayWed": "Śr",
+  "dayThu": "Cz",
+  "dayFri": "Pt",
+  "daySat": "So",
+  "daySun": "Nd",
+  "everyWeek": "Co tydzień: {days}",
+  "@everyWeek": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "addClient": "Dodaj klienta",
+  "saveChanges": "Zapisz zmiany",
+  "clientColor": "Kolor klienta",
+  "saturation": "Nasycenie",
+  "chooseColor": "Wybierz kolor",
+  "reminder": "Przypomnienie",
+  "minBefore": "{min} min przed",
+  "@minBefore": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "hourBefore": "{hours} godz. przed",
+  "@hourBefore": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursReport": "Raport godzin pracy",
+  "visits": "wizyt",
+  "everyNWeeks": "Co {n} tyg.: {days}",
+  "@everyNWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "earned": "Zarobione",
+  "planned": "Planowane",
+  "hours": "Godziny",
+  "daily": "Codziennie",
+  "everyNDays": "Co {n} dni",
+  "@everyNDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

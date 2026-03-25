@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/providers/auth_provider.dart';
 import 'package:visi/core/services/auth_service.dart';
+
 import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
@@ -24,9 +25,9 @@ void main() {
 
   tearDown(() => container.dispose());
 
-  group('AuthNotifier', () {
+  group('Auth', () {
     test('defaults to unauthenticated when no saved session', () {
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.unauthenticated);
       expect(state.isAuthenticated, isFalse);
       expect(state.userId, isNull);
@@ -44,7 +45,7 @@ void main() {
         ],
       );
 
-      final state = c.read(authProvider);
+      final state = c.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
       expect(state.isAuthenticated, isTrue);
       expect(state.userId, 'google_user_123');
@@ -55,7 +56,7 @@ void main() {
     test('signIn sets authenticated state and persists', () async {
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
 
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
       expect(state.displayName, 'Ola');
       expect(fakeDb.getSetting('auth_display_name'), 'Ola');
@@ -64,14 +65,14 @@ void main() {
     test('signIn uses default name when none provided', () async {
       await container.read(authProvider.notifier).signIn();
 
-      expect(container.read(authProvider).displayName, 'Użytkownik');
+      expect(container.read(authProvider).value!.displayName, 'Użytkownik');
     });
 
     test('signOut clears state and database', () async {
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
       await container.read(authProvider.notifier).signOut();
 
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.unauthenticated);
       expect(state.isAuthenticated, isFalse);
     });
@@ -81,7 +82,7 @@ void main() {
       await container
           .read(authProvider.notifier)
           .completeProfile(displayName: 'Ola', hourlyRate: 250.0);
-      expect(container.read(authProvider).profileComplete, isTrue);
+      expect(container.read(authProvider).value!.profileComplete, isTrue);
 
       await container.read(authProvider.notifier).signOut();
       expect(fakeDb.getSetting('profile_complete'), '');
@@ -95,7 +96,7 @@ void main() {
       await container.read(authProvider.notifier).signOut();
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
 
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
       expect(state.profileComplete, isFalse);
     });
@@ -111,7 +112,7 @@ void main() {
           databaseProvider.overrideWithValue(fakeDb),
         ],
       );
-      final state = c.read(authProvider);
+      final state = c.read(authProvider).value!;
       expect(state.status, AuthStatus.unauthenticated);
       c.dispose();
     });
@@ -119,7 +120,7 @@ void main() {
     test('signIn without profile sets profileComplete to false', () async {
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
 
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
       expect(state.profileComplete, isFalse);
     });
@@ -130,7 +131,7 @@ void main() {
           .read(authProvider.notifier)
           .completeProfile(displayName: 'Ola K', hourlyRate: 300.0);
 
-      final state = container.read(authProvider);
+      final state = container.read(authProvider).value!;
       expect(state.profileComplete, isTrue);
       expect(state.displayName, 'Ola K');
       expect(fakeDb.getSetting('profile_complete'), 'true');
@@ -149,7 +150,7 @@ void main() {
         ],
       );
 
-      final state = c.read(authProvider);
+      final state = c.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
       expect(state.profileComplete, isTrue);
       c.dispose();

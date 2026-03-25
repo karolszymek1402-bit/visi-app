@@ -36,5 +36,150 @@
   "langPolish": "Polsk",
   "langNorwegian": "Norsk",
   "langEnglish": "Engelsk",
-  "btnGetStarted": "Kom i gang"
+  "btnGetStarted": "Kom i gang",
+  "tagline": "Planlegg besøk. Tjen mer.",
+  "loginEmail": "Logg inn med e-post",
+  "createAccount": "Opprett konto",
+  "continueWithGoogle": "Fortsett med Google",
+  "or": "ELLER",
+  "login": "Logg inn",
+  "rememberMe": "Husk meg",
+  "forgotPassword": "Glemt passord",
+  "invalidEmail": "Ugyldig e-post",
+  "passwordRequired": "Skriv inn passord",
+  "passwordTooShort": "Passordet må ha minst 8 tegn",
+  "passwordsDoNotMatch": "Passordene stemmer ikke overens",
+  "resetPasswordPrompt": "Skriv inn e-post for å tilbakestille passord",
+  "resetPasswordSent": "Link for tilbakestilling av passord sendt til e-post",
+  "errorSave": "Lagringsfeil: {error}",
+  "@errorSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAuth": "Autentiseringsfeil: {error}",
+  "@errorAuth": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "clientsDatabase": "Klientdatabase",
+  "noClients": "Ingen klienter",
+  "newClient": "Ny klient",
+  "editClient": "Rediger klient",
+  "clientName": "Klientnavn",
+  "addressOptional": "Adresse (valgfritt)",
+  "phoneNumber": "Telefonnummer",
+  "smsMessageContent": "Meldingsinnhold å sende",
+  "smsHint": "Hei! Påminnelse om timen din...",
+  "clientNote": "Notat om klient (valgfritt)",
+  "clientNoteHint": "F.eks. Allergi mot gel, favorittkaffe...",
+  "rateNokH": "Timepris (NOK/t)",
+  "visitCycle": "Besøkssyklus",
+  "oneWeek": "1 uke",
+  "twoWeeks": "2 uker",
+  "workloadDays": "Arbeidsmengde: {count} dager/uke",
+  "@workloadDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startTime": "Starttid",
+  "duration": "Varighet",
+  "invalidNameOrRate": "Skriv inn navn og gyldig pris",
+  "delete": "Slett",
+  "cancel": "Avbryt",
+  "deleteClient": "Slett klient",
+  "deleteClientConfirm": "Er du sikker på at du vil slette \"{name}\"?",
+  "@deleteClientConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "today": "I dag",
+  "viewDay": "Visning: dag",
+  "viewWeek": "Visning: uke",
+  "viewMonth": "Visning: måned",
+  "moveVisit": "Flytt besøk",
+  "move": "Flytt",
+  "disableReminder": "Deaktiver påminnelse",
+  "copyReport": "Kopier rapport",
+  "reportCopied": "Rapport kopiert til utklippstavle",
+  "copy": "Kopier",
+  "hue": "Fargetone",
+  "brightness": "Lysstyrke",
+  "monthProgress": "Månedsfremdrift",
+  "percentComplete": "% fullført",
+  "clientBreakdown": "Klientfordeling",
+  "hoursReportPreview": "Forhåndsvisning av timerapport",
+  "dayMon": "Ma",
+  "dayTue": "Ti",
+  "dayWed": "On",
+  "dayThu": "To",
+  "dayFri": "Fr",
+  "daySat": "Lø",
+  "daySun": "Sø",
+  "everyWeek": "Hver uke: {days}",
+  "@everyWeek": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "addClient": "Legg til klient",
+  "saveChanges": "Lagre endringer",
+  "clientColor": "Klientfarge",
+  "saturation": "Metning",
+  "chooseColor": "Velg farge",
+  "reminder": "Påminnelse",
+  "minBefore": "{min} min før",
+  "@minBefore": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "hourBefore": "{hours} time(r) før",
+  "@hourBefore": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursReport": "Arbeidstidsrapport",
+  "visits": "besøk",
+  "everyNWeeks": "Hver {n}. uke: {days}",
+  "@everyNWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "earned": "Opptjent",
+  "planned": "Planlagt",
+  "hours": "Timer",
+  "daily": "Daglig",
+  "everyNDays": "Hver {n}. dag",
+  "@everyNDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/database/database_service.dart';
+import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -74,7 +77,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleResetPassword() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      setState(() => _errorMessage = 'Wpisz e-mail, aby zresetować hasło');
+      final l10n = AppLocalizations.of(context)!;
+      setState(() => _errorMessage = l10n.resetPasswordPrompt);
       return;
     }
 
@@ -88,8 +92,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         setState(() => _errorMessage = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Link do resetowania hasła wysłany na e-mail'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.resetPasswordSent),
           ),
         );
       }
@@ -104,6 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       appBar: AppBar(
@@ -123,9 +128,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Center(child: VisiLogo(height: 56)),
+                    const SizedBox(height: 24),
                     Text(
-                      'Zaloguj się',
-                      style: TextStyle(
+                      l10n.login,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -144,13 +151,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Icons.email_outlined,
                       ),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
-                          return 'Podaj e-mail';
+                        if (v == null || v.trim().isEmpty) {
+                          return l10n.invalidEmail;
+                        }
                         final emailRegex = RegExp(
                           r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                         );
                         if (!emailRegex.hasMatch(v.trim())) {
-                          return 'Nieprawidłowy e-mail';
+                          return l10n.invalidEmail;
                         }
                         return null;
                       },
@@ -164,7 +172,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: _inputDecoration('Hasło', Icons.lock_outline),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Podaj hasło';
+                        if (v == null || v.isEmpty) {
+                          return l10n.passwordRequired;
+                        }
                         return null;
                       },
                     ),
@@ -192,7 +202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           onTap: () =>
                               setState(() => _rememberMe = !_rememberMe),
                           child: Text(
-                            'Zapamiętaj mnie',
+                            l10n.rememberMe,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
@@ -223,7 +233,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: TextButton(
                         onPressed: _isLoading ? null : _handleResetPassword,
                         child: Text(
-                          'Zapomniałem hasła',
+                          l10n.forgotPassword,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 13,
@@ -254,9 +264,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Zaloguj się',
-                              style: TextStyle(
+                          : Text(
+                              l10n.login,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

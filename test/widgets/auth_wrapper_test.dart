@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/presentation/auth_wrapper.dart';
 import 'package:visi/core/services/auth_service.dart';
-import 'package:visi/features/auth/presentation/profile_setup_screen.dart';
+import 'package:visi/features/profile/presentation/profile_setup_screen.dart';
 import 'package:visi/l10n/app_localizations.dart';
+
 import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
 
@@ -95,7 +96,10 @@ void main() {
       // Should show ProfileSetupScreen
       expect(find.byType(ProfileSetupScreen), findsOneWidget);
 
-      // Fill in hourly rate (name is pre-filled)
+      // Fill in location (required by new profile form)
+      await tester.enterText(find.byType(TextField).first, 'Hamar');
+      await tester.pump();
+
       // Tap "Zaczynamy" button
       await tester.tap(find.text('Zaczynamy'));
       await tester.pump();

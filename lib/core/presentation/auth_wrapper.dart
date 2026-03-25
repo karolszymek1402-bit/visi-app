@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
-import '../../features/auth/presentation/profile_setup_screen.dart';
+
 import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/profile/presentation/profile_setup_screen.dart';
+import '../../l10n/app_localizations.dart';
+import '../providers/auth_provider.dart';
 import 'main_shell.dart';
 
 /// Strażnik nawigacji: WelcomeScreen → ProfileSetupScreen → MainShell.
@@ -13,34 +15,33 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Obserwujemy strumień autoryzacji Firebase
-    final asyncAuth = ref.watch(authStateProvider);
-    // Stan profilu (profileComplete) pochodzi z authProvider
-    final authState = ref.watch(authProvider);
+    // authProvider jest teraz AsyncNotifier — zwraca AsyncValue<AuthState>
+    final authAsync = ref.watch(authProvider);
 
-    return asyncAuth.when(
-      data: (user) {
-        if (user != null) {
-          // Token ważny — sprawdzamy profil
-          if (authState.profileComplete) {
-            return const MainShell();
-          }
-          return const ProfileSetupScreen();
-        }
-        // Brak usera → ekran logowania
-        return const WelcomeScreen();
-      },
-      // Ekran ładowania gdy sprawdzamy token
-      loading: () {
-        // Jeśli mamy już sesję z synchronicznego currentUser — nie pokazuj spinnera
+    return authAsync.when(
+      data: (authState) {
         if (authState.isAuthenticated) {
           if (authState.profileComplete) return const MainShell();
           return const ProfileSetupScreen();
         }
+        return const WelcomeScreen();
+      },
+      loading: () {
+        // Jeśli mamy już sesję z cache — nie pokazuj spinnera
+        final cached = authAsync.valueOrNull;
+        if (cached != null && cached.isAuthenticated) {
+          if (cached.profileComplete) return const MainShell();
+          return const ProfileSetupScreen();
+        }
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       },
-      error: (error, stackTrace) =>
-          Scaffold(body: Center(child: Text('Błąd autoryzacji: $error'))),
+      error: (error, stackTrace) {
+        final l10n = AppLocalizations.of(context);
+        final msg = l10n != null
+            ? l10n.errorAuth(error.toString())
+            : 'Auth error: $error';
+        return Scaffold(body: Center(child: Text(msg)));
+      },
     );
   }
 }

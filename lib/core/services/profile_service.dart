@@ -14,6 +14,7 @@ class ProfileService {
   static const _nameKey = 'auth_display_name';
   static const _rateKey = 'profile_hourly_rate';
   static const _languageKey = 'user_locale';
+  static const _workLocationKey = 'profile_work_location';
   static const _updatedAtKey = 'profile_updated_at';
   static const _profileCompleteKey = 'profile_complete';
   static const _usersCollection = 'users';
@@ -23,6 +24,7 @@ class ProfileService {
     await _db.saveSetting(_nameKey, profile.name);
     await _db.saveSetting(_rateKey, profile.defaultRate.toString());
     await _db.saveSetting(_languageKey, profile.language);
+    await _db.saveSetting(_workLocationKey, profile.workLocation);
     final now = DateTime.now().toIso8601String();
     await _db.saveSetting(_updatedAtKey, now);
     await _db.saveSetting(_profileCompleteKey, 'true');
@@ -61,6 +63,7 @@ class ProfileService {
       name: name,
       defaultRate: double.tryParse(_db.getSetting(_rateKey) ?? '') ?? 0,
       language: _db.getSetting(_languageKey) ?? 'pl',
+      workLocation: _db.getSetting(_workLocationKey) ?? '',
       updatedAt: DateTime.tryParse(_db.getSetting(_updatedAtKey) ?? ''),
     );
   }

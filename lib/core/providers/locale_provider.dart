@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../database/database_service.dart';
 
-final localeProvider = NotifierProvider<LocaleNotifier, Locale>(() {
-  return LocaleNotifier();
-});
+part 'locale_provider.g.dart';
 
-class LocaleNotifier extends Notifier<Locale> {
+final localeProvider = localeControllerProvider;
+
+@riverpod
+class LocaleController extends _$LocaleController {
   static const _localeKey = 'user_locale';
 
   @override

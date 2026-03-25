@@ -5,6 +5,7 @@ import '../../../../core/models/visit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/clients_provider.dart';
 import '../../../../core/providers/date_provider.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../providers/calendar_view_mode_provider.dart';
 import '../../providers/month_provider.dart';
 
@@ -12,14 +13,22 @@ import '../../providers/month_provider.dart';
 class MonthView extends ConsumerWidget {
   const MonthView({super.key});
 
-  static const _dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final monthVisits = ref.watch(monthVisitsProvider);
     final selectedDate = ref.watch(selectedDateProvider);
     final clients = ref.watch(clientsProvider);
     final today = DateTime.now();
+    final l10n = AppLocalizations.of(context)!;
+    final dayNames = [
+      l10n.dayMon,
+      l10n.dayTue,
+      l10n.dayWed,
+      l10n.dayThu,
+      l10n.dayFri,
+      l10n.daySat,
+      l10n.daySun,
+    ];
 
     final year = selectedDate.year;
     final month = selectedDate.month;
@@ -37,7 +46,7 @@ class MonthView extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
-            children: _dayNames.map((name) {
+            children: dayNames.map((name) {
               return Expanded(
                 child: Center(
                   child: Text(

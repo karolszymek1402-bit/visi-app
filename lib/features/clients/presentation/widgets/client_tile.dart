@@ -32,7 +32,7 @@ class ClientTile extends ConsumerWidget {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
                 icon: Icons.delete,
-                label: 'Usuń',
+                label: l10n.delete,
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -141,15 +141,16 @@ class ClientTile extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Usuń klienta'),
-        content: Text('Czy na pewno chcesz usunąć "${client.name}"?'),
+        title: Text(l10n.deleteClient),
+        content: Text(l10n.deleteClientConfirm(client.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Anuluj'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -157,7 +158,7 @@ class ClientTile extends ConsumerWidget {
               ref.read(clientsProvider.notifier).deleteClient(client.id);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Usuń'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

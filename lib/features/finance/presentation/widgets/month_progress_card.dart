@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/finance_service.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Karta postępu miesiąca — progress bar + procent ukończonych wizyt.
 class MonthProgressCard extends StatelessWidget {
@@ -12,6 +13,7 @@ class MonthProgressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = summary.completedVisits + summary.scheduledVisits;
     final progress = total > 0 ? summary.completedVisits / total : 0.0;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -26,15 +28,15 @@ class MonthProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Postęp miesiąca',
-                style: TextStyle(
+              Text(
+                l10n.monthProgress,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textLight,
                 ),
               ),
               Text(
-                '${summary.completedVisits} / $total wizyt',
+                '${summary.completedVisits} / $total ${l10n.visits}',
                 style: const TextStyle(
                   color: AppColors.textSecondaryLight,
                   fontSize: 13,
@@ -56,7 +58,7 @@ class MonthProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${(progress * 100).toStringAsFixed(0)}% ukończono',
+            '${(progress * 100).toStringAsFixed(0)}${l10n.percentComplete}',
             style: const TextStyle(
               color: AppColors.textSecondaryLight,
               fontSize: 12,

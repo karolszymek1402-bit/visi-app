@@ -5,6 +5,7 @@ import '../../../../core/constants.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../providers/ai_orb_provider.dart';
 import '../../providers/calendar_provider.dart';
 import '../../providers/timer_provider.dart';
@@ -403,6 +404,7 @@ class _BellButton extends ConsumerWidget {
 
   void _showReminderMenu(BuildContext context, WidgetRef ref) {
     final currentMinutes = visit.reminderMinutesBefore;
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -410,11 +412,14 @@ class _BellButton extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                'Przypomnienie',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                l10n.reminder,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
             for (final min in _options)
@@ -428,7 +433,7 @@ class _BellButton extends ConsumerWidget {
                       : AppColors.textSecondaryLight,
                 ),
                 title: Text(
-                  min < 60 ? '$min min przed' : '${min ~/ 60} godz. przed',
+                  min < 60 ? l10n.minBefore(min) : l10n.hourBefore(min ~/ 60),
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -443,7 +448,7 @@ class _BellButton extends ConsumerWidget {
                   Icons.notifications_off,
                   color: AppColors.textSecondaryLight,
                 ),
-                title: const Text('Wyłącz przypomnienie'),
+                title: Text(l10n.disableReminder),
                 onTap: () {
                   Navigator.pop(ctx);
                   ref.read(calendarProvider.notifier).clearReminder(visit.id);

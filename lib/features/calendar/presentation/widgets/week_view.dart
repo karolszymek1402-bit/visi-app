@@ -5,6 +5,7 @@ import '../../../../core/models/visit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/clients_provider.dart';
 import '../../../../core/providers/date_provider.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../providers/calendar_provider.dart';
 import '../../providers/calendar_view_mode_provider.dart';
 import '../../providers/week_provider.dart';
@@ -14,14 +15,22 @@ import '../../providers/week_provider.dart';
 class WeekView extends ConsumerWidget {
   const WeekView({super.key});
 
-  static const _dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weekVisits = ref.watch(weekVisitsProvider);
     final selectedDate = ref.watch(selectedDateProvider);
     final clients = ref.watch(clientsProvider);
     final today = DateTime.now();
+    final l10n = AppLocalizations.of(context)!;
+    final dayNames = [
+      l10n.dayMon,
+      l10n.dayTue,
+      l10n.dayWed,
+      l10n.dayThu,
+      l10n.dayFri,
+      l10n.daySat,
+      l10n.daySun,
+    ];
 
     final monday = selectedDate.subtract(
       Duration(days: selectedDate.weekday - 1),
@@ -49,7 +58,7 @@ class WeekView extends ConsumerWidget {
                     child: Column(
                       children: [
                         Text(
-                          _dayNames[i],
+                          dayNames[i],
                           style: TextStyle(
                             fontSize: 11,
                             color: isToday

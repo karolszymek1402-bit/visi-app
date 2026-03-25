@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Podgląd raportu godzin pracy — BottomSheet z tekstem monospace.
 class ReportPreviewSheet extends StatelessWidget {
@@ -10,6 +11,7 @@ class ReportPreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -40,9 +42,9 @@ class ReportPreviewSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Raport godzin pracy',
-                  style: TextStyle(
+                Text(
+                  l10n.hoursReport,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textLight,
@@ -50,12 +52,12 @@ class ReportPreviewSheet extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.content_copy_rounded),
-                  tooltip: 'Kopiuj',
+                  tooltip: l10n.copy,
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: report));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Raport skopiowany do schowka'),
+                      SnackBar(
+                        content: Text(l10n.reportCopied),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );

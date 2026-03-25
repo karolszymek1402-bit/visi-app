@@ -53,7 +53,7 @@ void main() {
       overrides: [
         databaseProvider.overrideWithValue(fakeDb),
         selectedDateProvider.overrideWith(() {
-          final n = SelectedDateNotifier();
+          final n = SelectedDateController();
           return n;
         }),
       ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/presentation/visi_rive_logo.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import 'login_screen.dart';
@@ -66,42 +68,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Logo "visi" z gradientem i sparkle
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Sparkle — pozycjonowany nad napisem
-                            const Positioned(
-                              top: 0,
-                              right: 20,
-                              child: Icon(
-                                Icons.auto_awesome,
-                                size: 30,
-                                color: Color(0xFFF43F5E),
-                              ),
-                            ),
-                            // Napis "visi" z gradientem Rose → Violet
-                            ShaderMask(
-                              blendMode: BlendMode.srcIn,
-                              shaderCallback: (bounds) => const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFFF43F5E), // Rose
-                                  Color(0xFF8B5CF6), // Violet
-                                ],
-                              ).createShader(bounds),
-                              child: const Text(
-                                'visi',
-                                style: TextStyle(
-                                  fontSize: 85,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -6,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Logo Rive 3D
+                        const VisiRiveLogo(),
                         const SizedBox(height: 16),
 
                         // Tagline
