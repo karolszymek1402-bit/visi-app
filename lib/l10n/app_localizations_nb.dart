@@ -80,6 +80,9 @@ class AppLocalizationsNb extends AppLocalizations {
   String get btnGetStarted => 'Kom i gang';
 
   @override
+  String get btnNext => 'Neste';
+
+  @override
   String get tagline => 'Planlegg besøk. Tjen mer.';
 
   @override
@@ -98,10 +101,34 @@ class AppLocalizationsNb extends AppLocalizations {
   String get login => 'Logg inn';
 
   @override
+  String get welcomeBack => 'Velkommen tilbake';
+
+  @override
+  String get loginSubtitle => 'Logg inn for å administrere besøkene dine';
+
+  @override
+  String get email => 'E-mail';
+
+  @override
+  String get password => 'Passord';
+
+  @override
+  String get confirmPassword => 'Bekreft passord';
+
+  @override
   String get rememberMe => 'Husk meg';
 
   @override
-  String get forgotPassword => 'Glemt passord';
+  String get forgotPassword => 'Glemt passord?';
+
+  @override
+  String get whatsYourName => 'Hva heter du?';
+
+  @override
+  String get hintName => 'f.eks. Anna, Kari';
+
+  @override
+  String get saveProfile => 'Lagre profil';
 
   @override
   String get invalidEmail => 'Ugyldig e-post';
@@ -110,7 +137,7 @@ class AppLocalizationsNb extends AppLocalizations {
   String get passwordRequired => 'Skriv inn passord';
 
   @override
-  String get passwordTooShort => 'Passordet må ha minst 8 tegn';
+  String get passwordTooShort => 'Passordet må ha minst 6 tegn';
 
   @override
   String get passwordsDoNotMatch => 'Passordene stemmer ikke overens';
@@ -335,4 +362,71 @@ class AppLocalizationsNb extends AppLocalizations {
   String everyNDays(int n) {
     return 'Hver $n. dag';
   }
+
+  @override
+  String get onboardingWelcome => 'Velkommen til Visi!';
+
+  @override
+  String get onboardingSubtitle => 'Din personlige besøksplanlegger';
+
+  @override
+  String get onboardingStep1Title => 'Planlegg besøk';
+
+  @override
+  String get onboardingStep1Desc =>
+      'Legg til klienter og planlegg besøk i kalenderen. Sett påminnelser så du aldri går glipp av en avtale.';
+
+  @override
+  String get onboardingStep2Title => 'Følg inntektene';
+
+  @override
+  String get onboardingStep2Desc =>
+      'Sett timepris per klient. Visi beregner automatisk inntektene dine og genererer månedsrapporter.';
+
+  @override
+  String get onboardingStep3Title => 'Administrer klienter';
+
+  @override
+  String get onboardingStep3Desc =>
+      'Lagre notater, kontaktinfo og besøkshistorikk. Send påminnelses-SMS med ett trykk.';
+
+  @override
+  String get onboardingLetsGo => 'La oss begynne!';
+
+  @override
+  String get onboardingSkip => 'Hopp over';
+
+  @override
+  String get authErrorOperationNotAllowed =>
+      'E-postinnlogging er deaktivert. Kontakt administratoren.';
+
+  @override
+  String get authErrorEmailAlreadyInUse =>
+      'Denne e-posten er allerede registrert.';
+
+  @override
+  String get authErrorWrongPassword => 'Feil passord.';
+
+  @override
+  String get authErrorUserNotFound => 'Ingen konto funnet med denne e-posten.';
+
+  @override
+  String get authErrorTooManyRequests => 'For mange forsøk. Prøv igjen senere.';
+
+  @override
+  String get authErrorNetworkRequestFailed => 'Ingen internettforbindelse.';
+
+  @override
+  String get authErrorUserDisabled => 'Denne kontoen er deaktivert.';
+
+  @override
+  String get authErrorUnknown => 'Innloggingsfeil. Prøv igjen.';
+
+  @override
+  String get authErrorPopupClosed =>
+      'Innloggingsvinduet ble lukket. Prøv igjen.';
+
+  @override
+  String get authErrorPopupBlocked =>
+      'Nettleseren blokkerte innloggingsvinduet. Tillat popup-vinduer for dette nettstedet.';
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/auth/presentation/language_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/profile/presentation/profile_setup_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import 'main_shell.dart';
 
 /// Strażnik nawigacji: WelcomeScreen → ProfileSetupScreen → MainShell.
@@ -24,7 +26,10 @@ class AuthWrapper extends ConsumerWidget {
           if (authState.profileComplete) return const MainShell();
           return const ProfileSetupScreen();
         }
-        return const WelcomeScreen();
+        // Ekran powitalny jeśli język wybrany, inaczej ekran języka
+        final langSelected = ref.watch(languageSelectedProvider);
+        if (langSelected) return const WelcomeScreen();
+        return const LanguageScreen();
       },
       loading: () {
         // Jeśli mamy już sesję z cache — nie pokazuj spinnera

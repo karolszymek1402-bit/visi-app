@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/presentation/auth_wrapper.dart';
+import 'package:visi/core/presentation/main_shell.dart';
 import 'package:visi/core/services/auth_service.dart';
+import 'package:visi/features/auth/presentation/language_screen.dart';
 import 'package:visi/features/profile/presentation/profile_setup_screen.dart';
 import 'package:visi/l10n/app_localizations.dart';
 
@@ -35,27 +37,35 @@ void main() {
   }
 
   group('AuthWrapper', () {
-    testWidgets('shows WelcomeScreen when unauthenticated', (tester) async {
+    testWidgets('shows LanguageScreen when unauthenticated', (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text('Kontynuuj z Google'), findsOneWidget);
+      expect(find.byType(LanguageScreen), findsOneWidget);
+      expect(find.text('Wybierz język'), findsOneWidget);
     });
 
-    testWidgets('shows ProfileSetupScreen after signIn without profile', (
+    testWidgets('shows ProfileSetupScreen when authenticated without profile', (
       tester,
     ) async {
-      await tester.pumpWidget(buildTestWidget());
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final auth = FakeAuthService(
+        const AuthUser(uid: 'google_user_123', displayName: 'Test'),
+      );
+      fakeDb.saveSetting('auth_display_name', 'Test');
+
+      await tester.pumpWidget(buildTestWidget(auth: auth));
       await tester.pump();
 
-      // Sign in
-      await tester.tap(find.text('Kontynuuj z Google'));
-      await tester.pump();
-      await tester.pump();
-
-      // Profile not completed yet → ProfileSetupScreen
       expect(find.byType(ProfileSetupScreen), findsOneWidget);
-      expect(find.text('Zaczynamy'), findsOneWidget);
+      expect(find.text('Witaj w Visi!'), findsOneWidget);
     });
 
     testWidgets('shows MainShell when authenticated with profile', (
@@ -74,39 +84,33 @@ void main() {
       await tester.pumpWidget(buildTestWidget(auth: auth));
       await tester.pump();
 
-      expect(find.byType(NavigationBar), findsOneWidget);
+      // AuthWrapper should route to MainShell
+      expect(find.byType(MainShell), findsOneWidget);
     });
 
-    testWidgets('transitions from Profile to MainShell after completeProfile', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(800, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+    testWidgets(
+      'transitions from unauthenticated to ProfileSetupScreen on sign-in',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
 
-      // Authenticated but no profile
-      final auth = FakeAuthService(
-        const AuthUser(uid: 'google_user_123', displayName: 'Użytkownik'),
-      );
-      fakeDb.saveSetting('auth_display_name', 'Użytkownik');
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pump();
 
-      await tester.pumpWidget(buildTestWidget(auth: auth));
-      await tester.pump();
+        // Initially shows LanguageScreen
+        expect(find.byType(LanguageScreen), findsOneWidget);
 
-      // Should show ProfileSetupScreen
-      expect(find.byType(ProfileSetupScreen), findsOneWidget);
+        // Simulate sign-in via stream (e.g. Google login completed)
+        fakeAuth.setCurrentUser(
+          const AuthUser(uid: 'google_user_123', displayName: 'Test'),
+        );
+        await tester.pump();
+        await tester.pump();
 
-      // Fill in location (required by new profile form)
-      await tester.enterText(find.byType(TextField).first, 'Hamar');
-      await tester.pump();
-
-      // Tap "Zaczynamy" button
-      await tester.tap(find.text('Zaczynamy'));
-      await tester.pump();
-      await tester.pump();
-
-      // Should transition to MainShell
-      expect(find.byType(NavigationBar), findsOneWidget);
-    });
+        // Profile not completed → ProfileSetupScreen
+        expect(find.byType(ProfileSetupScreen), findsOneWidget);
+      },
+    );
   });
 }

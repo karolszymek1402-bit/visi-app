@@ -1,302 +1,179 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/presentation/visi_rive_logo.dart';
+import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/services/auth_error_helper.dart';
+import '../../../l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 
-class WelcomeScreen extends ConsumerStatefulWidget {
+class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
 
   @override
-  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
 
-class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
-    with SingleTickerProviderStateMixin {
-  bool _isSigningIn = false;
-  late final AnimationController _fadeController;
-  late final Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
-    _fadeController.forward();
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() => _isSigningIn = true);
-
-    await ref.read(authProvider.notifier).signIn();
-
-    if (mounted) {
-      setState(() => _isSigningIn = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Główna treść z fade-in
-            Center(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Padding(
+      backgroundColor: const Color(0xFF060E1A),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment.center,
+            radius: 1.5,
+            colors: [Color(0xFF0D1F3C), Color(0xFF060E1A)],
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final maxLogoSize = (constraints.maxHeight * 0.35).clamp(
+                200.0,
+                380.0,
+              );
+              final logoTextSize = maxLogoSize * 0.74;
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
+                  // KOMPOZYCJA 3D: ORB + FACETED LOGO + TILT
+                  Visi3DLogo(orbSize: maxLogoSize, logoSize: logoTextSize),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.tagline,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 18,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const Spacer(flex: 2),
+                  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Logo Rive 3D
-                        const VisiRiveLogo(),
-                        const SizedBox(height: 16),
-
-                        // Tagline
-                        Text(
-                          'Planuj wizyty. Zarabiaj więcej.',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryDark,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w300,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 48),
-
-                        // 1. Główny przycisk — Zaloguj się e-mailem
-                        ElevatedButton.icon(
-                          onPressed: () => Navigator.of(context).push(
+                        _buildButton(
+                          label: l10n.loginEmail,
+                          icon: Icons.email_outlined,
+                          color: const Color(0xFF4A7FB5),
+                          onTap: () => Navigator.push(
+                            context,
                             MaterialPageRoute(
                               builder: (_) => const LoginScreen(),
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            elevation: 0,
-                          ),
-                          icon: const Icon(Icons.email_outlined, size: 22),
-                          label: const Text(
-                            'Zaloguj się e-mailem',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                         ),
                         const SizedBox(height: 12),
-
-                        // 2. Przycisk pomocniczy — Stwórz konto
-                        OutlinedButton.icon(
-                          onPressed: () => Navigator.of(context).push(
+                        _buildButton(
+                          label: l10n.createAccount,
+                          icon: Icons.person_add_outlined,
+                          isOutlined: true,
+                          onTap: () => Navigator.push(
+                            context,
                             MaterialPageRoute(
                               builder: (_) => const RegisterScreen(),
                             ),
                           ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.4),
-                            ),
-                          ),
-                          icon: const Icon(Icons.person_add_outlined, size: 22),
-                          label: const Text(
-                            'Stwórz konto',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                         ),
                         const SizedBox(height: 24),
-
-                        // 3. Separator "LUB"
                         Row(
                           children: [
-                            Expanded(
-                              child: Divider(
-                                color: Colors.white.withValues(alpha: 0.2),
-                              ),
+                            const Expanded(
+                              child: Divider(color: Colors.white24),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
                               child: Text(
-                                'LUB',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                l10n.or,
+                                style: const TextStyle(
+                                  color: Colors.white38,
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1.5,
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: Divider(
-                                color: Colors.white.withValues(alpha: 0.2),
-                              ),
+                            const Expanded(
+                              child: Divider(color: Colors.white24),
                             ),
                           ],
                         ),
                         const SizedBox(height: 24),
-
-                        // 4. Social Login — Google
-                        ElevatedButton.icon(
-                          onPressed: _isSigningIn ? null : _handleGoogleSignIn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black87,
-                            disabledBackgroundColor: Colors.white.withValues(
-                              alpha: 0.7,
-                            ),
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            elevation: 0,
-                          ),
-                          icon: _isSigningIn
-                              ? SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: Colors.black87,
+                        _buildButton(
+                          label: l10n.continueWithGoogle,
+                          icon: Icons.g_mobiledata,
+                          color: Colors.white,
+                          textColor: Colors.black,
+                          onTap: () async {
+                            try {
+                              await ref.read(authProvider.notifier).signIn();
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(friendlyAuthError(e, l10n)),
+                                    backgroundColor: Colors.red.shade800,
                                   ),
-                                )
-                              : SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CustomPaint(
-                                    painter: _GoogleLogoPainter(),
-                                  ),
-                                ),
-                          label: const Text(
-                            'Kontynuuj z Google',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                                );
+                              }
+                            }
+                          },
                         ),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          ],
+                  const Spacer(flex: 1),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
-}
 
-/// Rysuje Google "G" w 4 kolorach — bez dodatkowych zależności.
-class _GoogleLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double w = size.width;
-    final double h = size.height;
-    final center = Offset(w / 2, h / 2);
-    final radius = w / 2;
-    const strokeWidth = 3.6;
-
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    // Blue arc (right)
-    canvas.drawArc(
-      rect,
-      -0.4,
-      -1.2,
-      false,
-      Paint()
-        ..color = const Color(0xFF4285F4)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt,
-    );
-
-    // Green arc (bottom)
-    canvas.drawArc(
-      rect,
-      1.8,
-      -1.0,
-      false,
-      Paint()
-        ..color = const Color(0xFF34A853)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt,
-    );
-
-    // Yellow arc (bottom-left)
-    canvas.drawArc(
-      rect,
-      0.9,
-      0.9,
-      false,
-      Paint()
-        ..color = const Color(0xFFFBBC05)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt,
-    );
-
-    // Red arc (top-left)
-    canvas.drawArc(
-      rect,
-      -1.6,
-      -1.2,
-      false,
-      Paint()
-        ..color = const Color(0xFFEA4335)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.butt,
-    );
-
-    // Horizontal bar (blue, right side)
-    canvas.drawLine(
-      Offset(center.dx, center.dy),
-      Offset(w, center.dy),
-      Paint()
-        ..color = const Color(0xFF4285F4)
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round,
+  Widget _buildButton({
+    required String label,
+    required IconData icon,
+    Color? color,
+    Color textColor = Colors.white,
+    bool isOutlined = false,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(
+          icon,
+          color: isOutlined ? Colors.white : textColor,
+          size: 28,
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            color: isOutlined ? Colors.white : textColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isOutlined
+              ? Colors.transparent
+              : (color ?? Colors.transparent),
+          elevation: isOutlined ? 0 : 8,
+          shadowColor: (color ?? Colors.black).withValues(alpha: 0.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+            side: isOutlined
+                ? const BorderSide(color: Colors.white24)
+                : BorderSide.none,
+          ),
+        ),
+      ),
     );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

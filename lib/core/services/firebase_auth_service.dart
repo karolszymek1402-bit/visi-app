@@ -28,24 +28,20 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<AuthUser?> signInWithGoogle() async {
-    try {
-      if (kIsWeb) {
-        // On web, use Firebase Auth popup directly
-        final provider = GoogleAuthProvider();
-        final userCredential = await _firebaseAuth.signInWithPopup(provider);
-        return _toAuthUser(userCredential.user);
-      } else {
-        // On mobile, use google_sign_in package
-        final googleAccount = await GoogleSignIn.instance.authenticate();
-        final auth = googleAccount.authentication;
-        final credential = GoogleAuthProvider.credential(idToken: auth.idToken);
-        final userCredential = await _firebaseAuth.signInWithCredential(
-          credential,
-        );
-        return _toAuthUser(userCredential.user);
-      }
-    } catch (_) {
-      return null; // user cancelled or error
+    if (kIsWeb) {
+      // On web, use Firebase Auth popup directly
+      final provider = GoogleAuthProvider();
+      final userCredential = await _firebaseAuth.signInWithPopup(provider);
+      return _toAuthUser(userCredential.user);
+    } else {
+      // On mobile, use google_sign_in package
+      final googleAccount = await GoogleSignIn.instance.authenticate();
+      final auth = googleAccount.authentication;
+      final credential = GoogleAuthProvider.credential(idToken: auth.idToken);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+      return _toAuthUser(userCredential.user);
     }
   }
 

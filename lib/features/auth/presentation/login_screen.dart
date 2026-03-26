@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/services/auth_error_helper.dart';
 import '../../../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -15,7 +15,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -27,7 +26,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Odczytaj zapamiętany e-mail
     final saved = ref.read(databaseProvider).getSetting(_rememberedEmailKey);
     if (saved != null && saved.isNotEmpty) {
       _emailController.text = saved;
@@ -43,7 +41,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) return;
 
     setState(() {
       _isLoading = true;
@@ -51,23 +51,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref
-          .read(authProvider.notifier)
-          .signInWithEmail(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      await ref.read(authProvider.notifier).signInWithEmail(email, password);
 
-      // Zapamiętaj lub wyczyść e-mail
       final db = ref.read(databaseProvider);
       if (_rememberMe) {
-        await db.saveSetting(_rememberedEmailKey, _emailController.text.trim());
+        await db.saveSetting(_rememberedEmailKey, email);
       } else {
         await db.saveSetting(_rememberedEmailKey, '');
       }
+
+      // Powrót do AuthWrapper — przebuduje się z nowym stanem auth
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = e.toString());
+        final l10n = AppLocalizations.of(context)!;
+        setState(() => _errorMessage = friendlyAuthError(e, l10n));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -99,7 +99,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = e.toString());
+        final l10n = AppLocalizations.of(context)!;
+        setState(() => _errorMessage = friendlyAuthError(e, l10n));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -109,151 +110,138 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: const Color(0xFF060E1A),
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(0.8, -0.6),
+            radius: 1.2,
+            colors: [Color(0xFF0D1F3C), Color(0xFF060E1A)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Center(child: VisiLogo(height: 56)),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.login,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  // MINI BRANDING 3D
+                  const Center(child: VisiFacetedLogo(size: 180)),
+                  const SizedBox(height: 40),
+                  Text(
+                    l10n.welcomeBack,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 40),
-
-                    // E-mail
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration(
-                        'E-mail',
-                        Icons.email_outlined,
-                      ),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return l10n.invalidEmail;
-                        }
-                        final emailRegex = RegExp(
-                          r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                        );
-                        if (!emailRegex.hasMatch(v.trim())) {
-                          return l10n.invalidEmail;
-                        }
-                        return null;
-                      },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.loginSubtitle,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 16,
                     ),
-                    const SizedBox(height: 16),
-
-                    // Hasło
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputDecoration('Hasło', Icons.lock_outline),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) {
-                          return l10n.passwordRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Zapamiętaj mnie
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Checkbox(
-                            value: _rememberMe,
-                            onChanged: (val) =>
-                                setState(() => _rememberMe = val ?? false),
-                            activeColor: AppColors.primary,
-                            checkColor: Colors.white,
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.5),
-                            ),
+                  ),
+                  const SizedBox(height: 40),
+                  // SZKLANE POLA
+                  VisiInput(
+                    hint: l10n.email,
+                    icon: Icons.alternate_email_rounded,
+                    controller: _emailController,
+                  ),
+                  const SizedBox(height: 16),
+                  VisiInput(
+                    hint: l10n.password,
+                    icon: Icons.lock_outline_rounded,
+                    isPassword: true,
+                    controller: _passwordController,
+                  ),
+                  const SizedBox(height: 12),
+                  // Zapamiętaj mnie
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (val) =>
+                              setState(() => _rememberMe = val ?? false),
+                          activeColor: const Color(0xFF2E5B8A),
+                          checkColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.3),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () =>
-                              setState(() => _rememberMe = !_rememberMe),
-                          child: Text(
-                            l10n.rememberMe,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Błąd
-                    if (_errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () => setState(() => _rememberMe = !_rememberMe),
                         child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 13,
+                          l10n.rememberMe,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontSize: 14,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
-
-                    // Zapomniałem hasła
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
+                      const Spacer(),
+                      TextButton(
                         onPressed: _isLoading ? null : _handleResetPassword,
                         child: Text(
                           l10n.forgotPassword,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 13,
+                            color: Colors.white.withValues(alpha: 0.4),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  // Błąd
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 13,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-
-                    // Przycisk logowania
-                    ElevatedButton(
+                  const SizedBox(height: 30),
+                  // PRZYCISK LOGOWANIA
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 56),
+                        backgroundColor: const Color(0xFF4A7FB5),
+                        elevation: 10,
+                        shadowColor: const Color(
+                          0xFF4A7FB5,
+                        ).withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),
                         ),
-                        elevation: 0,
                       ),
                       child: _isLoading
                           ? const SizedBox(
@@ -267,41 +255,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           : Text(
                               l10n.login,
                               style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-      prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.redAccent),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 2),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
+import 'package:visi/core/presentation/visi_logo.dart';
 import 'package:visi/core/providers/auth_provider.dart';
 import 'package:visi/core/services/auth_service.dart';
 import 'package:visi/features/auth/presentation/welcome_screen.dart';
@@ -35,17 +36,16 @@ void main() {
   }
 
   group('WelcomeScreen', () {
-    // Rive's native DLL isn't available in the desktop test runner.
-    // _loadRive() runs in runZonedGuarded so the FFI error doesn't
-    // propagate to the test zone. The widget falls back to gradient text.
+    // WelcomeScreen uses VisiOrb(380) + VisiFacetedLogo(280) which need a tall
+    // viewport. Set physical size before each pump.
 
     Future<void> pumpWelcome(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
-      // Let real async _loadRive() run and fail (FakeAsync won't advance it)
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 50)),
-      );
-      await tester.pump(); // rebuild with _loadFailed fallback
+      await tester.pump();
     }
 
     testWidgets('renders logo and tagline', (tester) async {
@@ -78,20 +78,18 @@ void main() {
       expect(state.isAuthenticated, isTrue);
     });
 
-    testWidgets('has dark background', (tester) async {
+    testWidgets('has dark navy background', (tester) async {
       await pumpWelcome(tester);
 
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).last);
-      expect(scaffold.backgroundColor, const Color(0xFF0D1117));
+      expect(scaffold.backgroundColor, const Color(0xFF060E1A));
     });
 
-    testWidgets('renders fallback logo when .riv asset is missing', (
-      tester,
-    ) async {
+    testWidgets('renders VisiFacetedLogo and VisiOrb', (tester) async {
       await pumpWelcome(tester);
 
-      // Without the native Rive DLL, the fallback gradient "visi" text appears
-      expect(find.text('visi'), findsOneWidget);
+      expect(find.byType(VisiFacetedLogo), findsOneWidget);
+      expect(find.byType(VisiOrb), findsOneWidget);
     });
   });
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/presentation/visi_logo.dart';
+
 import '../../../core/presentation/language_switcher.dart';
+import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/date_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -21,7 +22,7 @@ class CalendarScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: const VisiLogo(),
+          child: const VisiFacetedLogo(size: 80),
         ),
         actions: [
           // Przełącznik widoku: dzień → tydzień → miesiąc

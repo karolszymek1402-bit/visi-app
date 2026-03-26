@@ -80,6 +80,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get btnGetStarted => 'Zaczynamy';
 
   @override
+  String get btnNext => 'Dalej';
+
+  @override
   String get tagline => 'Planuj wizyty. Zarabiaj więcej.';
 
   @override
@@ -98,10 +101,34 @@ class AppLocalizationsPl extends AppLocalizations {
   String get login => 'Zaloguj się';
 
   @override
+  String get welcomeBack => 'Witaj ponownie';
+
+  @override
+  String get loginSubtitle => 'Zaloguj się, aby zarządzać wizytami';
+
+  @override
+  String get email => 'E-mail';
+
+  @override
+  String get password => 'Hasło';
+
+  @override
+  String get confirmPassword => 'Potwierdź hasło';
+
+  @override
   String get rememberMe => 'Zapamiętaj mnie';
 
   @override
-  String get forgotPassword => 'Zapomniałem hasła';
+  String get forgotPassword => 'Zapomniałeś hasła?';
+
+  @override
+  String get whatsYourName => 'Jak masz na imię?';
+
+  @override
+  String get hintName => 'np. Anna, Kari';
+
+  @override
+  String get saveProfile => 'Zapisz profil';
 
   @override
   String get invalidEmail => 'Nieprawidłowy e-mail';
@@ -110,7 +137,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get passwordRequired => 'Podaj hasło';
 
   @override
-  String get passwordTooShort => 'Hasło musi mieć min. 8 znaków';
+  String get passwordTooShort => 'Hasło musi mieć min. 6 znaków';
 
   @override
   String get passwordsDoNotMatch => 'Hasła się nie zgadzają';
@@ -333,4 +360,72 @@ class AppLocalizationsPl extends AppLocalizations {
   String everyNDays(int n) {
     return 'Co $n dni';
   }
+
+  @override
+  String get onboardingWelcome => 'Witaj w Visi!';
+
+  @override
+  String get onboardingSubtitle => 'Twój osobisty planer wizyt';
+
+  @override
+  String get onboardingStep1Title => 'Planuj wizyty';
+
+  @override
+  String get onboardingStep1Desc =>
+      'Dodawaj klientów i planuj wizyty w kalendarzu. Ustaw przypomnienia, żeby nigdy nie przegapić spotkania.';
+
+  @override
+  String get onboardingStep2Title => 'Śledź zarobki';
+
+  @override
+  String get onboardingStep2Desc =>
+      'Ustaw stawki godzinowe per klient. Visi automatycznie liczy Twoje przychody i generuje raporty miesięczne.';
+
+  @override
+  String get onboardingStep3Title => 'Zarządzaj klientami';
+
+  @override
+  String get onboardingStep3Desc =>
+      'Przechowuj notatki, dane kontaktowe i historię wizyt. Wysyłaj SMS-y z przypomnieniami jednym kliknięciem.';
+
+  @override
+  String get onboardingLetsGo => 'Zaczynamy!';
+
+  @override
+  String get onboardingSkip => 'Pomiń';
+
+  @override
+  String get authErrorOperationNotAllowed =>
+      'Logowanie e-mailem jest wyłączone. Skontaktuj się z administratorem.';
+
+  @override
+  String get authErrorEmailAlreadyInUse =>
+      'Ten e-mail jest już zarejestrowany.';
+
+  @override
+  String get authErrorWrongPassword => 'Nieprawidłowe hasło.';
+
+  @override
+  String get authErrorUserNotFound => 'Nie znaleziono konta z tym e-mailem.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Zbyt wiele prób. Spróbuj ponownie za chwilę.';
+
+  @override
+  String get authErrorNetworkRequestFailed => 'Brak połączenia z internetem.';
+
+  @override
+  String get authErrorUserDisabled => 'To konto zostało zablokowane.';
+
+  @override
+  String get authErrorUnknown => 'Błąd logowania. Spróbuj ponownie.';
+
+  @override
+  String get authErrorPopupClosed =>
+      'Okno logowania zostało zamknięte. Spróbuj ponownie.';
+
+  @override
+  String get authErrorPopupBlocked =>
+      'Przeglądarka zablokowała okno logowania. Odblokuj wyskakujące okna dla tej strony.';
 }

@@ -80,6 +80,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnGetStarted => 'Get started';
 
   @override
+  String get btnNext => 'Next';
+
+  @override
   String get tagline => 'Plan visits. Earn more.';
 
   @override
@@ -98,10 +101,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Log in';
 
   @override
+  String get welcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitle => 'Sign in to manage your visits';
+
+  @override
+  String get email => 'E-mail';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
   String get rememberMe => 'Remember me';
 
   @override
-  String get forgotPassword => 'Forgot password';
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get whatsYourName => 'What\'s your name?';
+
+  @override
+  String get hintName => 'e.g. Anna, Kari';
+
+  @override
+  String get saveProfile => 'Save profile';
 
   @override
   String get invalidEmail => 'Invalid email';
@@ -110,7 +137,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordRequired => 'Enter password';
 
   @override
-  String get passwordTooShort => 'Password must be at least 8 characters';
+  String get passwordTooShort => 'Password must be at least 6 characters';
 
   @override
   String get passwordsDoNotMatch => 'Passwords do not match';
@@ -333,4 +360,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String everyNDays(int n) {
     return 'Every $n days';
   }
+
+  @override
+  String get onboardingWelcome => 'Welcome to Visi!';
+
+  @override
+  String get onboardingSubtitle => 'Your personal visit planner';
+
+  @override
+  String get onboardingStep1Title => 'Plan your visits';
+
+  @override
+  String get onboardingStep1Desc =>
+      'Add clients and schedule visits in the calendar. Set reminders so you never miss an appointment.';
+
+  @override
+  String get onboardingStep2Title => 'Track your earnings';
+
+  @override
+  String get onboardingStep2Desc =>
+      'Set hourly rates per client. Visi automatically calculates your income and generates monthly reports.';
+
+  @override
+  String get onboardingStep3Title => 'Manage clients';
+
+  @override
+  String get onboardingStep3Desc =>
+      'Keep notes, contact info and visit history. Send SMS reminders with one tap.';
+
+  @override
+  String get onboardingLetsGo => 'Let\'s go!';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get authErrorOperationNotAllowed =>
+      'Email sign-in is disabled. Contact the administrator.';
+
+  @override
+  String get authErrorEmailAlreadyInUse => 'This email is already registered.';
+
+  @override
+  String get authErrorWrongPassword => 'Incorrect password.';
+
+  @override
+  String get authErrorUserNotFound => 'No account found with this email.';
+
+  @override
+  String get authErrorTooManyRequests => 'Too many attempts. Try again later.';
+
+  @override
+  String get authErrorNetworkRequestFailed => 'No internet connection.';
+
+  @override
+  String get authErrorUserDisabled => 'This account has been disabled.';
+
+  @override
+  String get authErrorUnknown => 'Sign-in error. Please try again.';
+
+  @override
+  String get authErrorPopupClosed =>
+      'Sign-in window was closed. Please try again.';
+
+  @override
+  String get authErrorPopupBlocked =>
+      'Browser blocked the sign-in popup. Allow popups for this site.';
 }

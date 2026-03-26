@@ -92,70 +92,91 @@ class Auth extends _$Auth {
     final db = ref.read(databaseProvider);
     final authService = ref.read(authServiceProvider);
 
-    final user = await authService.signInWithGoogle();
-    if (user == null) return;
+    try {
+      final user = await authService.signInWithGoogle();
+      if (user == null) {
+        // User cancelled — restore unauthenticated state
+        state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+        return;
+      }
 
-    final name = user.displayName ?? displayName ?? 'Użytkownik';
-    await db.saveSetting(_nameKey, name);
+      final name = user.displayName ?? displayName ?? 'Użytkownik';
+      await db.saveSetting(_nameKey, name);
 
-    final profileDone = db.getSetting(_profileCompleteKey) == 'true';
-    state = AsyncData(
-      AuthState(
-        status: AuthStatus.authenticated,
-        userId: user.uid,
-        displayName: name,
-        profileComplete: profileDone,
-      ),
-    );
+      final profileDone = db.getSetting(_profileCompleteKey) == 'true';
+      state = AsyncData(
+        AuthState(
+          status: AuthStatus.authenticated,
+          userId: user.uid,
+          displayName: name,
+          profileComplete: profileDone,
+        ),
+      );
+    } catch (e) {
+      state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+      rethrow;
+    }
   }
 
   /// Zaloguj przez e-mail i hasło.
   Future<void> signInWithEmail(String email, String password) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    try {
       final db = ref.read(databaseProvider);
       final authService = ref.read(authServiceProvider);
 
       final user = await authService.signInWithEmail(email, password);
       if (user == null) {
-        return const AuthState(status: AuthStatus.unauthenticated);
+        state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+        return;
       }
 
       final name = user.displayName ?? user.email ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
       final profileDone = db.getSetting(_profileCompleteKey) == 'true';
-      return AuthState(
-        status: AuthStatus.authenticated,
-        userId: user.uid,
-        displayName: name,
-        profileComplete: profileDone,
+      state = AsyncData(
+        AuthState(
+          status: AuthStatus.authenticated,
+          userId: user.uid,
+          displayName: name,
+          profileComplete: profileDone,
+        ),
       );
-    });
+    } catch (e) {
+      state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+      rethrow;
+    }
   }
 
   /// Zarejestruj nowe konto e-mail.
   Future<void> signUpWithEmail(String email, String password) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    try {
       final db = ref.read(databaseProvider);
       final authService = ref.read(authServiceProvider);
 
       final user = await authService.signUpWithEmail(email, password);
       if (user == null) {
-        return const AuthState(status: AuthStatus.unauthenticated);
+        state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+        return;
       }
 
       final name = user.displayName ?? user.email ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
-      return AuthState(
-        status: AuthStatus.authenticated,
-        userId: user.uid,
-        displayName: name,
-        profileComplete: false,
+      state = AsyncData(
+        AuthState(
+          status: AuthStatus.authenticated,
+          userId: user.uid,
+          displayName: name,
+          profileComplete: false,
+        ),
       );
-    });
+    } catch (e) {
+      state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+      rethrow;
+    }
   }
 
   /// Utwórz profil użytkownika — zapisz dane i zaktualizuj stan.

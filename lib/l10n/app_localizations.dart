@@ -226,6 +226,12 @@ abstract class AppLocalizations {
   /// **'Get started'**
   String get btnGetStarted;
 
+  /// No description provided for @btnNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get btnNext;
+
   /// No description provided for @tagline.
   ///
   /// In en, this message translates to:
@@ -262,6 +268,36 @@ abstract class AppLocalizations {
   /// **'Log in'**
   String get login;
 
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage your visits'**
+  String get loginSubtitle;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'E-mail'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
   /// No description provided for @rememberMe.
   ///
   /// In en, this message translates to:
@@ -271,8 +307,26 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
-  /// **'Forgot password'**
+  /// **'Forgot password?'**
   String get forgotPassword;
+
+  /// No description provided for @whatsYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your name?'**
+  String get whatsYourName;
+
+  /// No description provided for @hintName.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Anna, Kari'**
+  String get hintName;
+
+  /// No description provided for @saveProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get saveProfile;
 
   /// No description provided for @invalidEmail.
   ///
@@ -289,7 +343,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordTooShort.
   ///
   /// In en, this message translates to:
-  /// **'Password must be at least 8 characters'**
+  /// **'Password must be at least 6 characters'**
   String get passwordTooShort;
 
   /// No description provided for @passwordsDoNotMatch.
@@ -699,6 +753,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Every {n} days'**
   String everyNDays(int n);
+
+  /// No description provided for @onboardingWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Visi!'**
+  String get onboardingWelcome;
+
+  /// No description provided for @onboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal visit planner'**
+  String get onboardingSubtitle;
+
+  /// No description provided for @onboardingStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan your visits'**
+  String get onboardingStep1Title;
+
+  /// No description provided for @onboardingStep1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add clients and schedule visits in the calendar. Set reminders so you never miss an appointment.'**
+  String get onboardingStep1Desc;
+
+  /// No description provided for @onboardingStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your earnings'**
+  String get onboardingStep2Title;
+
+  /// No description provided for @onboardingStep2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Set hourly rates per client. Visi automatically calculates your income and generates monthly reports.'**
+  String get onboardingStep2Desc;
+
+  /// No description provided for @onboardingStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage clients'**
+  String get onboardingStep3Title;
+
+  /// No description provided for @onboardingStep3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep notes, contact info and visit history. Send SMS reminders with one tap.'**
+  String get onboardingStep3Desc;
+
+  /// No description provided for @onboardingLetsGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s go!'**
+  String get onboardingLetsGo;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @authErrorOperationNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email sign-in is disabled. Contact the administrator.'**
+  String get authErrorOperationNotAllowed;
+
+  /// No description provided for @authErrorEmailAlreadyInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered.'**
+  String get authErrorEmailAlreadyInUse;
+
+  /// No description provided for @authErrorWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password.'**
+  String get authErrorWrongPassword;
+
+  /// No description provided for @authErrorUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No account found with this email.'**
+  String get authErrorUserNotFound;
+
+  /// No description provided for @authErrorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again later.'**
+  String get authErrorTooManyRequests;
+
+  /// No description provided for @authErrorNetworkRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get authErrorNetworkRequestFailed;
+
+  /// No description provided for @authErrorUserDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been disabled.'**
+  String get authErrorUserDisabled;
+
+  /// No description provided for @authErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in error. Please try again.'**
+  String get authErrorUnknown;
+
+  /// No description provided for @authErrorPopupClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in window was closed. Please try again.'**
+  String get authErrorPopupClosed;
+
+  /// No description provided for @authErrorPopupBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser blocked the sign-in popup. Allow popups for this site.'**
+  String get authErrorPopupBlocked;
 }
 
 class _AppLocalizationsDelegate

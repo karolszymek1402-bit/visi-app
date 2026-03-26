@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/constants.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
@@ -242,48 +245,48 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
 
   /// Feedback tile with live-updating time via ValueNotifier.
   Widget _buildDragFeedbackTile(Color accentColor, bool isCompleted) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? AppColors.completedBackground
-            : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: accentColor, width: 5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            client.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isCompleted ? AppColors.completed : AppColors.textLight,
-              fontSize: 15,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: accentColor.withValues(alpha: 0.4),
+              width: 1.5,
             ),
           ),
-          const SizedBox(height: 4),
-          ValueListenableBuilder<String>(
-            valueListenable: _liveTimeNotifier,
-            builder: (_, timeText, _) => Text(
-              timeText,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                client.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isCompleted ? AppColors.completed : Colors.white,
+                  fontSize: 15,
+                ),
               ),
-            ),
+              const SizedBox(height: 4),
+              ValueListenableBuilder<String>(
+                valueListenable: _liveTimeNotifier,
+                builder: (_, timeText, _) => Text(
+                  timeText,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -304,77 +307,93 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
     bool isInProgress = false,
     Duration? elapsed,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? AppColors.completedBackground
-            : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: accentColor, width: 5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDragging ? 0.2 : 0.04),
-            blurRadius: isDragging ? 20 : 12,
-            offset: const Offset(0, 4),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: isCompleted ? 0.1 : 0.15),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: accentColor.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(12),
+          child: Stack(
             children: [
-              Text(
-                client.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isCompleted
-                      ? AppColors.completed
-                      : AppColors.textLight,
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 4),
-              if (isInProgress && elapsed != null)
-                AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (_, _) => Text(
-                    _formatElapsed(elapsed),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    client.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: accentColor.withValues(
-                        alpha: 0.6 + _pulseAnimation.value * 0.4,
-                      ),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.bold,
+                      color: isCompleted
+                          ? AppColors.completed
+                          : AppColors.textLight,
+                      fontSize: 15,
                     ),
                   ),
-                )
-              else
-                Text(
-                  "${visit.scheduledStart.hour}:${visit.scheduledStart.minute.toString().padLeft(2, '0')} - ${visit.scheduledEnd.hour}:${visit.scheduledEnd.minute.toString().padLeft(2, '0')}",
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                  const SizedBox(height: 4),
+                  if (isInProgress && elapsed != null)
+                    AnimatedBuilder(
+                      animation: _pulseAnimation,
+                      builder: (_, _) => Text(
+                        _formatElapsed(elapsed),
+                        style: TextStyle(
+                          color: accentColor.withValues(
+                            alpha: 0.6 + _pulseAnimation.value * 0.4,
+                          ),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 20,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    )
+                  else
+                    Text(
+                      "${visit.scheduledStart.hour}:${visit.scheduledStart.minute.toString().padLeft(2, '0')} - ${visit.scheduledEnd.hour}:${visit.scheduledEnd.minute.toString().padLeft(2, '0')}",
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  if (client.address != null && !isInProgress) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      client.address!,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              // Pionowy pasek statusu (akcent 3D)
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                    ),
                   ),
                 ),
-              if (client.address != null && !isInProgress) ...[
-                const SizedBox(height: 4),
-                Text(
-                  client.address!,
-                  style: const TextStyle(
-                    color: AppColors.textSecondaryLight,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

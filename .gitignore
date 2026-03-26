@@ -48,6 +48,9 @@ app.*.map.json
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
+
+# Ukryte klucze API
+.env
 firebase_app_id_file.json
 
 # ─── Hive local database ───

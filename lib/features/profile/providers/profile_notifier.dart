@@ -30,9 +30,18 @@ class ProfileNotifier extends _$ProfileNotifier {
 
       final profileService = ref.read(profileServiceProvider);
       await profileService.saveProfile(profile);
-      await profileService.syncProfileToCloud(profile);
+
+      // Cloud sync jest opcjonalny — nie blokuje ukończenia profilu
+      try {
+        await profileService.syncProfileToCloud(profile);
+      } catch (_) {
+        // Firestore może być niedostępny — profil zapisany lokalnie
+      }
 
       state = const AsyncValue.data(null);
+
+      // Invalidate auth so AuthWrapper re-reads profileComplete from Hive
+      ref.invalidate(authProvider);
     } catch (e, st) {
       state = AsyncError(e, st);
     }

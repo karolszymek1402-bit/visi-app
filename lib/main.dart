@@ -1,24 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'firebase_options.dart';
-import 'l10n/app_localizations.dart';
+
 import 'core/database/database_service.dart';
 import 'core/presentation/auth_wrapper.dart';
+import 'core/providers/connectivity_provider.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/cloud_storage.dart';
 import 'core/services/firebase_auth_service.dart';
 import 'core/services/reminder_service.dart';
-import 'core/providers/connectivity_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   // 1. Gwarantujemy, że silnik Fluttera jest gotowy
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Wczytanie ukrytych kluczy API przed startem interfejsu
+  await dotenv.load(fileName: ".env");
 
   // 2. Odpalamy Firebase + Google Sign-In
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

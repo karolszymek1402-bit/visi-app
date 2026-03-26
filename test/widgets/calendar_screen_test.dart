@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/core/models/visit.dart';
-import 'package:visi/features/calendar/presentation/widgets/calendar_grid.dart';
 import 'package:visi/core/providers/date_provider.dart';
+import 'package:visi/features/calendar/presentation/widgets/calendar_grid.dart';
+
 import '../helpers/fake_database_service.dart';
 
 void main() {
@@ -63,6 +64,10 @@ void main() {
 
   group('CalendarGrid', () {
     testWidgets('should render hour labels from 8:00 to 18:00', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       // Set date to match test data
       final container = ProviderScope.containerOf(
@@ -79,6 +84,10 @@ void main() {
     });
 
     testWidgets('should render visit blocks for test data', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(CalendarGrid)),
@@ -92,6 +101,10 @@ void main() {
     });
 
     testWidgets('should display client address when available', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(CalendarGrid)),
@@ -105,6 +118,10 @@ void main() {
     });
 
     testWidgets('should display time ranges on visit blocks', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(CalendarGrid)),
