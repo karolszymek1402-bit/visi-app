@@ -67,19 +67,13 @@ void main() {
       expect(find.byIcon(Icons.content_copy_rounded), findsOneWidget);
     });
 
-    testWidgets('has theme toggle button', (tester) async {
+    testWidgets('has copy report action button', (tester) async {
+      // Przycisk motywu został przeniesiony do ekranu Ustawień.
+      // FinanceScreen ma teraz tylko przycisk kopiowania raportu w AppBarze.
       await tester.pumpWidget(buildFinanceScreen());
       await tester.pump();
 
-      // Could be light_mode or dark_mode icon depending on state
-      expect(
-        find.byWidgetPredicate(
-          (w) =>
-              w is Icon &&
-              (w.icon == Icons.dark_mode || w.icon == Icons.light_mode),
-        ),
-        findsOneWidget,
-      );
+      expect(find.byIcon(Icons.content_copy_rounded), findsOneWidget);
     });
 
     testWidgets('renders report preview button', (tester) async {

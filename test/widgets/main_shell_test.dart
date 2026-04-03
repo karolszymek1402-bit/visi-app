@@ -129,7 +129,7 @@ void main() {
       await tester.pump();
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.person_add_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
     });
 
     testWidgets('FAB hidden when switching away from clients tab', (tester) async {

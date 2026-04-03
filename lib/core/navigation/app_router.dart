@@ -12,10 +12,12 @@ import '../models/client.dart';
 import '../presentation/main_shell.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
+import '../theme/app_theme.dart';
 
 // ─── Ścieżki ─────────────────────────────────────────────────────────────────
 
 abstract final class AppRoutes {
+  static const splash = '/';
   static const language = '/language';
   static const welcome = '/welcome';
   static const onboarding = '/onboarding';
@@ -27,15 +29,17 @@ abstract final class AppRoutes {
 
 /// GoRouter z reaktywnym przekierowaniem opartym na stanie autoryzacji.
 ///
-/// Riverpod [authProvider] + [languageSelectedProvider] napędzają logikę
-/// redirect przez [ChangeNotifier] — router przebudowuje się automatycznie
-/// gdy zmieni się stan logowania lub profilu.
+/// Startuje na `/` (splash) — natychmiastowy ekran ładowania.
+/// [_AuthRouterNotifier] nasłuchuje Riverpod i wywołuje redirect gdy:
+///  • Firebase Auth załaduje sesję (AsyncLoading → AsyncData)
+///  • Zmieni się flaga wyboru języka
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthRouterNotifier(ref);
   ref.onDispose(notifier.dispose);
 
   return GoRouter(
-    initialLocation: AppRoutes.app,
+    // Zamiast /app — ekran splash bezpieczny podczas AsyncLoading.
+    initialLocation: AppRoutes.splash,
     refreshListenable: notifier,
     redirect: _redirect(ref),
     routes: _routes,
@@ -47,29 +51,40 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 GoRouterRedirect _redirect(Ref ref) {
   return (context, state) {
-    final auth = ref.read(authProvider).valueOrNull;
-    final langSelected = ref.read(languageSelectedProvider);
+    final authAsync = ref.read(authProvider);
     final loc = state.matchedLocation;
 
-    // Auth nie załadowany — czekaj (GoRouter wywoła ponownie po notifyListeners)
-    if (auth == null) return null;
+    // ── Auth wciąż się ładuje (Firebase nie odpowiedział jeszcze) ────────────
+    // Zostajemy na /splash — spinner zamiast flashu MainShell.
+    if (authAsync.isLoading || authAsync.hasError) {
+      return loc == AppRoutes.splash ? null : AppRoutes.splash;
+    }
 
+    final auth = authAsync.valueOrNull;
+    if (auth == null) {
+      return loc == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    final langSelected = ref.read(languageSelectedProvider);
+
+    // ── Niezalogowany ────────────────────────────────────────────────────────
     if (!auth.isAuthenticated) {
       if (!langSelected) {
         return loc == AppRoutes.language ? null : AppRoutes.language;
       }
-      // Przekieruj do ekranu logowania jeśli nie jest już tam
       if (loc == AppRoutes.welcome || loc == AppRoutes.language) return null;
       return AppRoutes.welcome;
     }
 
+    // ── Zalogowany, brak profilu → onboarding ────────────────────────────────
     if (!auth.profileComplete) {
       return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
     }
 
-    // Zalogowany z kompletnym profilem — odblokowane trasy /app i /edit-client.
-    // Przekieruj precz ze stron autoryzacji.
-    if (loc == AppRoutes.language ||
+    // ── Zalogowany z kompletnym profilem → główna aplikacja ─────────────────
+    // Wyjdź z ekranów auth i splash.
+    if (loc == AppRoutes.splash ||
+        loc == AppRoutes.language ||
         loc == AppRoutes.welcome ||
         loc == AppRoutes.onboarding) {
       return AppRoutes.app;
@@ -82,6 +97,11 @@ GoRouterRedirect _redirect(Ref ref) {
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 final _routes = <RouteBase>[
+  // Splash — bezpieczny ekran ładowania, widoczny tylko podczas AsyncLoading.
+  GoRoute(
+    path: AppRoutes.splash,
+    builder: (ctx, state) => const _SplashScreen(),
+  ),
   GoRoute(
     path: AppRoutes.language,
     builder: (ctx, state) => const LanguageScreen(),
@@ -121,6 +141,61 @@ final _routes = <RouteBase>[
     },
   ),
 ];
+
+// ─── Splash screen ────────────────────────────────────────────────────────────
+
+/// Wyświetlany tylko przez ułamek sekundy — dopóki Firebase Auth nie odpowie.
+/// Dzięki temu żaden chroniony ekran (MainShell) nie renderuje się bez sesji.
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Logo / inicjał aplikacji
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accent.withValues(alpha: 0.12),
+                border: Border.all(
+                  color: AppColors.accent.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                'V',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.accent,
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            const SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                color: AppColors.accent,
+                strokeWidth: 2.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 // ─── ChangeNotifier dla refreshListenable ────────────────────────────────────
 

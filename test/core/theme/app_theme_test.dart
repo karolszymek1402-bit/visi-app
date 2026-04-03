@@ -27,11 +27,12 @@ void main() {
     });
 
     test('dark theme colors are set', () {
-      expect(AppColors.backgroundDark, const Color(0xFF0D1117));
-      expect(AppColors.surfaceDark, const Color(0xFF161B22));
-      expect(AppColors.textDark, const Color(0xFFF0F6FC));
-      expect(AppColors.textSecondaryDark, const Color(0xFF8B949E));
-      expect(AppColors.borderDark, const Color(0xFF30363D));
+      // Material 3 dark baseline palette (nie GitHub-style)
+      expect(AppColors.backgroundDark, const Color(0xFF121212));
+      expect(AppColors.surfaceDark, const Color(0xFF1D1D1D));
+      expect(AppColors.textDark, const Color(0xFFE8EAED));
+      expect(AppColors.textSecondaryDark, const Color(0xFF9AA0A6));
+      expect(AppColors.borderDark, const Color(0xFF3C3C3C));
     });
   });
 
@@ -87,13 +88,18 @@ void main() {
     });
 
     test('darkTheme text theme bodyLarge has correct color', () {
-      expect(AppTheme.darkTheme.textTheme.bodyLarge?.color, AppColors.textDark);
+      // bodyLarge używa white70 (0xB3FFFFFF) dla lepszego kontrastu na ciemnym tle
+      expect(
+        AppTheme.darkTheme.textTheme.bodyLarge?.color,
+        const Color(0xB3FFFFFF),
+      );
     });
 
     test('darkTheme text theme bodyMedium has secondary color', () {
+      // bodyMedium używa white60 (0x99FFFFFF) — pomocniczy tekst
       expect(
         AppTheme.darkTheme.textTheme.bodyMedium?.color,
-        AppColors.textSecondaryDark,
+        const Color(0x99FFFFFF),
       );
     });
 

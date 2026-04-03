@@ -101,7 +101,7 @@ class _MainShellState extends ConsumerState<MainShell> {
               onPressed: () => context.push(AppRoutes.editClient),
               backgroundColor: const Color(0xFF2E5B8A),
               elevation: 4,
-              child: const Icon(Icons.person_add_rounded, color: Colors.white),
+              child: const Icon(Icons.add_rounded, color: Colors.white),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

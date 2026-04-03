@@ -169,8 +169,8 @@ void main() {
     test('completeVisit clears actualStartTime from database', () async {
       await container.read(timerProvider.notifier).startTimer('v1');
 
-      // Complete the visit
-      container
+      // Complete the visit — musi być await, bo to operacja async na Hive
+      await container
           .read(calendarProvider.notifier)
           .completeVisit(visitId: 'v1', actualDuration: 1.5, earnedAmount: 375);
 

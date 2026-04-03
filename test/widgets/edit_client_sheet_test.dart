@@ -82,10 +82,12 @@ void main() {
       await tester.pump();
 
       expect(find.text('Dodaj klienta'), findsOneWidget);
-      expect(find.byIcon(Icons.person_add), findsOneWidget);
+      expect(find.byIcon(Icons.person_add_rounded), findsOneWidget);
     });
 
-    testWidgets('shows error snackbar when name is empty', (tester) async {
+    testWidgets('shows inline validation error when name is empty', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -93,32 +95,33 @@ void main() {
       await tester.pumpWidget(buildSheet());
       await tester.pump();
 
-      // Enter only rate
-      final rateField = find.byType(TextField).last;
+      // Tap save without filling name
+      await tester.tap(find.text('Dodaj klienta'));
+      await tester.pump();
+
+      // Form validation shows inline error (not SnackBar)
+      expect(find.text('Podaj imię i nazwisko'), findsOneWidget);
+    });
+
+    testWidgets('shows inline error even with rate filled but name empty', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildSheet());
+      await tester.pump();
+
+      // Enter only rate, leave name empty
+      final rateField = find.widgetWithText(TextFormField, 'Puste = stawka domyślna');
       await tester.enterText(rateField, '250');
       await tester.pump();
 
-      // Tap save
       await tester.tap(find.text('Dodaj klienta'));
       await tester.pump();
 
-      // Should show validation snackbar
-      expect(find.byType(SnackBar), findsOneWidget);
-    });
-
-    testWidgets('shows error snackbar when name is empty', (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(buildSheet());
-      await tester.pump();
-
-      // Leave name empty, tap save — should show snackbar
-      await tester.tap(find.text('Dodaj klienta'));
-      await tester.pump();
-
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Podaj imię i nazwisko'), findsOneWidget);
     });
 
     testWidgets('saves successfully with name only (rate is optional)', (tester) async {
@@ -223,7 +226,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Zapisz zmiany'), findsOneWidget);
-      expect(find.byIcon(Icons.save), findsOneWidget);
+      expect(find.byIcon(Icons.save_rounded), findsOneWidget);
     });
   });
 }

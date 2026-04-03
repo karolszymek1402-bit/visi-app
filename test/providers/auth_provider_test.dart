@@ -77,7 +77,9 @@ void main() {
       expect(state.isAuthenticated, isFalse);
     });
 
-    test('signOut clears profile_complete flag', () async {
+    test('signOut preserves UID-keyed profile_complete flag', () async {
+      // Design: flaga onboardingu jest UID-zależna i NIE jest kasowana przy
+      // wylogowaniu — ten sam użytkownik nie przechodzi onboardingu ponownie.
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
       await container
           .read(authProvider.notifier)
@@ -85,10 +87,17 @@ void main() {
       expect(container.read(authProvider).value!.profileComplete, isTrue);
 
       await container.read(authProvider.notifier).signOut();
-      expect(fakeDb.getSetting('profile_complete'), '');
+
+      // Klucz UID-zależny pozostaje w Hive po wylogowaniu.
+      expect(fakeDb.getSetting('profile_complete_google_user_123'), 'true');
+      // Klucz bez UID nie jest używany.
+      expect(fakeDb.getSetting('profile_complete'), isNull);
     });
 
-    test('re-login after signOut shows profile setup again', () async {
+    test('re-login after signOut preserves profileComplete for same user',
+        () async {
+      // Design: ten sam użytkownik (google_user_123) wracający po wylogowaniu
+      // ma profileComplete = true — onboarding był już ukończony.
       await container.read(authProvider.notifier).signIn(displayName: 'Ola');
       await container
           .read(authProvider.notifier)
@@ -98,7 +107,8 @@ void main() {
 
       final state = container.read(authProvider).value!;
       expect(state.status, AuthStatus.authenticated);
-      expect(state.profileComplete, isFalse);
+      // Flaga przeżyła wylogowanie → użytkownik trafia od razu do /app.
+      expect(state.profileComplete, isTrue);
     });
 
     test('signOut then re-read does not restore session', () async {
@@ -134,7 +144,8 @@ void main() {
       final state = container.read(authProvider).value!;
       expect(state.profileComplete, isTrue);
       expect(state.displayName, 'Ola K');
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      // Klucz jest UID-zależny — patrz Auth._profileCompleteKey
+      expect(fakeDb.getSetting('profile_complete_google_user_123'), 'true');
     });
 
     test('restores profileComplete from saved session', () {
@@ -142,7 +153,8 @@ void main() {
         const AuthUser(uid: 'google_user_123', displayName: 'Karol'),
       );
       fakeDb.saveSetting('auth_display_name', 'Karol');
-      fakeDb.saveSetting('profile_complete', 'true');
+      // Klucz jest UID-zależny — patrz Auth._profileCompleteKey
+      fakeDb.saveSetting('profile_complete_google_user_123', 'true');
       final c = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(auth),

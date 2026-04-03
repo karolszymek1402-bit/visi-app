@@ -46,8 +46,8 @@ void main() {
           .read(profileNotifierProvider.notifier)
           .updateProfile(name: 'Karol', location: 'Oslo');
 
-      // profile_complete should be set to 'true'
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      // Klucz jest UID-zależny — uid pochodzi z FakeAuthService = 'test_user_123'
+      expect(fakeDb.getSetting('profile_complete_test_user_123'), 'true');
       expect(fakeDb.getSetting('auth_display_name'), 'Karol');
     });
 
@@ -135,8 +135,8 @@ void main() {
       final state = failContainer.read(profileNotifierProvider);
       expect(state, isA<AsyncData<void>>());
 
-      // Profile should still be saved locally
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      // Profile should still be saved locally (klucz UID-zależny)
+      expect(fakeDb.getSetting('profile_complete_test_user_123'), 'true');
 
       failContainer.dispose();
     });
