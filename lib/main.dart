@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/database/database_service.dart';
 import 'core/navigation/app_router.dart';
@@ -16,23 +18,37 @@ import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
-  // 1. Gwarantujemy, że silnik Fluttera jest gotowy
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Odpalamy Firebase + Google Sign-In
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // 1. Hive na Webie wymaga initFlutter (IndexedDB) — przed Firebase i openBox.
+  await Hive.initFlutter();
+
+  // 2. Otwarcie boxów (visits, clients, settings, kolejki) — błędy Web/IndexedDB
+  //    logujemy; rethrow, żeby nie startować z pustą bazą bez informacji.
+  final db = DatabaseService();
   try {
-    await GoogleSignIn.instance.initialize();
-  } catch (_) {
-    // Ignorujemy błąd gdy GoogleSignIn był już zainicjalizowany (hot reload)
+    await db.init();
+  } catch (e, st) {
+    debugPrint('Błąd Hive (np. IndexedDB na web): $e');
+    FlutterError.reportError(
+      FlutterErrorDetails(exception: e, stack: st, library: 'main'),
+    );
+    rethrow;
+  }
+
+  // 3. Firebase + Google Sign-In
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Na Web Google Auth używa Firebase popup; GoogleSignIn.init dotyczy mobile.
+  if (!kIsWeb) {
+    try {
+      await GoogleSignIn.instance.initialize();
+    } catch (e) {
+      debugPrint('GoogleSignIn init warning: $e');
+    }
   }
   final auth = FirebaseAuthService();
 
-  // 3. Odpalamy lokalną bazę Hive
-  final db = DatabaseService();
-  await db.init();
-
-  // 4. Inicjalizacja serwisu przypomnień
+  // 4. Przypomnienia
   await ReminderService().init();
 
   // 5. Startujemy aplikację z Riverpodem

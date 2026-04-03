@@ -54,8 +54,19 @@ GoRouterRedirect _redirect(Ref ref) {
     final authAsync = ref.read(authProvider);
     final loc = state.matchedLocation;
 
+    if (kDebugMode) {
+      debugPrint('ROUTER: Current location: $loc');
+      final authLabel = authAsync.isLoading
+          ? 'loading'
+          : authAsync.hasError
+              ? 'error: ${authAsync.error}'
+              : 'data: ${authAsync.value}';
+      debugPrint('GoRouter redirect: path=$loc auth=$authLabel');
+    }
+
     // ── Auth wciąż się ładuje (Firebase nie odpowiedział jeszcze) ────────────
-    // Zostajemy na /splash — spinner zamiast flashu MainShell.
+    // NIE rób tutaj `if (isLoading) return null` — na Webie zostajesz wtedy na
+    // np. /app z pustym stanem. Wymuszamy /splash aż AsyncValue się ustabilizuje.
     if (authAsync.isLoading || authAsync.hasError) {
       return loc == AppRoutes.splash ? null : AppRoutes.splash;
     }

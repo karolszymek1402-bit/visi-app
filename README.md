@@ -100,6 +100,52 @@ flutter run -d chrome
 
 ---
 
+### Flutter Web i Firebase — rozwiązywanie problemów
+
+Jeśli aplikacja startuje w Chrome (`flutter run -d chrome`), ale nie przechodzi logowania lub onboardingu:
+
+#### 1. Konfiguracja Firebase Console
+
+Upewnij się, że lokalny host jest na liście **Authorized domains** (OAuth / Auth):
+
+1. [Firebase Console](https://console.firebase.google.com) → projekt → **Authentication** → **Settings** → **Authorized domains**.
+2. Dodaj **`localhost`** oraz **`127.0.0.1`**, jeśli ich brakuje (origin z dowolnym portem, np. `http://localhost:64651`, nadal jest hostem `localhost` — wpis `localhost` zwykle wystarcza na wszystkie porty).
+
+#### 2. Renderer Web i warstwy UI
+
+Niektóre efekty (np. `BackdropFilter`, złożone przejścia `Hero`) mogą na starszych konfiguracjach zachowywać się inaczej w zależności od silnika web.
+
+- **Flutter 3.41+ (stable):** przy `flutter run` **nie ma już** opcji `--web-renderer` — użyj po prostu:
+
+  ```bash
+  flutter run -d chrome
+  ```
+
+- Na aktualnym **stable** domyślna ścieżka web jest zorientowana na **CanvasKit** (renderer HTML jest wycofywany). Jeśli w dokumentacji widzisz `flutter run -d chrome --web-renderer canvaskit`, to polecenie może zwrócić błąd *„Could not find an option named --web-renderer”* — wtedy pomijasz tę flagę.
+
+- Przy problemach z UI sprawdź też **DevTools → Console / Network** (CORS, `auth/*`, Firestore) oraz logi `GoRouter` w trybie debug (`debugLogDiagnostics` w routerze).
+
+#### 3. Checklista DevTools (Chrome)
+
+Gdy przycisk „nie reaguje” lub ekran stoi w miejscu — **DevTools przeglądarki** (macOS: **Cmd + Option + J**; Windows/Linux: **F12** lub **Ctrl + Shift + J**):
+
+| Gdzie patrzeć | Co szukać |
+|---------------|-----------|
+| **Console** | Błędy **CORS** (często związane z domeną / konfiguracją Firebase lub hostingiem). Komunikaty **Hive / IndexedDB** przy starcie. |
+| **Application** → **Storage** → **IndexedDB** | Czy po starcie aplikacji pojawiają się bazy/boxy Hive (inicjalizacja `Hive.initFlutter()` w `main.dart`, potem `DatabaseService.init()`). |
+| **Network** | Żądania do **Firebase Auth** i **Firestore**: status **403**, **401**, lub **(canceled)** — podpowiedź do rules / tokenów / przerwanego requestu. |
+
+#### 4. Asynchroniczność na Webie (auth i router)
+
+Przy **0 błędów** z `flutter analyze` i **zielonych testach** „zamrożenie” na Webie bardzo często wynika z **timingów async**, a nie z syntaktyki.
+
+- Główna aplikacja używa **GoRouter** (`lib/core/navigation/app_router.dart`) i **`authProvider`** (Riverpod), a nie już `MaterialApp(home: AuthWrapper)` — przy debugowaniu patrz na **redirect** routera i stan **`AsyncValue`** auth (w debug buildzie są też logi `GoRouter redirect: …`).
+- Na **Webie** pierwsze zdarzenie ze **streamu Firebase Auth** może przyjść **wolniej** niż na urządzeniu mobilnym. Kod nie powinien zakładać natychmiastowego pierwszego emisji ani blokować nawigacji **nieskończonym `await`** na „pierwszym evencie” bez **ekranu ładowania** (u nas start z **`/` splash** do momentu ustabilizowania `authProvider`).
+
+**Co zrobić w praktyce:** najpierw **Firebase Console → Authorized domains** (jeśli problem dotyczy logowania OAuth), równolegle **DevTools** według tabeli powyżej — to nie wyklucza się z commitem dokumentacji do repo.
+
+---
+
 ### Licencja
 
 Projekt prywatny.

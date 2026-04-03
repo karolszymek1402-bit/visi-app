@@ -6,9 +6,14 @@ import 'auth_service.dart';
 
 class FirebaseAuthService implements AuthService {
   final FirebaseAuth _firebaseAuth;
+  static Future<void>? _googleInitFuture;
 
   FirebaseAuthService({FirebaseAuth? firebaseAuth})
     : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
+  Future<void> _ensureGoogleInitialized() {
+    return _googleInitFuture ??= GoogleSignIn.instance.initialize();
+  }
 
   AuthUser? _toAuthUser(User? user) {
     if (user == null) return null;
@@ -28,20 +33,32 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<AuthUser?> signInWithGoogle() async {
-    if (kIsWeb) {
-      // On web, use Firebase Auth popup directly
-      final provider = GoogleAuthProvider();
-      final userCredential = await _firebaseAuth.signInWithPopup(provider);
-      return _toAuthUser(userCredential.user);
-    } else {
-      // On mobile, use google_sign_in package
-      final googleAccount = await GoogleSignIn.instance.authenticate();
-      final auth = googleAccount.authentication;
-      final credential = GoogleAuthProvider.credential(idToken: auth.idToken);
-      final userCredential = await _firebaseAuth.signInWithCredential(
-        credential,
-      );
-      return _toAuthUser(userCredential.user);
+    // Guard: jeśli sesja już istnieje, nie uruchamiaj ponownie flow logowania.
+    final existing = _firebaseAuth.currentUser;
+    if (existing != null) return _toAuthUser(existing);
+
+    try {
+      if (kIsWeb) {
+        // On web, use Firebase Auth popup directly
+        final provider = GoogleAuthProvider();
+        final userCredential = await _firebaseAuth.signInWithPopup(provider);
+        return _toAuthUser(userCredential.user);
+      } else {
+        // On mobile, use google_sign_in package
+        await _ensureGoogleInitialized();
+        final googleAccount = await GoogleSignIn.instance.authenticate();
+        final auth = googleAccount.authentication;
+        final credential = GoogleAuthProvider.credential(idToken: auth.idToken);
+        final userCredential = await _firebaseAuth.signInWithCredential(
+          credential,
+        );
+        return _toAuthUser(userCredential.user);
+      }
+    } catch (e) {
+      // Celowo logujemy na Webie, by złapać realny wyjątek w konsoli.
+      // ignore: avoid_print
+      print('Google sign-in failed (${kIsWeb ? "web" : "mobile"}): $e');
+      rethrow;
     }
   }
 

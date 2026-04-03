@@ -92,6 +92,9 @@ class Auth extends _$Auth {
 
   /// Zaloguj przez Google (Firebase Auth).
   Future<void> signIn({String? displayName}) async {
+    if (state.isLoading) return;
+    if (state.valueOrNull?.isAuthenticated == true) return;
+
     state = const AsyncLoading();
 
     final db = ref.read(databaseProvider);
@@ -119,6 +122,8 @@ class Auth extends _$Auth {
         ),
       );
     } catch (e) {
+      // ignore: avoid_print
+      print('Auth.signIn failed: $e');
       state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
       rethrow;
     }

@@ -19,7 +19,8 @@ class DatabaseService {
   late Box<String> _visitsSyncQueueBox;
 
   Future<void> init() async {
-    await Hive.initFlutter();
+    // Hive.initFlutter() wywoływane w main.dart przed tą metodą — wymagane na Web
+    // (IndexedDB), jedna inicjalizacja na całą aplikację.
 
     // Rejestracja adapterów
     Hive.registerAdapter(VisiUserAdapter());
