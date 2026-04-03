@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/presentation/language_switcher.dart';
 import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/date_provider.dart';
-import '../../../core/providers/theme_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/calendar_view_mode_provider.dart';
 import 'widgets/calendar_grid.dart';
@@ -20,9 +18,17 @@ class CalendarScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 120,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: const VisiFacetedLogo(size: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              VisiOrbStatus(size: 30),
+              SizedBox(width: 8),
+              Flexible(child: VisiFacetedLogo(size: 68)),
+            ],
+          ),
         ),
         actions: [
           // Przełącznik widoku: dzień → tydzień → miesiąc
@@ -42,20 +48,6 @@ class CalendarScreen extends ConsumerWidget {
               ref.read(calendarViewModeProvider.notifier).setMode(next);
             },
           ),
-          // Przełącznik motywu
-          IconButton(
-            icon: Icon(
-              ref.watch(themeProvider) == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-            onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
-          ),
-          // Przełącznik języka
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.0),
-            child: LanguageSwitcher(),
-          ),
           // Przycisk "Dziś"
           TextButton(
             onPressed: () => ref.read(selectedDateProvider.notifier).today(),
@@ -65,8 +57,8 @@ class CalendarScreen extends ConsumerWidget {
             ),
           ),
         ],
-        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
       ),
       body: Column(

@@ -8,6 +8,7 @@ class FakeDatabaseService extends DatabaseService {
   final Map<String, Client> _clients = {};
   final Map<String, String> _settings = {};
   final Map<String, String> _syncQueue = {};
+  final Map<String, String> _visitSyncQueue = {};
 
   @override
   Future<void> init() async {
@@ -98,6 +99,22 @@ class FakeDatabaseService extends DatabaseService {
 
   @override
   bool isSyncQueueEmpty() => _syncQueue.isEmpty;
+
+  @override
+  Future<void> enqueueVisitSync(String visitId) async {
+    _visitSyncQueue[visitId] = visitId;
+  }
+
+  @override
+  List<String> getVisitSyncQueue() => _visitSyncQueue.values.toList();
+
+  @override
+  Future<void> dequeueVisitSynced(String visitId) async {
+    _visitSyncQueue.remove(visitId);
+  }
+
+  @override
+  bool isVisitSyncQueueEmpty() => _visitSyncQueue.isEmpty;
 
   /// Seed test data
   void seedTestData({

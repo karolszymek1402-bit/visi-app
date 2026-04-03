@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/models/visi_user.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/services/profile_service.dart';
 
 part 'profile_notifier.g.dart';
@@ -13,19 +14,21 @@ class ProfileNotifier extends _$ProfileNotifier {
 
   Future<void> updateProfile({
     required String name,
+    double rate = 0,
     required String location,
   }) async {
     state = const AsyncLoading();
     try {
       final auth = ref.read(authProvider).value;
       final uid = auth?.userId ?? 'local_user';
+      final lang = ref.read(localeProvider).languageCode;
 
       final profile = VisiUser(
         uid: uid,
-        name: name,
-        defaultRate: 0,
-        language: 'pl',
-        workLocation: location,
+        name: name.trim().isEmpty ? 'Użytkownik' : name.trim(),
+        defaultRate: rate,
+        language: lang,
+        workLocation: location.trim(),
       );
 
       final profileService = ref.read(profileServiceProvider);

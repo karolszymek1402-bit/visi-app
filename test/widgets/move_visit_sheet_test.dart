@@ -28,7 +28,7 @@ void main() {
   final testClient = Client(
     id: '1',
     name: 'Hamar Kommune',
-    defaultRate: 250,
+    customRate: 250,
     colorValue: 0xFF2F58CD,
   );
 

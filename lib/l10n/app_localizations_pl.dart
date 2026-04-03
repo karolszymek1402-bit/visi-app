@@ -95,6 +95,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get continueWithGoogle => 'Kontynuuj z Google';
 
   @override
+  String get signingIn => 'Trwa logowanie...';
+
+  @override
   String get or => 'LUB';
 
   @override
@@ -395,6 +398,40 @@ class AppLocalizationsPl extends AppLocalizations {
   String get onboardingSkip => 'Pomiń';
 
   @override
+  String get onboardingStep4Title => 'Ostatni krok';
+
+  @override
+  String get onboardingStep4Desc =>
+      'Twoje dane są widoczne tylko dla Ciebie i pomagają liczyć zarobki. Możesz je zmienić w ustawieniach.';
+
+  @override
+  String get onboardingFinish => 'Gotowe, startujemy!';
+
+  @override
+  String get onboardingYourName => 'Twoje imię';
+
+  @override
+  String get onboardingOptionalHint => '* Stawka i lokalizacja są opcjonalne';
+
+  @override
+  String get labelActualDuration => 'Faktyczny czas trwania';
+
+  @override
+  String get labelEarned => 'Zarobek';
+
+  @override
+  String get statusOffline => 'Offline';
+
+  @override
+  String get statusOfflineHint => 'Zmiany zapisywane lokalnie';
+
+  @override
+  String get statusSyncing => 'Synchronizuję...';
+
+  @override
+  String get statusSynced => 'Zsynchronizowano';
+
+  @override
   String get authErrorOperationNotAllowed =>
       'Logowanie e-mailem jest wyłączone. Skontaktuj się z administratorem.';
 
@@ -428,4 +465,61 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get authErrorPopupBlocked =>
       'Przeglądarka zablokowała okno logowania. Odblokuj wyskakujące okna dla tej strony.';
+
+  @override
+  String get navCalendar => 'Kalendarz';
+
+  @override
+  String get navClients => 'Klienci';
+
+  @override
+  String get navFinance => 'Finanse';
+
+  @override
+  String get navSettings => 'Opcje';
+
+  @override
+  String get settingsTitle => 'Ustawienia';
+
+  @override
+  String get settingsProfile => 'Profil';
+
+  @override
+  String get settingsAppearance => 'Wygląd';
+
+  @override
+  String get settingsLanguage => 'Język';
+
+  @override
+  String get settingsAccount => 'Konto';
+
+  @override
+  String get settingsThemeSystem => 'Systemowy';
+
+  @override
+  String get settingsThemeLight => 'Jasny';
+
+  @override
+  String get settingsThemeDark => 'Ciemny';
+
+  @override
+  String get settingsSignOut => 'Wyloguj się';
+
+  @override
+  String get settingsSignOutTitle => 'Wylogowanie';
+
+  @override
+  String get settingsSignOutConfirm => 'Czy na pewno chcesz się wylogować?';
+
+  @override
+  String get settingsSaved => 'Zapisano';
+
+  @override
+  String get settingsName => 'Imię i nazwisko';
+
+  @override
+  String get settingsDefaultRate => 'Domyślna stawka (NOK/h)';
+
+  @override
+  String get settingsWorkLocation => 'Lokalizacja pracy';
 }

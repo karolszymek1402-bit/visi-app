@@ -106,7 +106,7 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('shows error snackbar when rate is invalid', (tester) async {
+    testWidgets('shows error snackbar when name is empty', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -114,16 +114,31 @@ void main() {
       await tester.pumpWidget(buildSheet());
       await tester.pump();
 
-      // Enter only name
-      final nameField = find.byType(TextField).first;
-      await tester.enterText(nameField, 'Test Client');
-      await tester.pump();
-
-      // Tap save
+      // Leave name empty, tap save — should show snackbar
       await tester.tap(find.text('Dodaj klienta'));
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('saves successfully with name only (rate is optional)', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildSheet());
+      await tester.pump();
+
+      // Enter name but no rate — customRate is optional
+      final nameField = find.byType(TextField).first;
+      await tester.enterText(nameField, 'Test Client');
+      await tester.pump();
+
+      await tester.tap(find.text('Dodaj klienta'));
+      await tester.pump();
+
+      // No snackbar — empty rate is valid (null = use user's global default)
+      expect(find.byType(SnackBar), findsNothing);
     });
 
     testWidgets('has week cycle selector', (tester) async {
@@ -146,8 +161,8 @@ void main() {
       await tester.pumpWidget(buildSheet());
       await tester.pump();
 
-      // Default 120min = 2h
-      expect(find.text('2h '), findsOneWidget);
+      // Default 120min = 2h (no trailing space in new format)
+      expect(find.text('2h'), findsOneWidget);
     });
   });
 
@@ -156,10 +171,10 @@ void main() {
       id: 'c1',
       name: 'Hamar Kommune',
       address: 'Hamarvika 12',
-      defaultRate: 250,
+      customRate: 250,
       colorValue: 0xFF2F58CD,
-      phoneNumber: '+4712345678',
-      note: 'Test note',
+      phone: '+4712345678',
+      notes: 'Test note',
     );
 
     testWidgets('shows "Edytuj klienta" title for existing client', (

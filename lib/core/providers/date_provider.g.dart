@@ -13,14 +13,14 @@ String _$selectedDateControllerHash() =>
 @ProviderFor(SelectedDateController)
 final selectedDateControllerProvider =
     AutoDisposeNotifierProvider<SelectedDateController, DateTime>.internal(
-      SelectedDateController.new,
-      name: r'selectedDateControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$selectedDateControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  SelectedDateController.new,
+  name: r'selectedDateControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedDateControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$SelectedDateController = AutoDisposeNotifier<DateTime>;
 // ignore_for_file: type=lint

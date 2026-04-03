@@ -166,4 +166,19 @@ class _FailingCloudStorage implements CloudStorage {
   Future<Map<String, Map<String, dynamic>>> getAllDocuments(
     String collection,
   ) async => {};
+
+  @override
+  Future<void> setRootDocument(
+    String collection,
+    String docId,
+    Map<String, dynamic> data,
+  ) async {
+    throw Exception('Cloud write failed');
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRootDocument(
+    String collection,
+    String docId,
+  ) async => null;
 }

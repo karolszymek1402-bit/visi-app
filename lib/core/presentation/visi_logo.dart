@@ -3,10 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 export 'widgets/visi_3d_logo.dart';
-export 'widgets/visi_ai_button.dart';
-export 'widgets/visi_ai_panel.dart';
 export 'widgets/visi_input.dart';
-// --- BARREL EXPORT (ZACHOWANY) ---
 export 'widgets/visi_orb.dart';
 
 // --- FASETOWANY LOGOTYP VISI 3D (ZMODYFIKOWANY) ---

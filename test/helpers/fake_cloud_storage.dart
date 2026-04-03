@@ -37,4 +37,21 @@ class FakeCloudStorage implements CloudStorage {
   ) async {
     return Map.from(_store[collection] ?? {});
   }
+
+  @override
+  Future<void> setRootDocument(
+    String collection,
+    String docId,
+    Map<String, dynamic> data,
+  ) async {
+    _store.putIfAbsent(collection, () => {})[docId] = Map.from(data);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRootDocument(
+    String collection,
+    String docId,
+  ) async {
+    return _store[collection]?[docId];
+  }
 }

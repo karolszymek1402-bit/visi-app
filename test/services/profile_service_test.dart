@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
+import 'package:visi/core/models/user_settings.dart';
 import 'package:visi/core/models/visi_user.dart';
 import 'package:visi/core/services/cloud_storage.dart';
 import 'package:visi/core/services/profile_service.dart';
@@ -30,7 +32,7 @@ void main() {
       expect(fakeDb.getSetting('auth_display_name'), 'Ola');
       expect(fakeDb.getSetting('profile_hourly_rate'), '250.0');
       expect(fakeDb.getSetting('user_locale'), 'nb');
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      expect(fakeDb.getSetting('profile_complete_u1'), 'true');
       expect(fakeDb.getSetting('profile_updated_at'), isNotNull);
     });
 
@@ -94,6 +96,76 @@ void main() {
     });
   });
 
+  group('ProfileService.getUserSettings()', () {
+    test('returns defaults when profile not yet saved', () {
+      final result = service.getUserSettings('u1');
+
+      expect(result, isA<UserSettings>());
+      expect(result.uid, 'u1');
+      expect(result.name, '');
+      expect(result.defaultRate, 0.0);
+      expect(result.location, '');
+      expect(result.themeMode, ThemeMode.system);
+      expect(result.languageCode, 'pl');
+      expect(result.notificationsEnabled, isTrue);
+    });
+
+    test('returns profile data from Hive after saveProfile', () async {
+      await service.saveProfile(
+        const VisiUser(
+          uid: 'u1',
+          name: 'Ola',
+          defaultRate: 275.0,
+          language: 'nb',
+          workLocation: 'Hamar',
+        ),
+      );
+
+      final result = service.getUserSettings(
+        'u1',
+        themeMode: ThemeMode.dark,
+        languageCode: 'nb',
+      );
+
+      expect(result.name, 'Ola');
+      expect(result.defaultRate, 275.0);
+      expect(result.location, 'Hamar');
+      expect(result.themeMode, ThemeMode.dark);
+      expect(result.languageCode, 'nb');
+    });
+
+    test('uses provided themeMode argument (not stored in profile)', () async {
+      await service.saveProfile(
+        const VisiUser(uid: 'u1', name: 'Ola', defaultRate: 0, language: 'pl'),
+      );
+
+      final light = service.getUserSettings('u1', themeMode: ThemeMode.light);
+      final dark = service.getUserSettings('u1', themeMode: ThemeMode.dark);
+
+      expect(light.themeMode, ThemeMode.light);
+      expect(dark.themeMode, ThemeMode.dark);
+    });
+
+    test('uses provided languageCode argument', () async {
+      await service.saveProfile(
+        const VisiUser(uid: 'u1', name: 'Ola', defaultRate: 0, language: 'pl'),
+      );
+
+      final en = service.getUserSettings('u1', languageCode: 'en');
+      expect(en.languageCode, 'en');
+    });
+
+    test('returns UserSettings that is equality-comparable', () async {
+      await service.saveProfile(
+        const VisiUser(uid: 'u1', name: 'Ola', defaultRate: 100, language: 'pl'),
+      );
+
+      final a = service.getUserSettings('u1');
+      final b = service.getUserSettings('u1');
+      expect(a, equals(b));
+    });
+  });
+
   group('ProfileService cloud sync', () {
     late FakeCloudStorage fakeCloud;
     late ProfileService cloudService;
@@ -123,7 +195,7 @@ void main() {
       // Local — Hive settings
       expect(fakeDb.getSetting('auth_display_name'), 'Ola');
       expect(fakeDb.getSetting('profile_hourly_rate'), '250.0');
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      expect(fakeDb.getSetting('profile_complete_u1'), 'true');
     });
 
     test('syncProfileToCloud is no-op when cloud is null', () async {

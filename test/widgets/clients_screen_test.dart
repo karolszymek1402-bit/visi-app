@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/features/clients/presentation/clients_screen.dart';
+import 'package:visi/features/clients/presentation/edit_client_screen.dart';
 import 'package:visi/l10n/app_localizations.dart';
 import '../helpers/fake_database_service.dart';
 
@@ -17,7 +19,7 @@ void main() {
         '1': Client(
           id: '1',
           name: 'Hamar Kommune',
-          defaultRate: 250,
+          customRate: 250,
           colorValue: 0xFF2F58CD,
           recurrencePattern: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
         ),
@@ -25,7 +27,7 @@ void main() {
           id: '2',
           name: 'Anna Nordman',
           address: 'Storhamar 12',
-          defaultRate: 300,
+          customRate: 300,
           colorValue: 0xFFFF7B54,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=TU,TH',
         ),
@@ -34,13 +36,29 @@ void main() {
   });
 
   Widget buildApp() {
+    // GoRouter jest wymagany bo ClientTile używa context.push (go_router).
+    final router = GoRouter(
+      initialLocation: '/clients',
+      routes: [
+        GoRoute(
+          path: '/clients',
+          builder: (_, __) => const ClientsScreen(),
+        ),
+        GoRoute(
+          path: '/edit-client',
+          builder: (context, state) =>
+              EditClientScreen(client: state.extra as Client?),
+        ),
+      ],
+    );
+
     return ProviderScope(
       overrides: [databaseProvider.overrideWithValue(fakeDb)],
-      child: MaterialApp(
+      child: MaterialApp.router(
+        routerConfig: router,
         locale: const Locale('pl'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const ClientsScreen(),
       ),
     );
   }
@@ -74,23 +92,19 @@ void main() {
       expect(find.text('Co tydzień: Wt, Cz'), findsOneWidget);
     });
 
-    testWidgets('shows FAB for adding client', (tester) async {
+    testWidgets('does not render its own FAB (managed by MainShell)',
+        (tester) async {
       await tester.pumpWidget(buildApp());
-      expect(find.byIcon(Icons.person_add), findsOneWidget);
+      // FAB przeniesiony do MainShell — ClientsScreen nie ma własnego
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('tapping FAB opens new client sheet', (tester) async {
+    testWidgets('tapping client tile navigates to EditClientScreen', (tester) async {
       await tester.pumpWidget(buildApp());
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
-      expect(find.text('Nowy klient'), findsOneWidget);
-      expect(find.text('Dodaj klienta'), findsOneWidget);
-    });
-
-    testWidgets('tapping client tile opens edit sheet', (tester) async {
-      await tester.pumpWidget(buildApp());
+      await tester.pump();
       await tester.tap(find.text('Hamar Kommune'));
       await tester.pumpAndSettle();
+      // GoRouter pushes EditClientScreen — verify AppBar title and save button
       expect(find.text('Edytuj klienta'), findsOneWidget);
       expect(find.text('Zapisz zmiany'), findsOneWidget);
     });

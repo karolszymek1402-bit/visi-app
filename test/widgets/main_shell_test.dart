@@ -104,7 +104,7 @@ void main() {
       expect(indexedStack.children.length, 4);
     });
 
-    testWidgets('has FAB for AI button', (tester) async {
+    testWidgets('no FAB on calendar tab (default)', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -112,8 +112,43 @@ void main() {
       await tester.pumpWidget(buildMainShell());
       await tester.pump();
 
-      // VisiAIButton should be present
-      expect(find.byType(FloatingActionButton), findsAtLeastNWidgets(0));
+      // Domyślna zakładka to Kalendarz (index 0) — brak FAB
+      expect(find.byType(FloatingActionButton), findsNothing);
+    });
+
+    testWidgets('shows FAB on clients tab (index 1)', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildMainShell());
+      await tester.pump();
+
+      // Przejdź do zakładki Klienci
+      await tester.tap(find.byIcon(Icons.people_alt_rounded));
+      await tester.pump();
+
+      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(find.byIcon(Icons.person_add_rounded), findsOneWidget);
+    });
+
+    testWidgets('FAB hidden when switching away from clients tab', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildMainShell());
+      await tester.pump();
+
+      // Wejdź na Klienci — FAB pojawia się
+      await tester.tap(find.byIcon(Icons.people_alt_rounded));
+      await tester.pump();
+      expect(find.byType(FloatingActionButton), findsOneWidget);
+
+      // Wróć do Kalendarza — FAB znika
+      await tester.tap(find.byIcon(Icons.calendar_today_rounded));
+      await tester.pump();
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
   });
 }

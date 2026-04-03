@@ -15,7 +15,7 @@ final _rruleService = RRuleService();
 final monthlyFinanceProvider = Provider<MonthlyFinanceSummary>((ref) {
   final db = ref.watch(databaseProvider);
   final selectedDate = ref.watch(selectedDateProvider);
-  final clients = ref.watch(clientsProvider);
+  final clients = ref.watch(clientsMapProvider);
 
   // Odśwież gdy wizyty się zmienią (np. completeVisit)
   ref.watch(calendarProvider);
@@ -51,7 +51,7 @@ final monthlyFinanceProvider = Provider<MonthlyFinanceSummary>((ref) {
 final monthlyReportProvider = Provider<String>((ref) {
   final summary = ref.watch(monthlyFinanceProvider);
   final db = ref.watch(databaseProvider);
-  final clients = ref.watch(clientsProvider);
+  final clients = ref.watch(clientsMapProvider);
 
   final allVisits = db.getVisitsForMonth(summary.year, summary.month);
   final completed = allVisits

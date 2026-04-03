@@ -7,20 +7,20 @@ part of 'connectivity_provider.dart';
 // **************************************************************************
 
 String _$connectivityControllerHash() =>
-    r'89feaa606b819421b6341f579c368931904483d5';
+    r'9a0b68222115a33837dda389825ffaedb5c2dfd0';
 
 /// See also [ConnectivityController].
 @ProviderFor(ConnectivityController)
 final connectivityControllerProvider =
     AutoDisposeNotifierProvider<ConnectivityController, bool>.internal(
-      ConnectivityController.new,
-      name: r'connectivityControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$connectivityControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  ConnectivityController.new,
+  name: r'connectivityControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$connectivityControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$ConnectivityController = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

@@ -6,7 +6,9 @@ import '../../../core/database/database_service.dart';
 import '../../../core/providers/clients_provider.dart';
 import '../../../core/providers/date_provider.dart';
 import '../../../core/providers/reminder_provider.dart';
+import '../../../core/providers/orb_state_provider.dart';
 import '../../../core/services/rrule_service.dart';
+import '../../../core/services/sync_service.dart';
 
 // ─── Wizyty na wybrany dzień ───
 
@@ -24,7 +26,7 @@ class CalendarNotifier extends Notifier<List<Visit>> {
     _db = ref.watch(databaseProvider);
     final selectedDate = ref.watch(selectedDateProvider);
     final clients = ref.watch(
-      clientsProvider,
+      clientsMapProvider,
     ); // Reaktywne — dodanie/usunięcie klienta odświeża kalendarz
     return _loadVisitsForDate(selectedDate, clients);
   }
@@ -46,11 +48,11 @@ class CalendarNotifier extends Notifier<List<Visit>> {
   }
 
   /// Zakończ wizytę z zarobkiem (czyści też actualStartTime)
-  void completeVisit({
+  Future<void> completeVisit({
     required String visitId,
     required double actualDuration,
     required double earnedAmount,
-  }) {
+  }) async {
     state = [
       for (final visit in state)
         if (visit.id == visitId)
@@ -63,9 +65,14 @@ class CalendarNotifier extends Notifier<List<Visit>> {
         else
           visit,
     ];
-    // Zapisz do bazy
+    // Zapisz do bazy + sync do chmury
     final updated = state.where((v) => v.id == visitId).firstOrNull;
-    if (updated != null) _db.putVisit(updated);
+    if (updated != null) {
+      ref.read(orbStateNotifierProvider.notifier).notifySaving();
+      await _db.putVisit(updated);
+      await _syncVisit(updated);
+      ref.read(orbStateNotifierProvider.notifier).notifySuccess();
+    }
   }
 
   /// Unified move — changes date, hour, and/or minute of a visit.
@@ -105,12 +112,13 @@ class CalendarNotifier extends Notifier<List<Visit>> {
     ];
 
     await _db.putVisit(updated);
+    await _syncVisit(updated);
 
     // Przeplanuj powiadomienie
     if (updated.reminderMinutesBefore != null) {
       final reminder = ref.read(reminderServiceProvider);
       await reminder.cancelReminder(visitId);
-      final clients = ref.read(clientsProvider);
+      final clients = ref.read(clientsMapProvider);
       final client = clients[updated.clientId];
       if (client != null) {
         await reminder.scheduleReminder(
@@ -138,8 +146,9 @@ class CalendarNotifier extends Notifier<List<Visit>> {
     ];
     final updated = state.where((v) => v.id == visitId).firstOrNull;
     if (updated != null) {
-      _db.putVisit(updated);
-      final clients = ref.read(clientsProvider);
+      await _db.putVisit(updated);
+      await _syncVisit(updated);
+      final clients = ref.read(clientsMapProvider);
       final client = clients[updated.clientId];
       if (client != null) {
         final reminder = ref.read(reminderServiceProvider);
@@ -160,7 +169,8 @@ class CalendarNotifier extends Notifier<List<Visit>> {
     ];
     final updated = state.where((v) => v.id == visitId).firstOrNull;
     if (updated != null) {
-      _db.putVisit(updated);
+      await _db.putVisit(updated);
+      await _syncVisit(updated);
       final reminder = ref.read(reminderServiceProvider);
       await reminder.cancelReminder(visitId);
     }
@@ -169,5 +179,16 @@ class CalendarNotifier extends Notifier<List<Visit>> {
   /// Odśwież wizyty (np. po zmianie daty)
   void refresh() {
     ref.invalidateSelf();
+  }
+
+  /// Wypchnij wizytę do chmury lub wstaw do kolejki gdy offline.
+  Future<void> _syncVisit(Visit visit) async {
+    final sync = ref.read(syncServiceProvider);
+    if (sync == null) return;
+    try {
+      await sync.syncVisit(visit.id);
+    } catch (_) {
+      await sync.enqueueVisit(visit.id);
+    }
   }
 }

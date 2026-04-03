@@ -95,6 +95,9 @@ class AppLocalizationsNb extends AppLocalizations {
   String get continueWithGoogle => 'Fortsett med Google';
 
   @override
+  String get signingIn => 'Logger inn...';
+
+  @override
   String get or => 'ELLER';
 
   @override
@@ -397,6 +400,40 @@ class AppLocalizationsNb extends AppLocalizations {
   String get onboardingSkip => 'Hopp over';
 
   @override
+  String get onboardingStep4Title => 'Siste steg';
+
+  @override
+  String get onboardingStep4Desc =>
+      'Dataene dine er bare synlige for deg og hjelper med å beregne inntektene. Du kan endre dem når som helst i innstillingene.';
+
+  @override
+  String get onboardingFinish => 'Ferdig, la oss starte!';
+
+  @override
+  String get onboardingYourName => 'Ditt navn';
+
+  @override
+  String get onboardingOptionalHint => '* Timepris og sted er valgfritt';
+
+  @override
+  String get labelActualDuration => 'Faktisk varighet';
+
+  @override
+  String get labelEarned => 'Inntekt';
+
+  @override
+  String get statusOffline => 'Frakoblet';
+
+  @override
+  String get statusOfflineHint => 'Endringer lagres lokalt';
+
+  @override
+  String get statusSyncing => 'Synkroniserer...';
+
+  @override
+  String get statusSynced => 'Synkronisert';
+
+  @override
   String get authErrorOperationNotAllowed =>
       'E-postinnlogging er deaktivert. Kontakt administratoren.';
 
@@ -429,4 +466,61 @@ class AppLocalizationsNb extends AppLocalizations {
   @override
   String get authErrorPopupBlocked =>
       'Nettleseren blokkerte innloggingsvinduet. Tillat popup-vinduer for dette nettstedet.';
+
+  @override
+  String get navCalendar => 'Kalender';
+
+  @override
+  String get navClients => 'Klienter';
+
+  @override
+  String get navFinance => 'Økonomi';
+
+  @override
+  String get navSettings => 'Innstillinger';
+
+  @override
+  String get settingsTitle => 'Innstillinger';
+
+  @override
+  String get settingsProfile => 'Profil';
+
+  @override
+  String get settingsAppearance => 'Utseende';
+
+  @override
+  String get settingsLanguage => 'Språk';
+
+  @override
+  String get settingsAccount => 'Konto';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Lyst';
+
+  @override
+  String get settingsThemeDark => 'Mørkt';
+
+  @override
+  String get settingsSignOut => 'Logg ut';
+
+  @override
+  String get settingsSignOutTitle => 'Logg ut';
+
+  @override
+  String get settingsSignOutConfirm => 'Er du sikker på at du vil logge ut?';
+
+  @override
+  String get settingsSaved => 'Lagret';
+
+  @override
+  String get settingsName => 'Fullt navn';
+
+  @override
+  String get settingsDefaultRate => 'Standard timepris (NOK/t)';
+
+  @override
+  String get settingsWorkLocation => 'Arbeidssted';
 }

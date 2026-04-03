@@ -1,17 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'core/database/database_service.dart';
-import 'core/presentation/auth_wrapper.dart';
+import 'core/navigation/app_router.dart';
 import 'core/providers/connectivity_provider.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/services/auth_service.dart';
-import 'core/services/cloud_storage.dart';
 import 'core/services/firebase_auth_service.dart';
 import 'core/services/reminder_service.dart';
 import 'core/theme/app_theme.dart';
@@ -22,14 +19,14 @@ void main() async {
   // 1. Gwarantujemy, że silnik Fluttera jest gotowy
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Wczytanie ukrytych kluczy API przed startem interfejsu
-  await dotenv.load(fileName: ".env");
-
   // 2. Odpalamy Firebase + Google Sign-In
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await GoogleSignIn.instance.initialize();
+  try {
+    await GoogleSignIn.instance.initialize();
+  } catch (_) {
+    // Ignorujemy błąd gdy GoogleSignIn był już zainicjalizowany (hot reload)
+  }
   final auth = FirebaseAuthService();
-  final cloud = FirestoreCloudStorage(FirebaseFirestore.instance);
 
   // 3. Odpalamy lokalną bazę Hive
   final db = DatabaseService();
@@ -39,12 +36,13 @@ void main() async {
   await ReminderService().init();
 
   // 5. Startujemy aplikację z Riverpodem
+  // cloudStorageProvider jest reaktywny — tworzy instancję automatycznie
+  // po zalogowaniu użytkownika (watch authProvider w cloud_storage.dart)
   runApp(
     ProviderScope(
       overrides: [
         authServiceProvider.overrideWithValue(auth),
         databaseProvider.overrideWithValue(db),
-        cloudStorageProvider.overrideWithValue(cloud),
       ],
       child: const VisiApp(),
     ),
@@ -60,7 +58,9 @@ class VisiApp extends ConsumerWidget {
     // Aktywuj nasłuchiwanie połączenia sieciowego (sync queue)
     ref.watch(connectivityProvider);
 
-    return MaterialApp(
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
       locale: ref.watch(localeProvider),
@@ -69,7 +69,7 @@ class VisiApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const AuthWrapper(),
+      routerConfig: router,
     );
   }
 }

@@ -40,13 +40,13 @@ void main() {
         '1': Client(
           id: '1',
           name: 'Hamar Kommune',
-          defaultRate: 250,
+          customRate: 250,
           colorValue: 0xFF2F58CD,
         ),
         '2': Client(
           id: '2',
           name: 'Anna Nordman',
-          defaultRate: 300,
+          customRate: 300,
           colorValue: 0xFFFF7B54,
         ),
       },

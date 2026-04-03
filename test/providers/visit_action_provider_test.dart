@@ -30,9 +30,9 @@ void main() {
     id: 'c1',
     name: 'Anna Nordman',
     address: 'Storhamar 12',
-    defaultRate: 300,
+    customRate: 300,
     colorValue: 0xFFFF7B54,
-    phoneNumber: '+4791234567',
+    phone: '+4791234567',
     smsTemplate: 'Hei! Besøk {data} kl. {godzina}.',
   );
 
@@ -186,8 +186,8 @@ void main() {
       final clientNoTemplate = Client(
         id: 'c2',
         name: 'Test',
-        defaultRate: 100,
-        phoneNumber: '+47999',
+        customRate: 100,
+        phone: '+47999',
       );
 
       final body = container
@@ -227,7 +227,7 @@ void main() {
     test('sendSms returns false when client has no phone', () async {
       // Replace client with one without phone
       fakeDb.seedTestData(
-        clients: {'c1': Client(id: 'c1', name: 'No Phone', defaultRate: 200)},
+        clients: {'c1': Client(id: 'c1', name: 'No Phone', customRate: 200)},
       );
       // Refresh calendar to pick up new client
       container.read(calendarProvider.notifier).refresh();

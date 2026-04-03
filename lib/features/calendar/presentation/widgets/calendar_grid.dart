@@ -65,7 +65,7 @@ class _CalendarGridState extends ConsumerState<CalendarGrid> {
   @override
   Widget build(BuildContext context) {
     final visits = ref.watch(calendarProvider);
-    final clients = ref.watch(clientsProvider);
+    final clients = ref.watch(clientsMapProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {

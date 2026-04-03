@@ -19,7 +19,7 @@ class WeekView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final weekVisits = ref.watch(weekVisitsProvider);
     final selectedDate = ref.watch(selectedDateProvider);
-    final clients = ref.watch(clientsProvider);
+    final clients = ref.watch(clientsMapProvider);
     final today = DateTime.now();
     final l10n = AppLocalizations.of(context)!;
     final dayNames = [

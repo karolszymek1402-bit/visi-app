@@ -25,7 +25,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Local Only',
-        defaultRate: 250,
+        customRate: 250,
         updatedAt: now,
       );
       await fakeDb.putClient(client);
@@ -55,7 +55,7 @@ void main() {
       final localClient = Client(
         id: '3',
         name: 'Updated Local',
-        defaultRate: 350,
+        customRate: 350,
         updatedAt: later,
       );
       await fakeDb.putClient(localClient);
@@ -69,14 +69,14 @@ void main() {
 
       final remote = await fakeCloud.getDocument('clients', '3');
       expect(remote!['name'], 'Updated Local');
-      expect(remote['defaultRate'], 350);
+      expect(remote['customRate'], 350);
     });
 
     test('cloud wins when cloud is newer', () async {
       final localClient = Client(
         id: '4',
         name: 'Old Local',
-        defaultRate: 200,
+        customRate: 200,
         updatedAt: earlier,
       );
       await fakeDb.putClient(localClient);
@@ -90,14 +90,14 @@ void main() {
 
       final local = fakeDb.getClient('4');
       expect(local!.name, 'Updated Cloud');
-      expect(local.defaultRate, 400);
+      expect(local.customRate ?? 0, 400);
     });
 
     test('does nothing when timestamps match', () async {
       final client = Client(
         id: '5',
         name: 'Same Name',
-        defaultRate: 250,
+        customRate: 250,
         updatedAt: now,
       );
       await fakeDb.putClient(client);
@@ -122,7 +122,7 @@ void main() {
     test('merges local and cloud clients', () async {
       // Local only
       await fakeDb.putClient(
-        Client(id: 'a', name: 'Local A', defaultRate: 100, updatedAt: now),
+        Client(id: 'a', name: 'Local A', customRate: 100, updatedAt: now),
       );
       // Cloud only
       await fakeCloud.setDocument('clients', 'b', {
@@ -135,7 +135,7 @@ void main() {
         Client(
           id: 'c',
           name: 'Local C Updated',
-          defaultRate: 300,
+          customRate: 300,
           updatedAt: later,
         ),
       );
@@ -179,10 +179,10 @@ void main() {
       () async {
         // Prepare two local-only clients, then enqueue them
         await fakeDb.putClient(
-          Client(id: 'q1', name: 'Queued1', defaultRate: 100, updatedAt: now),
+          Client(id: 'q1', name: 'Queued1', customRate: 100, updatedAt: now),
         );
         await fakeDb.putClient(
-          Client(id: 'q2', name: 'Queued2', defaultRate: 200, updatedAt: now),
+          Client(id: 'q2', name: 'Queued2', customRate: 200, updatedAt: now),
         );
         await syncService.enqueueClient('q1');
         await syncService.enqueueClient('q2');
@@ -200,7 +200,7 @@ void main() {
     test('processSyncQueue keeps failed items in queue', () async {
       // Enqueue a client that exists locally
       await fakeDb.putClient(
-        Client(id: 'f1', name: 'WillFail', defaultRate: 100, updatedAt: now),
+        Client(id: 'f1', name: 'WillFail', customRate: 100, updatedAt: now),
       );
       await syncService.enqueueClient('f1');
 
@@ -230,5 +230,11 @@ class _FailingCloudStorage implements CloudStorage {
       throw Exception('no network');
   @override
   Future<Map<String, Map<String, dynamic>>> getAllDocuments(String c) =>
+      throw Exception('no network');
+  @override
+  Future<void> setRootDocument(String c, String id, Map<String, dynamic> d) =>
+      throw Exception('no network');
+  @override
+  Future<Map<String, dynamic>?> getRootDocument(String c, String id) =>
       throw Exception('no network');
 }

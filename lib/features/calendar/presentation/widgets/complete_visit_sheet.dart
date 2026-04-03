@@ -23,44 +23,45 @@ class CompleteVisitSheet extends ConsumerStatefulWidget {
 }
 
 class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
-  // Lokalne stany suwaka
   double _actualDurationInHours = 0.0;
   double _earnedAmount = 0.0;
-  final TextEditingController _noteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if (widget.prefilledDurationHours != null) {
-      // Zaokrąglij do 15 minut
+      // Snap do 15 min — inSeconds w timerze zapewnia właściwą granicę zaokrąglenia
       _actualDurationInHours =
           (widget.prefilledDurationHours! * 4).round() / 4.0;
       if (_actualDurationInHours < 0.25) _actualDurationInHours = 0.25;
     } else {
-      // Domyślnie ustawiamy czas zaplanowany
+      // Domyślnie czas zaplanowany — używamy inSeconds dla spójnej precyzji
       final duration = widget.visit.scheduledEnd.difference(
         widget.visit.scheduledStart,
       );
-      _actualDurationInHours = duration.inMinutes / 60.0;
+      _actualDurationInHours = duration.inSeconds / 3600.0;
     }
     _calculateEarnings();
   }
 
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
-
   void _calculateEarnings() {
+    // Zaokrąglenie do 2 miejsc dziesiętnych zapobiega akumulacji błędu float
+    // customRate is nullable — fall back to 0 when not set per-client
+    final raw = _actualDurationInHours * (widget.client.customRate ?? 0);
     setState(() {
-      _earnedAmount = _actualDurationInHours * widget.client.defaultRate;
+      _earnedAmount = double.parse(raw.toStringAsFixed(2));
     });
   }
 
-  String formatHours(double decimalHours) {
+  /// Formatuje dziesiętne godziny jako "Xh Ymin".
+  /// Obsługuje edge-case gdzie minuty zaokrąglają się do 60.
+  String _formatHours(double decimalHours) {
     int hours = decimalHours.floor();
     int minutes = ((decimalHours - hours) * 60).round();
+    if (minutes == 60) {
+      hours++;
+      minutes = 0;
+    }
     if (hours > 0) {
       return '${hours}h ${minutes}min';
     } else {
@@ -110,9 +111,9 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
           const SizedBox(height: 24),
 
           // Stepper czasu trwania (+/- 15 min)
-          const Text(
-            'Faktyczny czas trwania',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.labelActualDuration,
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: AppColors.textLight,
             ),
@@ -134,7 +135,7 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
               ),
               const SizedBox(width: 16),
               Text(
-                formatHours(_actualDurationInHours),
+                _formatHours(_actualDurationInHours),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -167,9 +168,10 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Zarobek:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                Text(
+                  '${AppLocalizations.of(context)!.labelEarned}:',
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 Text(
                   '${_earnedAmount.toStringAsFixed(2)} ${AppLocalizations.of(context)!.nok}',

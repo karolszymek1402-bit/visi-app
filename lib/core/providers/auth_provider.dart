@@ -40,7 +40,10 @@ final authStateProvider = StreamProvider<AuthUser?>((ref) {
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   static const _nameKey = 'auth_display_name';
-  static const _profileCompleteKey = 'profile_complete';
+
+  /// Klucz flagi onboardingu jest UID-zależny — każdy użytkownik ma własny.
+  /// Dzięki temu logout nie kasuje faktu ukończenia onboardingu.
+  static String _profileCompleteKey(String uid) => 'profile_complete_$uid';
 
   @override
   FutureOr<AuthState> build() {
@@ -57,7 +60,8 @@ class Auth extends _$Auth {
       return const AuthState(status: AuthStatus.unauthenticated);
     }
 
-    final profileDone = db.getSetting(_profileCompleteKey) == 'true';
+    final profileDone =
+        db.getSetting(_profileCompleteKey(user.uid)) == 'true';
     return AuthState(
       status: AuthStatus.authenticated,
       userId: user.uid,
@@ -74,7 +78,8 @@ class Auth extends _$Auth {
       return;
     }
 
-    final profileDone = db.getSetting(_profileCompleteKey) == 'true';
+    final profileDone =
+        db.getSetting(_profileCompleteKey(user.uid)) == 'true';
     state = AsyncData(
       AuthState(
         status: AuthStatus.authenticated,
@@ -103,7 +108,8 @@ class Auth extends _$Auth {
       final name = user.displayName ?? displayName ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
-      final profileDone = db.getSetting(_profileCompleteKey) == 'true';
+      final profileDone =
+          db.getSetting(_profileCompleteKey(user.uid)) == 'true';
       state = AsyncData(
         AuthState(
           status: AuthStatus.authenticated,
@@ -134,7 +140,8 @@ class Auth extends _$Auth {
       final name = user.displayName ?? user.email ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
-      final profileDone = db.getSetting(_profileCompleteKey) == 'true';
+      final profileDone =
+          db.getSetting(_profileCompleteKey(user.uid)) == 'true';
       state = AsyncData(
         AuthState(
           status: AuthStatus.authenticated,
@@ -217,11 +224,12 @@ class Auth extends _$Auth {
     required double hourlyRate,
   }) async {
     final db = ref.read(databaseProvider);
-    await db.saveSetting(_profileCompleteKey, 'true');
+    final uid = state.value?.userId ?? 'local_user';
+    await db.saveSetting(_profileCompleteKey(uid), 'true');
     state = AsyncData(
       AuthState(
         status: AuthStatus.authenticated,
-        userId: state.value?.userId,
+        userId: uid,
         displayName: displayName,
         profileComplete: true,
       ),
@@ -234,13 +242,14 @@ class Auth extends _$Auth {
     await authService.resetPassword(email);
   }
 
-  /// Wyloguj — czyści sesję i profil (Firebase + Hive).
+  /// Wyloguj — czyści sesję (Firebase + Hive), ale NIE kasuje flagi onboardingu.
+  /// Flaga jest UID-zależna, więc po ponownym zalogowaniu ten sam użytkownik
+  /// nie zobaczy ponownie onboardingu.
   Future<void> signOut() async {
     final db = ref.read(databaseProvider);
     final authService = ref.read(authServiceProvider);
     await authService.signOut();
     await db.saveSetting(_nameKey, '');
-    await db.saveSetting(_profileCompleteKey, '');
     state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
   }
 }

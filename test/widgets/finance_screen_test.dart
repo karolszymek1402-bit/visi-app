@@ -108,7 +108,7 @@ void main() {
       final client = Client(
         id: 'c1',
         name: 'Oslo Klinikk',
-        defaultRate: 300,
+        customRate: 300,
         colorValue: 0xFF2F58CD,
       );
 

@@ -8,6 +8,7 @@ const _visitsBoxName = 'visits';
 const _clientsBoxName = 'clients';
 const _settingsBoxName = 'settings';
 const _syncQueueBoxName = 'sync_queue';
+const _visitsSyncQueueBoxName = 'visits_sync_queue';
 
 /// Serwis bazy danych — Hive (NoSQL, offline-first)
 class DatabaseService {
@@ -15,6 +16,7 @@ class DatabaseService {
   late Box<Client> _clientsBox;
   late Box<String> _settingsBox;
   late Box<String> _syncQueueBox;
+  late Box<String> _visitsSyncQueueBox;
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -29,6 +31,7 @@ class DatabaseService {
     _clientsBox = await Hive.openBox<Client>(_clientsBoxName);
     _settingsBox = await Hive.openBox<String>(_settingsBoxName);
     _syncQueueBox = await Hive.openBox<String>(_syncQueueBoxName);
+    _visitsSyncQueueBox = await Hive.openBox<String>(_visitsSyncQueueBoxName);
 
     // Seedujemy klientów jeśli baza jest pusta (pierwszy start)
     if (_clientsBox.isEmpty) {
@@ -123,6 +126,26 @@ class DatabaseService {
   /// Czy kolejka synchronizacji jest pusta?
   bool isSyncQueueEmpty() => _syncQueueBox.isEmpty;
 
+  // ─── Visits Sync Queue ───
+
+  /// Dodaj ID wizyty do kolejki synchronizacji.
+  Future<void> enqueueVisitSync(String visitId) async {
+    if (!_visitsSyncQueueBox.containsKey(visitId)) {
+      await _visitsSyncQueueBox.put(visitId, visitId);
+    }
+  }
+
+  /// Pobierz wszystkie ID wizyt z kolejki synchronizacji.
+  List<String> getVisitSyncQueue() => _visitsSyncQueueBox.values.toList();
+
+  /// Usuń ID wizyty z kolejki po udanej synchronizacji.
+  Future<void> dequeueVisitSynced(String visitId) async {
+    await _visitsSyncQueueBox.delete(visitId);
+  }
+
+  /// Czy kolejka synchronizacji wizyt jest pusta?
+  bool isVisitSyncQueueEmpty() => _visitsSyncQueueBox.isEmpty;
+
   // ─── Seed Data ───
 
   Future<void> _seedClients() async {
@@ -130,7 +153,7 @@ class DatabaseService {
       '1': Client(
         id: '1',
         name: 'Hamar Kommune',
-        defaultRate: 250,
+        customRate: 250,
         colorValue: 0xFF2F58CD,
         recurrencePattern: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
         defaultStartHour: 8,
@@ -140,7 +163,7 @@ class DatabaseService {
         id: '2',
         name: 'Anna Nordman',
         address: 'Storhamar 12',
-        defaultRate: 300,
+        customRate: 300,
         colorValue: 0xFFFF7B54,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=TU,TH',
         defaultStartHour: 14,

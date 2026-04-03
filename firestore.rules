@@ -2,14 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection — each user can only read/write their own document
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    // Funkcja pomocnicza: Sprawdza, czy użytkownik jest zalogowany i czy idzie do swojego folderu
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    // Default deny all other collections
+    // Blokada wszystkiego, co nie jest jawnie dozwolone poniżej
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // Główne drzewo użytkownika: profil, klienci i wizyty
+    match /users/{userId} {
+      // Zezwala na dostęp do dokumentu profilu użytkownika
+      allow read, write: if isOwner(userId);
+
+      // Zezwala na dostęp do WSZYSTKICH subkolekcji (clients, visits, itd.)
+      match /{allPaths=**} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }

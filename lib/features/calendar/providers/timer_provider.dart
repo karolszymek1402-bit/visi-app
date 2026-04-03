@@ -92,7 +92,8 @@ class TimerNotifier extends Notifier<TimerState?> {
     if (current == null) return null;
 
     final elapsed = DateTime.now().difference(current.startTime);
-    final hours = elapsed.inMinutes / 60.0;
+    // inSeconds zachowuje pełną precyzję przed snap do 15 min w CompleteVisitSheet
+    final hours = elapsed.inSeconds / 3600.0;
 
     _stopTicker();
 

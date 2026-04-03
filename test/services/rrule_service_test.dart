@@ -15,7 +15,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Test Client',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
         defaultStartHour: 9,
         defaultDurationMinutes: 120,
@@ -39,7 +39,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Test',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
         defaultStartHour: 14,
         defaultDurationMinutes: 90,
@@ -61,7 +61,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Hamar Kommune',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
         defaultStartHour: 8,
         defaultDurationMinutes: 120,
@@ -83,7 +83,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Test',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
         defaultStartHour: 9,
         defaultDurationMinutes: 60,
@@ -102,7 +102,7 @@ void main() {
     });
 
     test('should skip clients without recurrence pattern', () {
-      final client = Client(id: '1', name: 'No Recurrence', defaultRate: 250);
+      final client = Client(id: '1', name: 'No Recurrence', customRate: 250);
 
       final visits = rruleService.expandVisits(
         client: client,
@@ -117,7 +117,7 @@ void main() {
       final client = Client(
         id: 'abc',
         name: 'Test',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
         defaultStartHour: 9,
         defaultDurationMinutes: 60,
@@ -138,7 +138,7 @@ void main() {
         '1': Client(
           id: '1',
           name: 'Client A',
-          defaultRate: 250,
+          customRate: 250,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
           defaultStartHour: 8,
           defaultDurationMinutes: 120,
@@ -146,7 +146,7 @@ void main() {
         '2': Client(
           id: '2',
           name: 'Client B',
-          defaultRate: 300,
+          customRate: 300,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
           defaultStartHour: 14,
           defaultDurationMinutes: 120,
@@ -168,7 +168,7 @@ void main() {
       final client = Client(
         id: '1',
         name: 'Test',
-        defaultRate: 250,
+        customRate: 250,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
         defaultStartHour: 9,
         defaultDurationMinutes: 60,

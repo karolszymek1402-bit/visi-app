@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'Continue with Google'**
   String get continueWithGoogle;
 
+  /// No description provided for @signingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in...'**
+  String get signingIn;
+
   /// No description provided for @or.
   ///
   /// In en, this message translates to:
@@ -814,6 +820,72 @@ abstract class AppLocalizations {
   /// **'Skip'**
   String get onboardingSkip;
 
+  /// No description provided for @onboardingStep4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'One last step'**
+  String get onboardingStep4Title;
+
+  /// No description provided for @onboardingStep4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is only visible to you and helps calculate earnings. You can change it anytime in Settings.'**
+  String get onboardingStep4Desc;
+
+  /// No description provided for @onboardingFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Done, let\'s start!'**
+  String get onboardingFinish;
+
+  /// No description provided for @onboardingYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get onboardingYourName;
+
+  /// No description provided for @onboardingOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'* Rate and location are optional'**
+  String get onboardingOptionalHint;
+
+  /// No description provided for @labelActualDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual duration'**
+  String get labelActualDuration;
+
+  /// No description provided for @labelEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get labelEarned;
+
+  /// No description provided for @statusOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get statusOffline;
+
+  /// No description provided for @statusOfflineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved locally'**
+  String get statusOfflineHint;
+
+  /// No description provided for @statusSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get statusSyncing;
+
+  /// No description provided for @statusSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get statusSynced;
+
   /// No description provided for @authErrorOperationNotAllowed.
   ///
   /// In en, this message translates to:
@@ -873,6 +945,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Browser blocked the sign-in popup. Allow popups for this site.'**
   String get authErrorPopupBlocked;
+
+  /// No description provided for @navCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get navCalendar;
+
+  /// No description provided for @navClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients'**
+  String get navClients;
+
+  /// No description provided for @navFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get navFinance;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get settingsProfile;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsSignOut;
+
+  /// No description provided for @settingsSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settingsSignOutTitle;
+
+  /// No description provided for @settingsSignOutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out?'**
+  String get settingsSignOutConfirm;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get settingsName;
+
+  /// No description provided for @settingsDefaultRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Default rate (NOK/h)'**
+  String get settingsDefaultRate;
+
+  /// No description provided for @settingsWorkLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Work location'**
+  String get settingsWorkLocation;
 }
 
 class _AppLocalizationsDelegate

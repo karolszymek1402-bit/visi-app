@@ -5,93 +5,102 @@ import 'package:visi/core/models/client.dart';
 void main() {
   group('Client model', () {
     test('should create with required fields only', () {
-      final client = Client(id: '1', name: 'Hamar Kommune', defaultRate: 250);
+      final client = Client(id: '1', name: 'Hamar Kommune');
 
       expect(client.id, '1');
       expect(client.name, 'Hamar Kommune');
-      expect(client.defaultRate, 250);
+      expect(client.customRate, isNull);
       expect(client.address, isNull);
       expect(client.color, isNull);
       expect(client.recurrencePattern, isNull);
-      expect(client.phoneNumber, isNull);
+      expect(client.phone, isNull);
+      expect(client.email, isNull);
       expect(client.smsTemplate, isNull);
-      expect(client.note, isNull);
+      expect(client.notes, isNull);
+      expect(client.visitIds, isEmpty);
     });
 
     test('should create with all fields', () {
+      final now = DateTime(2026, 3, 20);
       final client = Client(
         id: '2',
         name: 'Anna Nordman',
         address: 'Storhamar 12',
-        defaultRate: 300,
+        customRate: 300,
         colorValue: Colors.orange.toARGB32(),
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
-        phoneNumber: '+47 123 456',
+        phone: '+47 123 456',
+        email: 'anna@example.com',
         smsTemplate: 'Wizyta {data} o {godzina}',
-        note: 'Ważny klient',
+        notes: 'Ważny klient',
+        visitIds: ['v1', 'v2'],
         defaultStartHour: 10,
         defaultStartMinute: 30,
         defaultDurationMinutes: 90,
+        createdAt: now,
+        updatedAt: now,
       );
 
       expect(client.address, 'Storhamar 12');
+      expect(client.customRate, 300.0);
       expect(client.color, isNotNull);
       expect(client.recurrencePattern, 'FREQ=WEEKLY;BYDAY=MO,WE,FR');
-      expect(client.phoneNumber, '+47 123 456');
+      expect(client.phone, '+47 123 456');
+      expect(client.email, 'anna@example.com');
       expect(client.smsTemplate, 'Wizyta {data} o {godzina}');
-      expect(client.note, 'Ważny klient');
+      expect(client.notes, 'Ważny klient');
+      expect(client.visitIds, ['v1', 'v2']);
       expect(client.defaultStartHour, 10);
       expect(client.defaultStartMinute, 30);
       expect(client.defaultDurationMinutes, 90);
+      expect(client.createdAt, now);
+      expect(client.updatedAt, now);
     });
 
     test('should have correct defaults for scheduling', () {
-      final client = Client(id: '1', name: 'Test', defaultRate: 100);
+      final client = Client(id: '1', name: 'Test');
 
       expect(client.defaultStartHour, 8);
       expect(client.defaultStartMinute, 0);
       expect(client.defaultDurationMinutes, 120);
     });
 
-    test('updatedAt defaults to now when not provided', () {
-      final before = DateTime.now();
-      final client = Client(id: '1', name: 'Test', defaultRate: 100);
-      final after = DateTime.now();
-
-      expect(
-        client.updatedAt.isAfter(before.subtract(const Duration(seconds: 1))),
-        isTrue,
-      );
-      expect(
-        client.updatedAt.isBefore(after.add(const Duration(seconds: 1))),
-        isTrue,
-      );
+    test('updatedAt is null when not provided', () {
+      final client = Client(id: '1', name: 'Test');
+      // updatedAt is nullable — null until explicitly set or synced
+      expect(client.updatedAt, isNull);
     });
 
     test('updatedAt uses provided value', () {
       final dt = DateTime(2026, 1, 15, 10, 30);
-      final client = Client(
-        id: '1',
-        name: 'Test',
-        defaultRate: 100,
-        updatedAt: dt,
-      );
+      final client = Client(id: '1', name: 'Test', updatedAt: dt);
       expect(client.updatedAt, dt);
     });
 
     test('color getter returns Color from colorValue', () {
-      final client = Client(
-        id: '1',
-        name: 'Test',
-        defaultRate: 100,
-        colorValue: 0xFFFF0000,
-      );
+      final client =
+          Client(id: '1', name: 'Test', colorValue: 0xFFFF0000);
       expect(client.color, const Color(0xFFFF0000));
     });
 
     test('color getter returns null when colorValue is null', () {
-      final client = Client(id: '1', name: 'Test', defaultRate: 100);
+      final client = Client(id: '1', name: 'Test');
       expect(client.color, isNull);
+    });
+
+    test('copyWith works correctly (freezed generated)', () {
+      final original = Client(id: 'c1', name: 'Original', customRate: 100);
+      final copy = original.copyWith(name: 'Updated', customRate: 200);
+
+      expect(copy.id, 'c1');
+      expect(copy.name, 'Updated');
+      expect(copy.customRate, 200);
+    });
+
+    test('equality is structural (freezed generated)', () {
+      final a = Client(id: 'c1', name: 'Test', customRate: 100);
+      final b = Client(id: 'c1', name: 'Test', customRate: 100);
+      expect(a, equals(b));
     });
   });
 
@@ -102,42 +111,49 @@ void main() {
         id: 'c1',
         name: 'Karol',
         address: 'Oslo 5',
-        defaultRate: 275.5,
+        customRate: 275.5,
         colorValue: 0xFF2F58CD,
         recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO',
         defaultStartHour: 9,
         defaultStartMinute: 15,
         defaultDurationMinutes: 60,
-        phoneNumber: '+47 999',
+        phone: '+47 999',
+        email: 'k@example.com',
         smsTemplate: 'Test {data}',
-        note: 'Notatka',
+        notes: 'Notatka',
+        visitIds: ['v1'],
         updatedAt: dt,
       );
 
       final map = client.toMap();
       expect(map['name'], 'Karol');
       expect(map['address'], 'Oslo 5');
-      expect(map['defaultRate'], 275.5);
+      expect(map['customRate'], 275.5);
       expect(map['colorValue'], 0xFF2F58CD);
       expect(map['recurrencePattern'], 'FREQ=WEEKLY;BYDAY=MO');
       expect(map['startHour'], 9);
       expect(map['startMinute'], 15);
       expect(map['durationMinutes'], 60);
       expect(map['phone'], '+47 999');
+      expect(map['email'], 'k@example.com');
       expect(map['reminderMessage'], 'Test {data}');
-      expect(map['note'], 'Notatka');
+      expect(map['notes'], 'Notatka');
+      expect(map['visitIds'], ['v1']);
       expect(map['updatedAt'], dt.toIso8601String());
     });
 
     test('serializes null optional fields', () {
-      final client = Client(id: 'c1', name: 'Test', defaultRate: 100);
+      final client = Client(id: 'c1', name: 'Test');
       final map = client.toMap();
       expect(map['address'], isNull);
+      expect(map['customRate'], isNull);
       expect(map['colorValue'], isNull);
       expect(map['recurrencePattern'], isNull);
       expect(map['phone'], isNull);
+      expect(map['email'], isNull);
       expect(map['reminderMessage'], isNull);
-      expect(map['note'], isNull);
+      expect(map['notes'], isNull);
+      expect(map['visitIds'], isEmpty);
     });
   });
 
@@ -146,74 +162,90 @@ void main() {
       final client = Client.fromMap('c1', {
         'name': 'Anna',
         'address': 'Hamar 3',
-        'defaultRate': 300,
+        'customRate': 300,
         'colorValue': 0xFF2F58CD,
         'recurrencePattern': 'FREQ=WEEKLY;BYDAY=TU',
         'startHour': 10,
         'startMinute': 30,
         'durationMinutes': 90,
         'phone': '+47 111',
+        'email': 'anna@test.com',
         'reminderMessage': 'Hej {data}',
-        'note': 'VIP',
+        'notes': 'VIP',
+        'visitIds': ['v1', 'v2'],
         'updatedAt': '2026-03-20T12:00:00.000',
       });
 
       expect(client.id, 'c1');
       expect(client.name, 'Anna');
       expect(client.address, 'Hamar 3');
-      expect(client.defaultRate, 300.0);
+      expect(client.customRate, 300.0);
       expect(client.colorValue, 0xFF2F58CD);
       expect(client.recurrencePattern, 'FREQ=WEEKLY;BYDAY=TU');
       expect(client.defaultStartHour, 10);
       expect(client.defaultStartMinute, 30);
       expect(client.defaultDurationMinutes, 90);
-      expect(client.phoneNumber, '+47 111');
+      expect(client.phone, '+47 111');
+      expect(client.email, 'anna@test.com');
       expect(client.smsTemplate, 'Hej {data}');
-      expect(client.note, 'VIP');
+      expect(client.notes, 'VIP');
+      expect(client.visitIds, ['v1', 'v2']);
       expect(client.updatedAt, DateTime(2026, 3, 20, 12, 0));
     });
 
+    test('backward-compat: reads old defaultRate Firestore key', () {
+      final client = Client.fromMap('c1', {'name': 'T', 'defaultRate': 250});
+      expect(client.customRate, 250.0);
+    });
+
+    test('backward-compat: reads old note Firestore key', () {
+      final client = Client.fromMap('c1', {'name': 'T', 'note': 'Old note'});
+      expect(client.notes, 'Old note');
+    });
+
     test('uses defaults for missing optional fields', () {
-      final client = Client.fromMap('c1', {'name': 'Test', 'defaultRate': 200});
+      final client = Client.fromMap('c1', {'name': 'Test'});
 
       expect(client.address, isNull);
+      expect(client.customRate, isNull);
       expect(client.colorValue, isNull);
       expect(client.recurrencePattern, isNull);
       expect(client.defaultStartHour, 8);
       expect(client.defaultStartMinute, 0);
       expect(client.defaultDurationMinutes, 120);
-      expect(client.phoneNumber, isNull);
+      expect(client.phone, isNull);
+      expect(client.email, isNull);
       expect(client.smsTemplate, isNull);
-      expect(client.note, isNull);
+      expect(client.notes, isNull);
+      expect(client.visitIds, isEmpty);
     });
 
-    test('handles numeric defaultRate as int', () {
-      final client = Client.fromMap('c1', {'name': 'T', 'defaultRate': 250});
-      expect(client.defaultRate, 250.0);
-    });
-
-    test('handles updatedAt as null', () {
-      final client = Client.fromMap('c1', {'name': 'T', 'defaultRate': 100});
-      expect(client.updatedAt, isNotNull); // defaults to DateTime.now()
+    test('handles numeric customRate as int', () {
+      final client = Client.fromMap('c1', {'name': 'T', 'customRate': 250});
+      expect(client.customRate, 250.0);
     });
   });
 
   group('Client toMap/fromMap roundtrip', () {
     test('roundtrip preserves all fields', () {
+      final dt = DateTime(2026, 6, 15, 8, 0);
       final original = Client(
         id: 'c1',
         name: 'Roundtrip',
         address: 'Addr',
-        defaultRate: 350.5,
+        customRate: 350.5,
         colorValue: 0xFF00AA55,
         recurrencePattern: 'FREQ=DAILY',
         defaultStartHour: 7,
         defaultStartMinute: 45,
         defaultDurationMinutes: 150,
-        phoneNumber: '+1234',
+        phone: '+1234',
+        email: 'rt@test.com',
         smsTemplate: 'SMS',
-        note: 'Note',
-        updatedAt: DateTime(2026, 6, 15, 8, 0),
+        notes: 'Note',
+        visitIds: ['v1', 'v2', 'v3'],
+        updatedAt: dt,
+        createdAt: dt,
       );
 
       final map = original.toMap();
@@ -221,15 +253,17 @@ void main() {
 
       expect(restored.name, original.name);
       expect(restored.address, original.address);
-      expect(restored.defaultRate, original.defaultRate);
+      expect(restored.customRate, original.customRate);
       expect(restored.colorValue, original.colorValue);
       expect(restored.recurrencePattern, original.recurrencePattern);
       expect(restored.defaultStartHour, original.defaultStartHour);
       expect(restored.defaultStartMinute, original.defaultStartMinute);
       expect(restored.defaultDurationMinutes, original.defaultDurationMinutes);
-      expect(restored.phoneNumber, original.phoneNumber);
+      expect(restored.phone, original.phone);
+      expect(restored.email, original.email);
       expect(restored.smsTemplate, original.smsTemplate);
-      expect(restored.note, original.note);
+      expect(restored.notes, original.notes);
+      expect(restored.visitIds, original.visitIds);
       expect(restored.updatedAt, original.updatedAt);
     });
   });

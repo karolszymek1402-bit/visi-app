@@ -50,8 +50,8 @@ class VisitActionNotifier extends Notifier<VisitActionState> {
     // Zatrzymaj stoper (jeśli aktywny)
     await ref.read(timerProvider.notifier).stopTimer();
 
-    // Zakończ wizytę w kalendarzu + baza
-    ref
+    // Zakończ wizytę w kalendarzu + baza + sync
+    await ref
         .read(calendarProvider.notifier)
         .completeVisit(
           visitId: visitId,
@@ -84,14 +84,14 @@ class VisitActionNotifier extends Notifier<VisitActionState> {
     final visit = visits.where((v) => v.id == visitId).firstOrNull;
     if (visit == null) return false;
 
-    final clients = ref.read(clientsProvider);
+    final clients = ref.read(clientsMapProvider);
     final client = clients[visit.clientId];
-    if (client == null || client.phoneNumber == null) return false;
+    if (client == null || client.phone == null) return false;
 
     final body = formatSmsBody(visit: visit, client: client);
     final sms = ref.read(smsServiceProvider);
     final sent = await sms.sendSms(
-      phoneNumber: client.phoneNumber!,
+      phoneNumber: client.phone!,
       message: body,
     );
 

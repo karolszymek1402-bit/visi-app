@@ -9,7 +9,7 @@ import '../../../core/services/rrule_service.dart';
 final weekVisitsProvider = Provider<Map<DateTime, List<Visit>>>((ref) {
   final db = ref.watch(databaseProvider);
   final selectedDate = ref.watch(selectedDateProvider);
-  final clients = ref.watch(clientsProvider);
+  final clients = ref.watch(clientsMapProvider);
   final rruleService = RRuleService();
 
   final monday = selectedDate.subtract(

@@ -102,7 +102,7 @@ class FinanceService {
         (sum, v) =>
             sum + v.scheduledEnd.difference(v.scheduledStart).inMinutes / 60.0,
       );
-      final planned = plannedHours * client.defaultRate;
+      final planned = plannedHours * (client.customRate ?? 0);
 
       breakdown.add(
         ClientFinanceSummary(
@@ -172,7 +172,7 @@ class FinanceService {
 
       buf.writeln('── ${client?.name ?? entry.key} ──');
       buf.writeln(
-        'Stawka: ${client?.defaultRate.toStringAsFixed(0) ?? "?"} NOK/h',
+        'Stawka: ${client?.customRate?.toStringAsFixed(0) ?? "?"} NOK/h',
       );
       buf.writeln();
 

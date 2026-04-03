@@ -47,14 +47,14 @@ void main() {
     '1': Client(
       id: '1',
       name: 'Hamar Kommune',
-      defaultRate: 250,
+      customRate: 250,
       colorValue: 0xFF2F58CD,
     ),
     '2': Client(
       id: '2',
       name: 'Anna Nordman',
       address: 'Storhamar 12',
-      defaultRate: 300,
+      customRate: 300,
       colorValue: 0xFFFF7B54,
     ),
   };
@@ -368,28 +368,28 @@ void main() {
     });
   });
 
-  group('clientsProvider', () {
+  group('clientsMapProvider', () {
     test('should provide two clients', () {
-      final clients = container.read(clientsProvider);
+      final clients = container.read(clientsMapProvider);
       expect(clients.length, 2);
     });
 
     test('should contain Hamar Kommune', () {
-      final clients = container.read(clientsProvider);
+      final clients = container.read(clientsMapProvider);
       final hamar = clients['1'];
 
       expect(hamar, isNotNull);
       expect(hamar!.name, 'Hamar Kommune');
-      expect(hamar.defaultRate, 250);
+      expect(hamar.customRate ?? 0, 250);
     });
 
     test('should contain Anna Nordman', () {
-      final clients = container.read(clientsProvider);
+      final clients = container.read(clientsMapProvider);
       final anna = clients['2'];
 
       expect(anna, isNotNull);
       expect(anna!.name, 'Anna Nordman');
-      expect(anna.defaultRate, 300);
+      expect(anna.customRate ?? 0, 300);
       expect(anna.address, 'Storhamar 12');
     });
   });
@@ -447,7 +447,7 @@ void main() {
         'rr1': Client(
           id: 'rr1',
           name: 'RRule Client',
-          defaultRate: 200,
+          customRate: 200,
           defaultStartHour: 9,
           defaultDurationMinutes: 60,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=FR',
@@ -486,7 +486,7 @@ void main() {
         'rr1': Client(
           id: 'rr1',
           name: 'RRule Client',
-          defaultRate: 200,
+          customRate: 200,
           defaultStartHour: 9,
           defaultDurationMinutes: 60,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=FR',
@@ -536,7 +536,7 @@ void main() {
         'rr1': Client(
           id: 'rr1',
           name: 'RRule Client',
-          defaultRate: 200,
+          customRate: 200,
           defaultStartHour: 9,
           defaultDurationMinutes: 60,
           recurrencePattern: 'FREQ=WEEKLY;BYDAY=MO', // Monday only

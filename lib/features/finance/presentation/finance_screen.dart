@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/constants.dart';
-import '../../../core/providers/theme_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/date_provider.dart';
 import '../providers/finance_provider.dart';
@@ -28,18 +27,10 @@ class FinanceScreen extends ConsumerWidget {
           AppLocalizations.of(context)!.finance,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         actions: [
-          IconButton(
-            icon: Icon(
-              ref.watch(themeProvider) == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-            onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
-          ),
           IconButton(
             icon: const Icon(Icons.content_copy_rounded),
             tooltip: l10n.copyReport,

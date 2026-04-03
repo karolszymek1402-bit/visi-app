@@ -13,14 +13,14 @@ void main() {
     '1': Client(
       id: '1',
       name: 'Hamar Kommune',
-      defaultRate: 250,
+      customRate: 250,
       colorValue: 0xFF2F58CD,
     ),
     '2': Client(
       id: '2',
       name: 'Anna Nordman',
       address: 'Storhamar 12',
-      defaultRate: 300,
+      customRate: 300,
       colorValue: 0xFFFF7B54,
     ),
   };
@@ -38,66 +38,72 @@ void main() {
     container.dispose();
   });
 
-  group('ClientsNotifier', () {
-    test('should load clients from database', () {
-      final clients = container.read(clientsProvider);
-      expect(clients.length, 2);
-      expect(clients['1']!.name, 'Hamar Kommune');
-      expect(clients['2']!.name, 'Anna Nordman');
+  // Helper: read as map (via derived provider) for easy id-based assertions.
+  Map<String, Client> readMap() => container.read(clientsMapProvider);
+
+  group('Clients AsyncNotifier', () {
+    test('should load clients from database as AsyncData', () {
+      final state = container.read(clientsProvider);
+      expect(state, isA<AsyncData<List<Client>>>());
+      expect(state.value!.length, 2);
     });
 
-    test('saveClient should add new client and refresh state', () async {
+    test('clientsMapProvider has correct id-keyed clients', () {
+      final map = readMap();
+      expect(map['1']!.name, 'Hamar Kommune');
+      expect(map['2']!.name, 'Anna Nordman');
+    });
+
+    test('addOrUpdateClient should add new client and refresh state', () async {
       final newClient = Client(
         id: '3',
         name: 'Bergen Omsorg',
-        defaultRate: 280,
+        customRate: 280,
         colorValue: 0xFF00AA55,
       );
 
-      await container.read(clientsProvider.notifier).saveClient(newClient);
+      await container.read(clientsProvider.notifier).addOrUpdateClient(newClient);
 
-      final clients = container.read(clientsProvider);
-      expect(clients.length, 3);
-      expect(clients['3']!.name, 'Bergen Omsorg');
+      final map = readMap();
+      expect(map.length, 3);
+      expect(map['3']!.name, 'Bergen Omsorg');
     });
 
-    test('saveClient should update existing client', () async {
+    test('addOrUpdateClient should update existing client', () async {
       final updated = Client(
         id: '1',
         name: 'Hamar Kommune (oppdatert)',
-        defaultRate: 275,
+        customRate: 275,
         colorValue: 0xFF2F58CD,
       );
 
-      await container.read(clientsProvider.notifier).saveClient(updated);
+      await container.read(clientsProvider.notifier).addOrUpdateClient(updated);
 
-      final clients = container.read(clientsProvider);
-      expect(clients.length, 2);
-      expect(clients['1']!.name, 'Hamar Kommune (oppdatert)');
-      expect(clients['1']!.defaultRate, 275);
+      final map = readMap();
+      expect(map.length, 2);
+      expect(map['1']!.name, 'Hamar Kommune (oppdatert)');
+      expect(map['1']!.customRate ?? 0, 275);
     });
 
     test('deleteClient should remove client and refresh state', () async {
       await container.read(clientsProvider.notifier).deleteClient('2');
 
-      final clients = container.read(clientsProvider);
-      expect(clients.length, 1);
-      expect(clients.containsKey('2'), false);
-      expect(clients['1']!.name, 'Hamar Kommune');
+      final map = readMap();
+      expect(map.length, 1);
+      expect(map.containsKey('2'), false);
+      expect(map['1']!.name, 'Hamar Kommune');
     });
 
     test('deleteClient with nonexistent id should be safe', () async {
       await container.read(clientsProvider.notifier).deleteClient('999');
 
-      final clients = container.read(clientsProvider);
-      expect(clients.length, 2);
+      expect(readMap().length, 2);
     });
 
     test('should persist client to database', () async {
-      final newClient = Client(id: '4', name: 'Oslo Helse', defaultRate: 320);
-      await container.read(clientsProvider.notifier).saveClient(newClient);
+      final newClient = Client(id: '4', name: 'Oslo Helse', customRate: 320);
+      await container.read(clientsProvider.notifier).addOrUpdateClient(newClient);
 
-      // Verify directly in fake DB
       final dbClients = fakeDb.getAllClients();
       expect(dbClients['4']!.name, 'Oslo Helse');
     });

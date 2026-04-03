@@ -1,55 +1,53 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../database/database_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/client.dart';
-import '../services/cloud_storage.dart';
-import '../services/sync_service.dart';
+import '../repositories/client_repository.dart';
 
-const _clientsCollection = 'clients';
+part 'clients_provider.g.dart';
 
-/// Reaktywny provider klientów — dodanie/usunięcie natychmiast odświeża zależne providery.
-final clientsProvider = NotifierProvider<ClientsNotifier, Map<String, Client>>(
-  ClientsNotifier.new,
-);
+// ─── Autorytywny provider klientów ───────────────────────────────────────────
 
-class ClientsNotifier extends Notifier<Map<String, Client>> {
+/// `AsyncValue<List<Client>>` — reaktywny, wspierający loading/error UI.
+///
+/// Używaj [clientsMapProvider] wszędzie, gdzie potrzebujesz szybkiego
+/// lookup'u klienta po ID (kalendarze, finanse, itp.).
+@riverpod
+class Clients extends _$Clients {
   @override
-  Map<String, Client> build() {
-    final db = ref.read(databaseProvider);
-    return db.getAllClients();
+  FutureOr<List<Client>> build() {
+    // fetchClients() jest synchroniczny (Hive in-memory) →
+    // build() natychmiast zwróci AsyncData bez migotania LoadingState.
+    return ref.watch(clientRepositoryProvider).fetchClients();
   }
 
-  Future<void> saveClient(Client client) async {
-    final db = ref.read(databaseProvider);
-    await db.putClient(client);
-    state = db.getAllClients();
-
-    // Próbuj sync do Firestore; offline → kolejkuj
-    final cloud = ref.read(cloudStorageProvider);
-    if (cloud != null) {
-      try {
-        await cloud.setDocument(_clientsCollection, client.id, client.toMap());
-      } catch (_) {
-        // Offline — dodaj do kolejki synchronizacji
-        final sync = ref.read(syncServiceProvider);
-        await sync?.enqueueClient(client.id);
-      }
-    }
+  /// Dodaj nowego klienta lub nadpisz istniejący.
+  Future<void> addOrUpdateClient(Client client) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(clientRepositoryProvider).saveClient(client);
+      return ref.read(clientRepositoryProvider).fetchClients();
+    });
   }
 
+  /// Usuń klienta i wszystkie jego wizyty.
   Future<void> deleteClient(String id) async {
-    final db = ref.read(databaseProvider);
-    await db.deleteClientWithVisits(id);
-    state = db.getAllClients();
-
-    // Próbuj usunąć z Firestore; offline → kolejkuj
-    final cloud = ref.read(cloudStorageProvider);
-    if (cloud != null) {
-      try {
-        await cloud.deleteDocument(_clientsCollection, id);
-      } catch (_) {
-        final sync = ref.read(syncServiceProvider);
-        await sync?.enqueueClient(id);
-      }
-    }
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(clientRepositoryProvider).deleteClient(id);
+      return ref.read(clientRepositoryProvider).fetchClients();
+    });
   }
 }
+
+// ─── Derived provider — mapa do szybkiego lookup po ID ───────────────────────
+
+/// `Map<String, Client>` — synchroniczny lookup klienta po ID.
+///
+/// Używaj tego w providerach kalendarza, finansów i widgetach,
+/// które potrzebują `clients[visit.clientId]`.
+/// Automatycznie się odświeża gdy [clientsProvider] zmieni stan.
+final clientsMapProvider = Provider<Map<String, Client>>((ref) {
+  final list = ref.watch(clientsProvider).valueOrNull ?? const [];
+  return {for (final c in list) c.id: c};
+});

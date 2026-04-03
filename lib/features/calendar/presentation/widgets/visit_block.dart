@@ -9,7 +9,6 @@ import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../providers/ai_orb_provider.dart';
 import '../../providers/calendar_provider.dart';
 import '../../providers/timer_provider.dart';
 import 'complete_visit_sheet.dart';
@@ -177,17 +176,13 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
             }
           },
           onDoubleTap: () {
-            // Orb zaczyna myśleć przy interakcji
-            ref.read(aiOrbProvider.notifier).setToThinking();
-
             // Jeśli stoper aktywny — zatrzymaj i wypełnij czas
             double? prefilledDuration;
             if (isInProgress && elapsed != null) {
-              prefilledDuration = elapsed.inMinutes / 60.0;
+              prefilledDuration = elapsed.inSeconds / 3600.0;
               ref.read(timerProvider.notifier).stopTimer();
             }
 
-            // WYWOŁANIE MODERN BOTTOM SHEET
             showModalBottomSheet(
               context: context,
               backgroundColor: Colors.transparent,
@@ -197,10 +192,7 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
                 client: client,
                 prefilledDurationHours: prefilledDuration,
               ),
-            ).whenComplete(() {
-              // Po zamknięciu wraca do trybu Idle
-              ref.read(aiOrbProvider.notifier).setToIdle();
-            });
+            );
           },
           child: Stack(
             children: [
@@ -303,7 +295,6 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
   Widget _buildTile(
     Color accentColor,
     bool isCompleted, {
-    bool isDragging = false,
     bool isInProgress = false,
     Duration? elapsed,
   }) {

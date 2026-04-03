@@ -47,6 +47,10 @@ class Visit extends HiveObject {
   @HiveField(9)
   final DateTime? actualStartTime;
 
+  /// Czas ostatniej modyfikacji — używany do rozwiązywania konfliktów sync
+  @HiveField(10)
+  final DateTime updatedAt;
+
   Visit({
     required this.id,
     required this.clientId,
@@ -58,7 +62,8 @@ class Visit extends HiveObject {
     this.recurrenceRuleId,
     this.reminderMinutesBefore,
     this.actualStartTime,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   Visit copyWith({
     VisitStatus? status,
@@ -70,6 +75,7 @@ class Visit extends HiveObject {
     bool clearReminder = false,
     DateTime? actualStartTime,
     bool clearActualStartTime = false,
+    DateTime? updatedAt,
   }) {
     return Visit(
       id: id,
@@ -86,6 +92,43 @@ class Visit extends HiveObject {
       actualStartTime: clearActualStartTime
           ? null
           : (actualStartTime ?? this.actualStartTime),
+      updatedAt: updatedAt ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    'clientId': clientId,
+    'scheduledStart': scheduledStart.toIso8601String(),
+    'scheduledEnd': scheduledEnd.toIso8601String(),
+    'status': status.name,
+    'actualDuration': actualDuration,
+    'earnedAmount': earnedAmount,
+    'recurrenceRuleId': recurrenceRuleId,
+    'reminderMinutesBefore': reminderMinutesBefore,
+    'actualStartTime': actualStartTime?.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
+
+  factory Visit.fromMap(String id, Map<String, dynamic> map) {
+    return Visit(
+      id: id,
+      clientId: map['clientId'] as String? ?? '',
+      scheduledStart: DateTime.parse(map['scheduledStart'] as String),
+      scheduledEnd: DateTime.parse(map['scheduledEnd'] as String),
+      status: VisitStatus.values.firstWhere(
+        (s) => s.name == map['status'],
+        orElse: () => VisitStatus.scheduled,
+      ),
+      actualDuration: (map['actualDuration'] as num?)?.toDouble(),
+      earnedAmount: (map['earnedAmount'] as num?)?.toDouble(),
+      recurrenceRuleId: map['recurrenceRuleId'] as String?,
+      reminderMinutesBefore: map['reminderMinutesBefore'] as int?,
+      actualStartTime: map['actualStartTime'] != null
+          ? DateTime.tryParse(map['actualStartTime'] as String)
+          : null,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 }
@@ -148,13 +191,14 @@ class VisitAdapter extends TypeAdapter<Visit> {
       recurrenceRuleId: fields[7] as String?,
       reminderMinutesBefore: fields[8] as int?,
       actualStartTime: fields[9] as DateTime?,
+      updatedAt: fields[10] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Visit obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -174,6 +218,8 @@ class VisitAdapter extends TypeAdapter<Visit> {
       ..writeByte(8)
       ..write(obj.reminderMinutesBefore)
       ..writeByte(9)
-      ..write(obj.actualStartTime);
+      ..write(obj.actualStartTime)
+      ..writeByte(10)
+      ..write(obj.updatedAt);
   }
 }

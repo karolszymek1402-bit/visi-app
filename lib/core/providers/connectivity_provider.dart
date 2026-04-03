@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../services/sync_service.dart';
+import 'orb_state_provider.dart';
 
 part 'connectivity_provider.g.dart';
 
@@ -33,6 +34,9 @@ class ConnectivityController extends _$ConnectivityController {
     final wasOffline = !state;
     state = hasConnection;
 
+    // Aktualizuj orb (offline → amber, reconnect → saving → idle)
+    ref.read(orbStateNotifierProvider.notifier).setOnlineState(hasConnection);
+
     // Powrót internetu → przetwórz kolejkę synchronizacji
     if (hasConnection && wasOffline) {
       _flushSyncQueue();
@@ -41,6 +45,12 @@ class ConnectivityController extends _$ConnectivityController {
 
   Future<void> _flushSyncQueue() async {
     final sync = ref.read(syncServiceProvider);
-    await sync?.processSyncQueue();
+    if (sync == null) return;
+    // Najpierw przetwórz kolejkę offline (lokalne zmiany z okresu bez sieci)
+    await sync.processSyncQueue();
+    await sync.processVisitSyncQueue();
+    // Potem pełny merge dwukierunkowy — pobiera też zmiany z innych urządzeń
+    await sync.syncAllClients().catchError((_) {});
+    await sync.syncAllVisits().catchError((_) {});
   }
 }

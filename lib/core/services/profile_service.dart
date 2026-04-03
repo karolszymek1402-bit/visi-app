@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database/database_service.dart';
+import '../models/user_settings.dart';
 import '../models/visi_user.dart';
 import 'cloud_storage.dart';
 
@@ -16,7 +18,8 @@ class ProfileService {
   static const _languageKey = 'user_locale';
   static const _workLocationKey = 'profile_work_location';
   static const _updatedAtKey = 'profile_updated_at';
-  static const _profileCompleteKey = 'profile_complete';
+  /// Klucz UID-zależny — spójny z auth_provider.dart.
+  static String _profileCompleteKey(String uid) => 'profile_complete_$uid';
   static const _usersCollection = 'users';
 
   /// Zapisz profil lokalnie — Hive (szybki offline).
@@ -27,18 +30,18 @@ class ProfileService {
     await _db.saveSetting(_workLocationKey, profile.workLocation);
     final now = DateTime.now().toIso8601String();
     await _db.saveSetting(_updatedAtKey, now);
-    await _db.saveSetting(_profileCompleteKey, 'true');
+    await _db.saveSetting(_profileCompleteKey(profile.uid), 'true');
   }
 
   /// Synchronizuj profil do chmury (Firestore) + zaktualizuj lokalny cache.
-  /// Firestore = Source of Truth, Hive = szybki backup offline.
+  /// Profil zapisywany bezpośrednio do users/{uid} (root document, nie subcollection).
   Future<void> syncProfileToCloud(VisiUser user) async {
     if (_cloud == null) return;
 
-    // 1. Zapisz w Firestore (backup i synchronizacja)
-    await _cloud.setDocument(_usersCollection, user.uid, user.toMap());
+    // Zapisz bezpośrednio do users/{uid} (root document)
+    await _cloud.setRootDocument(_usersCollection, user.uid, user.toMap());
 
-    // 2. Zaktualizuj lokalny Hive (szybkość offline)
+    // Zaktualizuj lokalny Hive (szybkość offline)
     await saveProfile(user);
   }
 
@@ -47,10 +50,37 @@ class ProfileService {
   Future<VisiUser?> fetchProfileFromCloud(String uid) async {
     if (_cloud == null) return null;
 
-    final data = await _cloud.getDocument(_usersCollection, uid);
+    final data = await _cloud.getRootDocument(_usersCollection, uid);
     if (data == null) return null;
 
     return VisiUser.fromMap(uid, data);
+  }
+
+  /// Zwraca pełne ustawienia użytkownika jako [UserSettings].
+  /// [themeMode] i [languageCode] przekazywane z zewnątrz (ThemeProvider / LocaleProvider),
+  /// bo [ProfileService] nie śledzi stanu UI — to rola notifieru.
+  UserSettings getUserSettings(
+    String uid, {
+    ThemeMode themeMode = ThemeMode.system,
+    String languageCode = 'pl',
+  }) {
+    final profile = getProfile(uid);
+    return UserSettings(
+      uid: uid,
+      name: profile?.name ?? '',
+      defaultRate: profile?.defaultRate ?? 0,
+      location: profile?.workLocation ?? '',
+      themeMode: themeMode,
+      languageCode: languageCode,
+      notificationsEnabled: true,
+    );
+  }
+
+  /// Sprawdź czy użytkownik zakończył onboarding.
+  /// Flaga jest kluczowana UID-em — każdy użytkownik ma własną flagę,
+  /// niezależną od innych kont na tym samym urządzeniu.
+  bool isProfileComplete(String uid) {
+    return _db.getSetting(_profileCompleteKey(uid)) == 'true';
   }
 
   /// Odczytaj profil z lokalnego Hive cache.

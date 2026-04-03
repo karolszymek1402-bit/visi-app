@@ -106,7 +106,7 @@ void main() {
       expect(find.text('Pomiń'), findsOneWidget);
     });
 
-    testWidgets('has 3 dot indicators', (tester) async {
+    testWidgets('has 4 dot indicators (3 info + 1 setup form)', (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -114,12 +114,12 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      // 3 AnimatedContainers for dot indicators
+      // 4 AnimatedContainers for dot indicators (3 info pages + 1 setup form)
       final dots = find.byType(AnimatedContainer);
-      expect(dots, findsNWidgets(3));
+      expect(dots, findsNWidgets(4));
     });
 
-    testWidgets('skip button completes onboarding', (tester) async {
+    testWidgets('skip button navigates to setup form page', (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -128,9 +128,17 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.text('Pomiń'));
-      await tester.pump();
+      // _onSkip is async: fade-out(350ms) → animateToPage(380ms) → fade-in(350ms).
+      // Pump through each stage sequentially (VisiOrb repeats so avoid pumpAndSettle).
+      await tester.pump(); // start the async chain
+      await tester.pump(const Duration(milliseconds: 400)); // reverse fade
+      await tester.pump(const Duration(milliseconds: 450)); // page transition
+      await tester.pump(const Duration(milliseconds: 400)); // forward fade
 
-      expect(fakeDb.getSetting('profile_complete'), 'true');
+      // Form page is now active — TextFormField inputs are visible
+      expect(find.byType(TextFormField), findsWidgets);
+      // CTA label changes to "Gotowe, startujemy!" on the last page
+      expect(find.text('Gotowe, startujemy!'), findsOneWidget);
     });
   });
 }

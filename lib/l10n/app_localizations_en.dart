@@ -95,6 +95,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueWithGoogle => 'Continue with Google';
 
   @override
+  String get signingIn => 'Signing in...';
+
+  @override
   String get or => 'OR';
 
   @override
@@ -395,6 +398,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingSkip => 'Skip';
 
   @override
+  String get onboardingStep4Title => 'One last step';
+
+  @override
+  String get onboardingStep4Desc =>
+      'Your data is only visible to you and helps calculate earnings. You can change it anytime in Settings.';
+
+  @override
+  String get onboardingFinish => 'Done, let\'s start!';
+
+  @override
+  String get onboardingYourName => 'Your name';
+
+  @override
+  String get onboardingOptionalHint => '* Rate and location are optional';
+
+  @override
+  String get labelActualDuration => 'Actual duration';
+
+  @override
+  String get labelEarned => 'Earned';
+
+  @override
+  String get statusOffline => 'Offline';
+
+  @override
+  String get statusOfflineHint => 'Changes saved locally';
+
+  @override
+  String get statusSyncing => 'Syncing...';
+
+  @override
+  String get statusSynced => 'Synced';
+
+  @override
   String get authErrorOperationNotAllowed =>
       'Email sign-in is disabled. Contact the administrator.';
 
@@ -426,4 +463,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authErrorPopupBlocked =>
       'Browser blocked the sign-in popup. Allow popups for this site.';
+
+  @override
+  String get navCalendar => 'Calendar';
+
+  @override
+  String get navClients => 'Clients';
+
+  @override
+  String get navFinance => 'Finance';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsProfile => 'Profile';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsSignOut => 'Sign out';
+
+  @override
+  String get settingsSignOutTitle => 'Sign out';
+
+  @override
+  String get settingsSignOutConfirm => 'Are you sure you want to sign out?';
+
+  @override
+  String get settingsSaved => 'Saved';
+
+  @override
+  String get settingsName => 'Full name';
+
+  @override
+  String get settingsDefaultRate => 'Default rate (NOK/h)';
+
+  @override
+  String get settingsWorkLocation => 'Work location';
 }
