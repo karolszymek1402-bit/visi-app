@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/models/client.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/providers/clients_provider.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import 'widgets/client_form_body.dart';
+import 'widgets/delete_confirmation_dialog.dart';
 
 /// Pełnoekranowy formularz dodawania/edycji klienta.
 ///
 /// Uruchamiany przez GoRouter z `/edit-client` z [SharedAxisTransition].
 /// Jeśli [client] jest null — tryb dodawania nowego.
 /// Jeśli [client] jest podany — tryb edycji z animowanym Hero awatarem.
-class EditClientScreen extends StatelessWidget {
+class EditClientScreen extends ConsumerWidget {
   final Client? client;
   const EditClientScreen({super.key, this.client});
 
   bool get _isNew => client == null;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final color = client?.color ?? AppColors.accent;
     final initial = client?.name.isNotEmpty == true
@@ -84,6 +87,14 @@ class EditClientScreen extends StatelessWidget {
           _isNew ? l10n.newClient : l10n.editClient,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          if (!_isNew)
+            IconButton(
+              tooltip: l10n.deleteClient,
+              icon: const Icon(Icons.delete_outline_rounded),
+              onPressed: () => _handleDelete(context, ref, l10n),
+            ),
+        ],
         elevation: 0,
         scrolledUnderElevation: 0,
         // Subtelny akcent na tle AppBara w ciemnym motywie
@@ -96,5 +107,32 @@ class EditClientScreen extends StatelessWidget {
         onClose: context.pop,
       ),
     );
+  }
+
+  Future<void> _handleDelete(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final existingClient = client;
+    if (existingClient == null) return;
+
+    final confirmed = await showDeleteConfirmationDialog(
+      context,
+      title: l10n.deleteClient,
+      message: l10n.deleteClientConfirm(existingClient.name),
+    );
+    if (!confirmed || !context.mounted) return;
+
+    try {
+      await ref.read(clientsProvider.notifier).removeClient(existingClient.id);
+      if (!context.mounted) return;
+      context.pop();
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.errorSave(error.toString()))),
+      );
+    }
   }
 }

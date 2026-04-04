@@ -6,10 +6,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/models/client.dart';
-import '../../../../core/navigation/app_router.dart';
+import 'package:visi/app/router/app_router.dart';
 import '../../../../core/providers/clients_provider.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'delete_confirmation_dialog.dart';
 import 'rrule_badge.dart';
 
 class ClientTile extends ConsumerWidget {
@@ -33,7 +34,7 @@ class ClientTile extends ConsumerWidget {
             extentRatio: 0.22,
             children: [
               SlidableAction(
-                onPressed: (_) => _confirmDelete(context, ref, l10n),
+                onPressed: (_) => _deleteWithConfirmation(context, ref, l10n),
                 backgroundColor: const Color(0xFFD93025),
                 foregroundColor: Colors.white,
                 icon: Icons.delete_outline_rounded,
@@ -154,23 +155,26 @@ class ClientTile extends ConsumerWidget {
 
   // ─── Delete confirmation ────────────────────────────────────────────────────
 
-  void _confirmDelete(
+  Future<void> _deleteWithConfirmation(
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
-  ) {
-    showDialog<bool>(
-      context: context,
-      builder: (ctx) => _DeleteDialog(
-        name: client.name,
-        onConfirm: () {
-          Navigator.pop(ctx);
-          ref.read(clientsProvider.notifier).deleteClient(client.id);
-        },
-        onCancel: () => Navigator.pop(ctx),
-        l10n: l10n,
-      ),
+  ) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context,
+      title: l10n.deleteClient,
+      message: l10n.deleteClientConfirm(client.name),
     );
+    if (!confirmed || !context.mounted) return;
+
+    try {
+      await ref.read(clientsProvider.notifier).removeClient(client.id);
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.errorSave(error.toString()))),
+      );
+    }
   }
 }
 
@@ -231,70 +235,3 @@ class _Chip extends StatelessWidget {
   }
 }
 
-// ─── Delete Dialog ────────────────────────────────────────────────────────────
-
-class _DeleteDialog extends StatelessWidget {
-  final String name;
-  final VoidCallback onConfirm;
-  final VoidCallback onCancel;
-  final AppLocalizations l10n;
-
-  const _DeleteDialog({
-    required this.name,
-    required this.onConfirm,
-    required this.onCancel,
-    required this.l10n,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor:
-          isDark ? AppColors.elevatedDark : Colors.white,
-      icon: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: const Color(0xFFD93025).withValues(alpha: 0.1),
-        ),
-        alignment: Alignment.center,
-        child: const Icon(
-          Icons.delete_outline_rounded,
-          color: Color(0xFFD93025),
-          size: 28,
-        ),
-      ),
-      title: Text(l10n.deleteClient),
-      content: Text(l10n.deleteClientConfirm(name)),
-      actionsAlignment: MainAxisAlignment.spaceEvenly,
-      actions: [
-        OutlinedButton(
-          onPressed: onCancel,
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: onConfirm,
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFD93025),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(l10n.delete),
-        ),
-      ],
-    );
-  }
-}
