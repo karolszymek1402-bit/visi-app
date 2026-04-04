@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import '../../../core/constants.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/providers/date_provider.dart';
-import '../providers/finance_provider.dart';
-import 'widgets/client_finance_card.dart';
-import 'widgets/earnings_dashboard.dart';
+import '../../../app/providers/global/auth_provider.dart';
+import '../../../app/providers/global/database_provider.dart';
+import '../../../core/providers/clients_provider.dart';
+import '../../../core/services/profile_service.dart';
+import '../../../core/models/visit.dart';
+import '../../../l10n/app_localizations.dart';
+import '../providers/current_month_provider.dart';
+import '../providers/finance_provider.dart' as legacy_finance;
+import 'providers/finance_provider.dart';
+import 'widgets/add_transaction_sheet.dart';
+import 'widgets/finance_balance_card.dart';
+import 'widgets/finance_report_button.dart';
 import 'widgets/month_navigator.dart';
-import 'widgets/month_progress_card.dart';
 import 'widgets/report_preview_sheet.dart';
+import 'widgets/transaction_tile.dart';
 
 class FinanceScreen extends ConsumerWidget {
   const FinanceScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(monthlyFinanceProvider);
-    final selectedDate = ref.watch(selectedDateProvider);
+    final selectedDate = ref.watch(currentMonthProvider);
+    final transactionsAsync = ref.watch(financeTransactionsProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)!.finance,
+          l10n.financeTitle,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
@@ -38,72 +45,84 @@ class FinanceScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddTransactionSheet(context),
+        child: const Icon(Icons.add_rounded),
+      ),
+      body: Column(
         children: [
-          MonthNavigator(
-            year: selectedDate.year,
-            month: selectedDate.month,
-            monthNames: polishMonthNames,
-            onPrevious: () => ref
-                .read(selectedDateProvider.notifier)
-                .setDate(
-                  DateTime(selectedDate.year, selectedDate.month - 1, 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            child: Column(
+              children: [
+                MonthNavigator(
+                  year: selectedDate.year,
+                  month: selectedDate.month,
+                  monthNames: polishMonthNames,
+                  onPrevious: () => ref
+                      .read(currentMonthProvider.notifier)
+                      .previousMonth(),
+                  onNext: () =>
+                      ref.read(currentMonthProvider.notifier).nextMonth(),
                 ),
-            onNext: () => ref
-                .read(selectedDateProvider.notifier)
-                .setDate(
-                  DateTime(selectedDate.year, selectedDate.month + 1, 1),
+                const SizedBox(height: 12),
+                const FinanceBalanceCard(),
+                const SizedBox(height: 12),
+                FinanceReportButton(
+                  onPressed: () => _showReportPreview(context, ref),
                 ),
-          ),
-          const SizedBox(height: 16),
-          EarningsDashboard(summary: summary),
-          const SizedBox(height: 16),
-          MonthProgressCard(summary: summary),
-          const SizedBox(height: 24),
-          Text(
-            l10n.clientBreakdown,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textLight,
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          ...summary.clientBreakdown.map(
-            (cs) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ClientFinanceCard(client: cs),
-            ),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: OutlinedButton.icon(
-              onPressed: () => _showReportPreview(context, ref),
-              icon: const Icon(Icons.description_outlined),
-              label: Text(
-                l10n.hoursReportPreview,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+          const Divider(height: 1),
+          Expanded(
+            child: transactionsAsync.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    l10n.financeLoadFailed(error.toString()),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
+              data: (transactions) {
+                if (transactions.isEmpty) {
+                  return Center(
+                    child: Text(
+                      l10n.financeEmptyState,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6),
+                      ),
+                    ),
+                  );
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                  itemCount: transactions.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    return TransactionTile(
+                      transaction: transactions[index],
+                    );
+                  },
+                );
+              },
             ),
           ),
-          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
   void _copyReport(BuildContext context, WidgetRef ref) {
-    final report = ref.read(monthlyReportProvider);
+    final report = ref.read(legacy_finance.monthlyReportProvider);
     Clipboard.setData(ClipboardData(text: report));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -114,12 +133,51 @@ class FinanceScreen extends ConsumerWidget {
   }
 
   void _showReportPreview(BuildContext context, WidgetRef ref) {
-    final report = ref.read(monthlyReportProvider);
+    final report = ref.read(legacy_finance.monthlyReportProvider);
+    final summary = ref.read(legacy_finance.monthlyFinanceProvider);
+    final db = ref.read(databaseProvider);
+    final clients = ref.read(clientsMapProvider);
+    final auth = ref.read(authProvider).valueOrNull;
+    final locale = Localizations.localeOf(context);
+    final monthName = DateFormat.yMMMM(
+      locale.languageCode,
+    ).format(DateTime(summary.year, summary.month));
+    final allVisits = db.getVisitsForMonth(summary.year, summary.month);
+    final completed = allVisits
+        .where((v) => v.status == VisitStatus.completed)
+        .toList();
+
+    final profile = auth?.userId != null
+        ? ref.read(profileServiceProvider).getProfile(auth!.userId!)
+        : null;
+    final professionalName = profile?.name ?? auth?.displayName ?? 'Visi User';
+    final locationName = profile?.workLocation.isNotEmpty == true
+        ? profile!.workLocation
+        : 'Hamar / Norway';
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ReportPreviewSheet(report: report),
+      builder: (context) => ReportPreviewSheet(
+        report: report,
+        visits: completed,
+        clientsById: clients,
+        monthName: monthName,
+        totalEarnings: summary.totalEarned,
+        professionalName: professionalName,
+        locationName: locationName,
+      ),
+    );
+  }
+
+  void _showAddTransactionSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      builder: (_) => const AddTransactionSheet(),
     );
   }
 }

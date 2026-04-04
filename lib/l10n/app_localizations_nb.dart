@@ -523,4 +523,87 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get settingsWorkLocation => 'Arbeidssted';
+
+  @override
+  String get financeTitle => 'Økonomi';
+
+  @override
+  String get currentBalance => 'Nåværende saldo';
+
+  @override
+  String get addTransaction => 'Legg til transaksjon';
+
+  @override
+  String get transactionIncome => 'Inntekt';
+
+  @override
+  String get transactionExpense => 'Utgift';
+
+  @override
+  String get amountRequired => 'Beløpet må være et positivt tall';
+
+  @override
+  String get categoryRequired => 'Kategori er påkrevd';
+
+  @override
+  String deleteTransactionConfirm(String category) {
+    return 'Slette transaksjon \"$category\"?';
+  }
+
+  @override
+  String get financeAmountLabel => 'Beløp';
+
+  @override
+  String get financeTypeLabel => 'Type';
+
+  @override
+  String get financeCategoryLabel => 'Kategori';
+
+  @override
+  String get financeNoteLabel => 'Notat';
+
+  @override
+  String get financeOptional => 'Valgfritt';
+
+  @override
+  String get financeAmountHint => 'f.eks. 1250,00';
+
+  @override
+  String get financeCategoryHint => 'f.eks. Besøk, Drivstoff, Utstyr';
+
+  @override
+  String get financeSaving => 'Lagrer...';
+
+  @override
+  String financeSaveFailed(String error) {
+    return 'Lagring feilet: $error';
+  }
+
+  @override
+  String financeDeleteFailed(String error) {
+    return 'Sletting feilet: $error';
+  }
+
+  @override
+  String financeLoadFailed(String error) {
+    return 'Kunne ikke laste transaksjoner: $error';
+  }
+
+  @override
+  String get financeEmptyState =>
+      'Ingen transaksjoner ennå. Trykk + for å legge til.';
+
+  @override
+  String get financeCurrency => 'kr';
+
+  @override
+  String financeAmountWithCurrency(String amount, String currency) {
+    return '$amount $currency';
+  }
+
+  @override
+  String get financeLinkedToVisit => 'Koblet til besøk';
+
+  @override
+  String get financeCreateFromVisit => 'Gjør opp besøk';
 }

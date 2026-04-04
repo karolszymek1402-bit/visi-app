@@ -241,5 +241,67 @@
   "settingsSaved": "Saved",
   "settingsName": "Full name",
   "settingsDefaultRate": "Default rate (NOK/h)",
-  "settingsWorkLocation": "Work location"
+  "settingsWorkLocation": "Work location",
+  "financeTitle": "Finance",
+  "currentBalance": "Current balance",
+  "addTransaction": "Add transaction",
+  "transactionIncome": "Income",
+  "transactionExpense": "Expense",
+  "amountRequired": "Amount must be a positive number",
+  "categoryRequired": "Category is required",
+  "deleteTransactionConfirm": "Delete transaction \"{category}\"?",
+  "@deleteTransactionConfirm": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "financeAmountLabel": "Amount",
+  "financeTypeLabel": "Type",
+  "financeCategoryLabel": "Category",
+  "financeNoteLabel": "Note",
+  "financeOptional": "Optional",
+  "financeAmountHint": "e.g. 1250.00",
+  "financeCategoryHint": "e.g. Visit, Fuel, Equipment",
+  "financeSaving": "Saving...",
+  "financeSaveFailed": "Save failed: {error}",
+  "@financeSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeDeleteFailed": "Delete failed: {error}",
+  "@financeDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLoadFailed": "Failed to load transactions: {error}",
+  "@financeLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeEmptyState": "No transactions yet. Tap + to add one.",
+  "financeCurrency": "PLN",
+  "financeAmountWithCurrency": "{amount} {currency}",
+  "@financeAmountWithCurrency": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLinkedToVisit": "Linked to visit",
+  "financeCreateFromVisit": "Settle visit"
 }

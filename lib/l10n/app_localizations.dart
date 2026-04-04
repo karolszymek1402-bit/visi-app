@@ -1059,6 +1059,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Work location'**
   String get settingsWorkLocation;
+
+  /// No description provided for @financeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get financeTitle;
+
+  /// No description provided for @currentBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get currentBalance;
+
+  /// No description provided for @addTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get addTransaction;
+
+  /// No description provided for @transactionIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get transactionIncome;
+
+  /// No description provided for @transactionExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get transactionExpense;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be a positive number'**
+  String get amountRequired;
+
+  /// No description provided for @categoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Category is required'**
+  String get categoryRequired;
+
+  /// No description provided for @deleteTransactionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete transaction \"{category}\"?'**
+  String deleteTransactionConfirm(String category);
+
+  /// No description provided for @financeAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get financeAmountLabel;
+
+  /// No description provided for @financeTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get financeTypeLabel;
+
+  /// No description provided for @financeCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get financeCategoryLabel;
+
+  /// No description provided for @financeNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get financeNoteLabel;
+
+  /// No description provided for @financeOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get financeOptional;
+
+  /// No description provided for @financeAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 1250.00'**
+  String get financeAmountHint;
+
+  /// No description provided for @financeCategoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Visit, Fuel, Equipment'**
+  String get financeCategoryHint;
+
+  /// No description provided for @financeSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get financeSaving;
+
+  /// No description provided for @financeSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String financeSaveFailed(String error);
+
+  /// No description provided for @financeDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete failed: {error}'**
+  String financeDeleteFailed(String error);
+
+  /// No description provided for @financeLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load transactions: {error}'**
+  String financeLoadFailed(String error);
+
+  /// No description provided for @financeEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet. Tap + to add one.'**
+  String get financeEmptyState;
+
+  /// No description provided for @financeCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'PLN'**
+  String get financeCurrency;
+
+  /// No description provided for @financeAmountWithCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} {currency}'**
+  String financeAmountWithCurrency(String amount, String currency);
+
+  /// No description provided for @financeLinkedToVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to visit'**
+  String get financeLinkedToVisit;
+
+  /// No description provided for @financeCreateFromVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle visit'**
+  String get financeCreateFromVisit;
 }
 
 class _AppLocalizationsDelegate

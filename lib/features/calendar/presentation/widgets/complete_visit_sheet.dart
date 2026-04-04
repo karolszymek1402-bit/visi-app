@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../providers/calendar_provider.dart';
+import '../../../finance/domain/models/transaction.dart';
+import '../../../finance/presentation/providers/finance_provider.dart';
+import '../../../finance/presentation/widgets/add_transaction_sheet.dart';
 
 class CompleteVisitSheet extends ConsumerStatefulWidget {
   final Visit visit;
@@ -71,6 +74,9 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final transactions = ref.watch(financeTransactionsProvider).valueOrNull ?? const [];
+    final hasLinkedTransaction = transactions.any((t) => t.visitId == widget.visit.id);
+
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surfaceLight,
@@ -191,17 +197,7 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: () {
-                // Wywołujemy silnik domknięcia w Riverpodzie
-                ref
-                    .read(calendarProvider.notifier)
-                    .completeVisit(
-                      visitId: widget.visit.id,
-                      actualDuration: _actualDurationInHours,
-                      earnedAmount: _earnedAmount,
-                    );
-                Navigator.pop(context); // Zamykamy arkusz
-              },
+              onPressed: () => _completeAndHandlePayment(hasLinkedTransaction),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -219,8 +215,64 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: hasLinkedTransaction
+                  ? null
+                  : () => _openPaymentSheet(context),
+              icon: Icon(
+                hasLinkedTransaction
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.payments_outlined,
+              ),
+              label: Text(
+                hasLinkedTransaction
+                    ? AppLocalizations.of(context)!.financeLinkedToVisit
+                    : AppLocalizations.of(context)!.financeCreateFromVisit,
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Future<void> _completeAndHandlePayment(bool hasLinkedTransaction) async {
+    await ref
+        .read(calendarProvider.notifier)
+        .completeVisit(
+          visitId: widget.visit.id,
+          actualDuration: _actualDurationInHours,
+          earnedAmount: _earnedAmount,
+        );
+
+    if (!mounted) return;
+    Navigator.pop(context);
+
+    if (hasLinkedTransaction || !mounted) return;
+    await _openPaymentSheet(context);
+  }
+
+  Future<void> _openPaymentSheet(BuildContext context) async {
+    final initialTransaction = Transaction.fromVisit(
+      widget.visit.copyWith(
+        status: VisitStatus.completed,
+        actualDuration: _actualDurationInHours,
+        earnedAmount: _earnedAmount,
+      ),
+      amount: _earnedAmount,
+      category: widget.client.name,
+      note: AppLocalizations.of(context)!.financeCreateFromVisit,
+    );
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      builder: (_) => AddTransactionSheet(initialTransaction: initialTransaction),
     );
   }
 }

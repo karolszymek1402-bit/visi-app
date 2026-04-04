@@ -522,4 +522,87 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsWorkLocation => 'Lokalizacja pracy';
+
+  @override
+  String get financeTitle => 'Finanse';
+
+  @override
+  String get currentBalance => 'Aktualne saldo';
+
+  @override
+  String get addTransaction => 'Dodaj transakcję';
+
+  @override
+  String get transactionIncome => 'Przychód';
+
+  @override
+  String get transactionExpense => 'Wydatek';
+
+  @override
+  String get amountRequired => 'Kwota musi być dodatnią liczbą';
+
+  @override
+  String get categoryRequired => 'Kategoria jest wymagana';
+
+  @override
+  String deleteTransactionConfirm(String category) {
+    return 'Usunąć transakcję \"$category\"?';
+  }
+
+  @override
+  String get financeAmountLabel => 'Kwota';
+
+  @override
+  String get financeTypeLabel => 'Typ';
+
+  @override
+  String get financeCategoryLabel => 'Kategoria';
+
+  @override
+  String get financeNoteLabel => 'Notatka';
+
+  @override
+  String get financeOptional => 'Opcjonalnie';
+
+  @override
+  String get financeAmountHint => 'np. 1250,00';
+
+  @override
+  String get financeCategoryHint => 'np. Wizyta, Paliwo, Sprzęt';
+
+  @override
+  String get financeSaving => 'Zapisywanie...';
+
+  @override
+  String financeSaveFailed(String error) {
+    return 'Błąd zapisu: $error';
+  }
+
+  @override
+  String financeDeleteFailed(String error) {
+    return 'Błąd usuwania: $error';
+  }
+
+  @override
+  String financeLoadFailed(String error) {
+    return 'Nie udało się wczytać transakcji: $error';
+  }
+
+  @override
+  String get financeEmptyState =>
+      'Brak transakcji. Kliknij +, aby dodać pierwszą.';
+
+  @override
+  String get financeCurrency => 'zł';
+
+  @override
+  String financeAmountWithCurrency(String amount, String currency) {
+    return '$amount $currency';
+  }
+
+  @override
+  String get financeLinkedToVisit => 'Powiązane z wizytą';
+
+  @override
+  String get financeCreateFromVisit => 'Rozlicz wizytę';
 }

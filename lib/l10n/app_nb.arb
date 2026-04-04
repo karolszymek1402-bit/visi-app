@@ -241,5 +241,67 @@
   "settingsSaved": "Lagret",
   "settingsName": "Fullt navn",
   "settingsDefaultRate": "Standard timepris (NOK/t)",
-  "settingsWorkLocation": "Arbeidssted"
+  "settingsWorkLocation": "Arbeidssted",
+  "financeTitle": "Økonomi",
+  "currentBalance": "Nåværende saldo",
+  "addTransaction": "Legg til transaksjon",
+  "transactionIncome": "Inntekt",
+  "transactionExpense": "Utgift",
+  "amountRequired": "Beløpet må være et positivt tall",
+  "categoryRequired": "Kategori er påkrevd",
+  "deleteTransactionConfirm": "Slette transaksjon \"{category}\"?",
+  "@deleteTransactionConfirm": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "financeAmountLabel": "Beløp",
+  "financeTypeLabel": "Type",
+  "financeCategoryLabel": "Kategori",
+  "financeNoteLabel": "Notat",
+  "financeOptional": "Valgfritt",
+  "financeAmountHint": "f.eks. 1250,00",
+  "financeCategoryHint": "f.eks. Besøk, Drivstoff, Utstyr",
+  "financeSaving": "Lagrer...",
+  "financeSaveFailed": "Lagring feilet: {error}",
+  "@financeSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeDeleteFailed": "Sletting feilet: {error}",
+  "@financeDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLoadFailed": "Kunne ikke laste transaksjoner: {error}",
+  "@financeLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeEmptyState": "Ingen transaksjoner ennå. Trykk + for å legge til.",
+  "financeCurrency": "kr",
+  "financeAmountWithCurrency": "{amount} {currency}",
+  "@financeAmountWithCurrency": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLinkedToVisit": "Koblet til besøk",
+  "financeCreateFromVisit": "Gjør opp besøk"
 }

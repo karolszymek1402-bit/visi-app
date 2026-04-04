@@ -241,5 +241,67 @@
   "settingsSaved": "Zapisano",
   "settingsName": "Imię i nazwisko",
   "settingsDefaultRate": "Domyślna stawka (NOK/h)",
-  "settingsWorkLocation": "Lokalizacja pracy"
+  "settingsWorkLocation": "Lokalizacja pracy",
+  "financeTitle": "Finanse",
+  "currentBalance": "Aktualne saldo",
+  "addTransaction": "Dodaj transakcję",
+  "transactionIncome": "Przychód",
+  "transactionExpense": "Wydatek",
+  "amountRequired": "Kwota musi być dodatnią liczbą",
+  "categoryRequired": "Kategoria jest wymagana",
+  "deleteTransactionConfirm": "Usunąć transakcję \"{category}\"?",
+  "@deleteTransactionConfirm": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "financeAmountLabel": "Kwota",
+  "financeTypeLabel": "Typ",
+  "financeCategoryLabel": "Kategoria",
+  "financeNoteLabel": "Notatka",
+  "financeOptional": "Opcjonalnie",
+  "financeAmountHint": "np. 1250,00",
+  "financeCategoryHint": "np. Wizyta, Paliwo, Sprzęt",
+  "financeSaving": "Zapisywanie...",
+  "financeSaveFailed": "Błąd zapisu: {error}",
+  "@financeSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeDeleteFailed": "Błąd usuwania: {error}",
+  "@financeDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLoadFailed": "Nie udało się wczytać transakcji: {error}",
+  "@financeLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "financeEmptyState": "Brak transakcji. Kliknij +, aby dodać pierwszą.",
+  "financeCurrency": "zł",
+  "financeAmountWithCurrency": "{amount} {currency}",
+  "@financeAmountWithCurrency": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "financeLinkedToVisit": "Powiązane z wizytą",
+  "financeCreateFromVisit": "Rozlicz wizytę"
 }

@@ -520,4 +520,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsWorkLocation => 'Work location';
+
+  @override
+  String get financeTitle => 'Finance';
+
+  @override
+  String get currentBalance => 'Current balance';
+
+  @override
+  String get addTransaction => 'Add transaction';
+
+  @override
+  String get transactionIncome => 'Income';
+
+  @override
+  String get transactionExpense => 'Expense';
+
+  @override
+  String get amountRequired => 'Amount must be a positive number';
+
+  @override
+  String get categoryRequired => 'Category is required';
+
+  @override
+  String deleteTransactionConfirm(String category) {
+    return 'Delete transaction \"$category\"?';
+  }
+
+  @override
+  String get financeAmountLabel => 'Amount';
+
+  @override
+  String get financeTypeLabel => 'Type';
+
+  @override
+  String get financeCategoryLabel => 'Category';
+
+  @override
+  String get financeNoteLabel => 'Note';
+
+  @override
+  String get financeOptional => 'Optional';
+
+  @override
+  String get financeAmountHint => 'e.g. 1250.00';
+
+  @override
+  String get financeCategoryHint => 'e.g. Visit, Fuel, Equipment';
+
+  @override
+  String get financeSaving => 'Saving...';
+
+  @override
+  String financeSaveFailed(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String financeDeleteFailed(String error) {
+    return 'Delete failed: $error';
+  }
+
+  @override
+  String financeLoadFailed(String error) {
+    return 'Failed to load transactions: $error';
+  }
+
+  @override
+  String get financeEmptyState => 'No transactions yet. Tap + to add one.';
+
+  @override
+  String get financeCurrency => 'PLN';
+
+  @override
+  String financeAmountWithCurrency(String amount, String currency) {
+    return '$amount $currency';
+  }
+
+  @override
+  String get financeLinkedToVisit => 'Linked to visit';
+
+  @override
+  String get financeCreateFromVisit => 'Settle visit';
 }
