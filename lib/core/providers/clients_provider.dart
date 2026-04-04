@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/client.dart';
 import '../repositories/client_repository.dart';
@@ -31,12 +30,25 @@ class Clients extends _$Clients {
   }
 
   /// Usuń klienta i wszystkie jego wizyty.
-  Future<void> deleteClient(String id) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+  Future<void> removeClient(String id) async {
+    final previous = state.valueOrNull ?? ref.read(clientRepositoryProvider).fetchClients();
+    final next = previous.where((client) => client.id != id).toList(growable: false);
+
+    // Optimistic update: UI odświeża się natychmiast bez pełnego refetch.
+    state = AsyncData(next);
+
+    try {
       await ref.read(clientRepositoryProvider).deleteClient(id);
-      return ref.read(clientRepositoryProvider).fetchClients();
-    });
+    } catch (error, stackTrace) {
+      // Rollback stanu przy błędzie i przekazanie wyjątku do warstwy UI.
+      state = AsyncData(previous);
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+  }
+
+  /// Backward-compatible alias.
+  Future<void> deleteClient(String id) async {
+    await removeClient(id);
   }
 }
 
