@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/providers/date_provider.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../providers/selected_date_provider.dart';
 
 /// Pasek nawigacji po tygodniu — 7 dni z podświetleniem wybranego.
 class DateNavigationBar extends ConsumerWidget {
@@ -13,6 +13,7 @@ class DateNavigationBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedDateProvider);
     final today = DateTime.now();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
     final dayNames = [
       l10n.dayMon,
@@ -107,7 +108,9 @@ class DateNavigationBar extends ConsumerWidget {
                               fontWeight: FontWeight.w600,
                               color: isSelected
                                   ? Colors.white
-                                  : AppColors.textSecondaryLight,
+                                  : (isDark
+                                        ? Colors.white70
+                                        : AppColors.textSecondaryLight),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -120,7 +123,7 @@ class DateNavigationBar extends ConsumerWidget {
                                   ? Colors.white
                                   : isToday
                                   ? AppColors.primary
-                                  : AppColors.textLight,
+                                  : (isDark ? Colors.white : AppColors.textLight),
                             ),
                           ),
                         ],

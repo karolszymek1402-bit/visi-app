@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../core/providers/clients_provider.dart';
-import '../../../../core/providers/date_provider.dart';
-import '../../../../l10n/app_localizations.dart';
 import '../../providers/calendar_view_mode_provider.dart';
 import '../../providers/month_provider.dart';
+import '../../providers/selected_date_provider.dart';
 
 /// Month view — classic grid with colored dot indicators per visit.
 class MonthView extends ConsumerWidget {
@@ -19,16 +18,7 @@ class MonthView extends ConsumerWidget {
     final selectedDate = ref.watch(selectedDateProvider);
     final clients = ref.watch(clientsMapProvider);
     final today = DateTime.now();
-    final l10n = AppLocalizations.of(context)!;
-    final dayNames = [
-      l10n.dayMon,
-      l10n.dayTue,
-      l10n.dayWed,
-      l10n.dayThu,
-      l10n.dayFri,
-      l10n.daySat,
-      l10n.daySun,
-    ];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final year = selectedDate.year;
     final month = selectedDate.month;
@@ -42,26 +32,6 @@ class MonthView extends ConsumerWidget {
 
     return Column(
       children: [
-        // Day names header
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: dayNames.map((name) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondaryLight,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
         // Calendar grid
         Expanded(
           child: Column(
@@ -113,13 +83,19 @@ class MonthView extends ConsumerWidget {
                                   fontWeight: isToday
                                       ? FontWeight.bold
                                       : FontWeight.w400,
-                                  color: isToday
+                                  color: isSelected
+                                      ? Colors.white
+                                      : isToday
                                       ? AppColors.primary
-                                      : AppColors.textLight,
+                                      : (isDark ? Colors.white70 : AppColors.textLight),
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              _DotIndicators(visits: visits, clients: clients),
+                              const SizedBox(height: 2),
+                              Expanded(
+                                child: Center(
+                                  child: _DotIndicators(visits: visits, clients: clients),
+                                ),
+                              ),
                             ],
                           ),
                         ),
