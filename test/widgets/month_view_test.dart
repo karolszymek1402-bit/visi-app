@@ -73,7 +73,7 @@ void main() {
   }
 
   group('MonthView', () {
-    testWidgets('renders day name headers', (tester) async {
+    testWidgets('does not render duplicated day name headers', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(MonthView)),
@@ -83,13 +83,13 @@ void main() {
           .setDate(DateTime(2026, 3, 1));
       await tester.pump();
 
-      expect(find.text('Pn'), findsOneWidget);
-      expect(find.text('Wt'), findsOneWidget);
-      expect(find.text('Śr'), findsOneWidget);
-      expect(find.text('Cz'), findsOneWidget);
-      expect(find.text('Pt'), findsOneWidget);
-      expect(find.text('So'), findsOneWidget);
-      expect(find.text('Nd'), findsOneWidget);
+      expect(find.text('Pn'), findsNothing);
+      expect(find.text('Wt'), findsNothing);
+      expect(find.text('Śr'), findsNothing);
+      expect(find.text('Cz'), findsNothing);
+      expect(find.text('Pt'), findsNothing);
+      expect(find.text('So'), findsNothing);
+      expect(find.text('Nd'), findsNothing);
     });
 
     testWidgets('renders all days of March 2026', (tester) async {
@@ -165,6 +165,23 @@ void main() {
 
       // Today's number should be rendered
       expect(find.text('${now.day}'), findsAtLeast(1));
+    });
+
+    testWidgets('MonthView nie powinien zgłaszać overflow na bardzo małym ekranie', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 480);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MonthView), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }
