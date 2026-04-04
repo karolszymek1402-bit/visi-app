@@ -5,6 +5,7 @@ import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/services/auth_error_helper.dart';
 import '../../../l10n/app_localizations.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -56,10 +57,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     try {
       await ref.read(authProvider.notifier).signUpWithEmail(email, password);
+      await ref.read(authProvider.notifier).signOut();
 
-      // Powrót do AuthWrapper — przebuduje się z nowym stanem auth
       if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.authRegistrationSuccess)),
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
       }
     } catch (e) {
       if (mounted) {

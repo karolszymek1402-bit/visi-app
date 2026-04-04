@@ -8,6 +8,7 @@ import 'package:visi/app/theme/app_theme.dart';
 import 'package:visi/features/clients/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:visi/features/finance/domain/models/transaction.dart';
 import 'package:visi/features/finance/presentation/providers/finance_provider.dart';
+import 'package:visi/features/settings/presentation/providers/settings_provider.dart';
 import 'package:visi/l10n/app_localizations.dart';
 
 class TransactionTile extends ConsumerWidget {
@@ -20,19 +21,17 @@ class TransactionTile extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final locale = Localizations.localeOf(context).toLanguageTag();
     final l10n = AppLocalizations.of(context)!;
+    final settings = ref.watch(settingsProvider).valueOrNull;
+    final currencyCode = settings?.currencyCode ?? 'PLN';
     final amountColor = transaction.type == TransactionType.income
         ? const Color(0xFF26C281)
         : (isDark ? Colors.white : const Color(0xFFB3261E));
     final amountPrefix = transaction.type == TransactionType.income ? '+' : '-';
     final amountValue = NumberFormat.currency(
       locale: locale,
-      symbol: '',
+      symbol: currencyCode,
       decimalDigits: 2,
     ).format(transaction.amount).trim();
-    final amountText = l10n.financeAmountWithCurrency(
-      amountValue,
-      l10n.financeCurrency,
-    );
     final dateText = DateFormat.yMMMd(locale).format(transaction.date);
 
     return ClipRRect(
@@ -115,7 +114,7 @@ class TransactionTile extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '$amountPrefix$amountText',
+                    '$amountPrefix$amountValue',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,

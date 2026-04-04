@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:visi/core/models/client.dart';
+import 'package:visi/core/models/visit.dart';
 import 'package:visi/core/services/finance_service.dart';
 import 'package:visi/features/finance/presentation/widgets/client_finance_card.dart';
 import 'package:visi/features/finance/presentation/widgets/earnings_dashboard.dart';
@@ -29,6 +31,28 @@ void main() {
     scheduledVisits: 10,
     clientBreakdown: [],
   );
+  final sampleVisit = Visit(
+    id: 'v1',
+    clientId: 'c1',
+    scheduledStart: DateTime(2026, 3, 10, 9),
+    scheduledEnd: DateTime(2026, 3, 10, 11),
+    status: VisitStatus.completed,
+    actualDuration: 2.0,
+    earnedAmount: 500.0,
+  );
+  const sampleClient = Client(id: 'c1', name: 'Test Client');
+
+  ReportPreviewSheet buildReportPreview(String report) {
+    return ReportPreviewSheet(
+      report: report,
+      visits: [sampleVisit],
+      clientsById: const {'c1': sampleClient},
+      monthName: 'Marzec 2026',
+      totalEarnings: 500.0,
+      professionalName: 'Tester',
+      locationName: 'Oslo',
+    );
+  }
 
   group('EarningsDashboard', () {
     testWidgets('shows total earned amount', (tester) async {
@@ -338,16 +362,18 @@ void main() {
     testWidgets('renders report text', (tester) async {
       await tester.pumpWidget(
         wrapWithLocalization(
-          const ReportPreviewSheet(report: 'LINE 1\nLINE 2\nLINE 3'),
+          buildReportPreview('LINE 1\nLINE 2\nLINE 3'),
         ),
       );
 
-      expect(find.text('LINE 1\nLINE 2\nLINE 3'), findsOneWidget);
+      expect(find.text('LINE 1'), findsOneWidget);
+      expect(find.text('LINE 2'), findsOneWidget);
+      expect(find.text('LINE 3'), findsOneWidget);
     });
 
     testWidgets('shows report header', (tester) async {
       await tester.pumpWidget(
-        wrapWithLocalization(const ReportPreviewSheet(report: 'Test')),
+        wrapWithLocalization(buildReportPreview('Test')),
       );
 
       expect(find.text('Raport godzin pracy'), findsOneWidget);
@@ -355,18 +381,18 @@ void main() {
 
     testWidgets('has copy button', (tester) async {
       await tester.pumpWidget(
-        wrapWithLocalization(const ReportPreviewSheet(report: 'Content')),
+        wrapWithLocalization(buildReportPreview('Content')),
       );
 
       expect(find.byIcon(Icons.content_copy_rounded), findsOneWidget);
     });
 
-    testWidgets('report text is selectable', (tester) async {
+    testWidgets('has PDF export button', (tester) async {
       await tester.pumpWidget(
-        wrapWithLocalization(const ReportPreviewSheet(report: 'Select me')),
+        wrapWithLocalization(buildReportPreview('Select me')),
       );
 
-      expect(find.byType(SelectableText), findsOneWidget);
+      expect(find.byIcon(Icons.picture_as_pdf_rounded), findsOneWidget);
     });
   });
 }

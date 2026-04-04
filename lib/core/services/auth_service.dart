@@ -9,6 +9,10 @@ class AuthUser {
   const AuthUser({required this.uid, this.displayName, this.email});
 }
 
+class AuthRequiresRecentLoginException implements Exception {
+  const AuthRequiresRecentLoginException();
+}
+
 /// Abstraction for authentication operations.
 /// Real app uses FirebaseAuthService, tests use FakeAuthService.
 abstract class AuthService {
@@ -19,6 +23,7 @@ abstract class AuthService {
   Future<AuthUser?> signUpWithEmail(String email, String password);
   Future<AuthUser?> signInWithEmail(String email, String password);
   Future<void> resetPassword(String email);
+  Future<void> deleteAccount();
   Future<void> signOut();
 }
 

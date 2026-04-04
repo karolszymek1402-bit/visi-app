@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:visi/app/theme/app_theme.dart';
 import 'package:visi/features/finance/presentation/providers/finance_provider.dart';
+import 'package:visi/features/settings/presentation/providers/settings_provider.dart';
 import 'package:visi/l10n/app_localizations.dart';
 
 class FinanceBalanceCard extends ConsumerWidget {
@@ -11,8 +12,10 @@ class FinanceBalanceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balanceAsync = ref.watch(financeTotalBalanceProvider);
+    final settings = ref.watch(settingsProvider).valueOrNull;
     final locale = Localizations.localeOf(context).toLanguageTag();
     final l10n = AppLocalizations.of(context)!;
+    final currencyCode = settings?.currencyCode ?? 'PLN';
 
     return Container(
       width: double.infinity,
@@ -49,13 +52,9 @@ class FinanceBalanceCard extends ConsumerWidget {
         data: (balance) {
           final amount = NumberFormat.currency(
             locale: locale,
-            symbol: '',
+            symbol: currencyCode,
             decimalDigits: 2,
           ).format(balance).trim();
-          final formatted = l10n.financeAmountWithCurrency(
-            amount,
-            l10n.financeCurrency,
-          );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -69,7 +68,7 @@ class FinanceBalanceCard extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                formatted,
+                amount,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 34,

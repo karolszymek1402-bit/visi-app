@@ -227,6 +227,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get cancel => 'Anuluj';
 
   @override
+  String get commonCancel => 'Anuluj';
+
+  @override
+  String get commonDiscardChanges => 'Porzucić zmiany?';
+
+  @override
+  String get commonDiscardConfirm =>
+      'Czy na pewno chcesz opuścić formularz bez zapisywania?';
+
+  @override
   String get deleteClient => 'Usuń klienta';
 
   @override
@@ -467,6 +477,21 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przeglądarka zablokowała okno logowania. Odblokuj wyskakujące okna dla tej strony.';
 
   @override
+  String get authRegistrationSuccess =>
+      'Konto utworzone! Możesz się zalogować.';
+
+  @override
+  String get authDeleteAccount => 'Usuń konto';
+
+  @override
+  String get authDeleteAccountConfirm =>
+      'Czy na pewno? Wszystkie dane zostaną bezpowrotnie usunięte.';
+
+  @override
+  String get authReauthenticateRequired =>
+      'Wymagane ponowne zalogowanie przed usunięciem konta.';
+
+  @override
   String get navCalendar => 'Kalendarz';
 
   @override
@@ -489,6 +514,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Język';
+
+  @override
+  String get settingsCurrency => 'Waluta';
 
   @override
   String get settingsAccount => 'Konto';
@@ -605,4 +633,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get financeCreateFromVisit => 'Rozlicz wizytę';
+
+  @override
+  String get clientPaymentHistory => 'Historia płatności';
+
+  @override
+  String get clientNoPaymentHistory => 'Brak historii płatności';
+
+  @override
+  String clientLtv(String amount) {
+    return 'LTV: $amount';
+  }
 }

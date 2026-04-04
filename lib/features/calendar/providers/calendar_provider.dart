@@ -1,23 +1,25 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/models/visit.dart';
 import '../../../core/models/client.dart';
 import '../../../core/constants.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/providers/clients_provider.dart';
-import '../../../core/providers/date_provider.dart';
 import '../../../core/providers/reminder_provider.dart';
 import '../../../core/providers/orb_state_provider.dart';
+import '../../../core/repositories/visit_repository.dart';
 import '../../../core/services/rrule_service.dart';
 import '../../../core/services/sync_service.dart';
+import 'selected_date_provider.dart';
+
+part 'calendar_provider.g.dart';
 
 // ─── Wizyty na wybrany dzień ───
 
 /// Provider wizyt na wybrany dzień (filtruje z DB + rozwija RRule)
-final calendarProvider = NotifierProvider<CalendarNotifier, List<Visit>>(
-  CalendarNotifier.new,
-);
+final calendarProvider = calendarNotifierProvider;
 
-class CalendarNotifier extends Notifier<List<Visit>> {
+@Riverpod(keepAlive: true)
+class CalendarNotifier extends _$CalendarNotifier {
   late DatabaseService _db;
   final _rruleService = RRuleService();
 
@@ -32,8 +34,11 @@ class CalendarNotifier extends Notifier<List<Visit>> {
   }
 
   List<Visit> _loadVisitsForDate(DateTime date, Map<String, Client> clients) {
-    // 1. Wizyt z bazy na ten dzień
-    final dbVisits = _db.getVisitsForDate(date);
+    // 1. Wizyty persisted + wygenerowane z RRULE wizyt cyklicznych.
+    final repo = ref.read(visitRepositoryProvider);
+    final start = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final dbVisits = repo.fetchVisitsForRange(start, end);
     final existingIds = dbVisits.map((v) => v.id).toSet();
 
     // 2. Rozwiń RRule dla klientów, żeby wygenerować brakujące wizyty
@@ -45,6 +50,77 @@ class CalendarNotifier extends Notifier<List<Visit>> {
     );
 
     return [...dbVisits, ...rruleVisits];
+  }
+
+  Future<void> saveVisit(Visit visit) async {
+    await ref.read(visitRepositoryProvider).saveVisit(visit);
+    await _syncVisit(visit);
+    ref.invalidateSelf();
+  }
+
+  Future<void> deleteVisit(String visitId) async {
+    await ref.read(visitRepositoryProvider).deleteVisit(visitId);
+    ref.invalidateSelf();
+  }
+
+  Future<void> deleteRecurringFuture(Visit visit) async {
+    final baseId = visit.parentVisitId ?? visit.id;
+    final all = _db.getAllVisits();
+
+    for (final v in all) {
+      final isMaster = v.id == baseId;
+      final isChild = v.parentVisitId == baseId;
+      final shouldDeleteByDate = !v.scheduledStart.isBefore(visit.scheduledStart);
+      if ((isMaster && v.isRecurring) || (isChild && shouldDeleteByDate)) {
+        await ref.read(visitRepositoryProvider).deleteVisit(v.id);
+      }
+    }
+    ref.invalidateSelf();
+  }
+
+  Future<void> updateRecurringFuture({
+    required Visit editedOccurrence,
+    required DateTime newStart,
+    required DateTime newEnd,
+    required bool isRecurring,
+    String? recurrenceRule,
+  }) async {
+    final baseId = editedOccurrence.parentVisitId ?? editedOccurrence.id;
+    final all = _db.getAllVisits();
+    final master = all.where((v) => v.id == baseId).firstOrNull;
+
+    if (master == null) {
+      await saveVisit(
+        editedOccurrence.copyWith(
+          scheduledStart: newStart,
+          scheduledEnd: newEnd,
+          isRecurring: isRecurring,
+          recurrenceRule: recurrenceRule,
+          clearRecurrenceRule: !isRecurring,
+        ),
+      );
+      return;
+    }
+
+    final updatedMaster = master.copyWith(
+      scheduledStart: newStart,
+      scheduledEnd: newEnd,
+      isRecurring: isRecurring,
+      recurrenceRule: recurrenceRule,
+      clearRecurrenceRule: !isRecurring,
+      clearParentVisitId: true,
+    );
+    await saveVisit(updatedMaster);
+
+    // Usuń nadpisane dzieci "future", żeby odtworzyły się z nowej reguły.
+    for (final v in all) {
+      final isChild = v.parentVisitId == baseId;
+      final isFuture = !v.scheduledStart.isBefore(editedOccurrence.scheduledStart);
+      if (isChild && isFuture) {
+        await ref.read(visitRepositoryProvider).deleteVisit(v.id);
+      }
+    }
+    ref.invalidateSelf();
   }
 
   /// Zakończ wizytę z zarobkiem (czyści też actualStartTime)

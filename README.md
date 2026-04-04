@@ -139,7 +139,7 @@ Gdy przycisk „nie reaguje” lub ekran stoi w miejscu — **DevTools przegląd
 
 Przy **0 błędów** z `flutter analyze` i **zielonych testach** „zamrożenie” na Webie bardzo często wynika z **timingów async**, a nie z syntaktyki.
 
-- Główna aplikacja używa **GoRouter** (`lib/core/navigation/app_router.dart`) i **`authProvider`** (Riverpod), a nie już `MaterialApp(home: AuthWrapper)` — przy debugowaniu patrz na **redirect** routera i stan **`AsyncValue`** auth (w debug buildzie są też logi `GoRouter redirect: …`).
+- Główna aplikacja używa **GoRouter** (`lib/app/router/app_router.dart`) i **`authProvider`** (Riverpod), a nie już `MaterialApp(home: AuthWrapper)` — przy debugowaniu patrz na **redirect** routera i stan **`AsyncValue`** auth (w debug buildzie są też logi `GoRouter redirect: …`).
 - Na **Webie** pierwsze zdarzenie ze **streamu Firebase Auth** może przyjść **wolniej** niż na urządzeniu mobilnym. Kod nie powinien zakładać natychmiastowego pierwszego emisji ani blokować nawigacji **nieskończonym `await`** na „pierwszym evencie” bez **ekranu ładowania** (u nas start z **`/` splash** do momentu ustabilizowania `authProvider`).
 
 **Co zrobić w praktyce:** najpierw **Firebase Console → Authorized domains** (jeśli problem dotyczy logowania OAuth), równolegle **DevTools** według tabeli powyżej — to nie wyklucza się z commitem dokumentacji do repo.

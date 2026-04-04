@@ -5,14 +5,31 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'auth_service.dart';
 
 class FirebaseAuthService implements AuthService {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _auth;
+  static bool _isGoogleInitialized = false;
   static Future<void>? _googleInitFuture;
 
   FirebaseAuthService({FirebaseAuth? firebaseAuth})
-    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+    : _auth = firebaseAuth ?? FirebaseAuth.instance;
 
   Future<void> _ensureGoogleInitialized() {
-    return _googleInitFuture ??= GoogleSignIn.instance.initialize();
+    if (kIsWeb || _isGoogleInitialized) {
+      return Future<void>.value();
+    }
+    return _googleInitFuture ??= _initializeGoogleOnce();
+  }
+
+  Future<void> _initializeGoogleOnce() async {
+    try {
+      await GoogleSignIn.instance.initialize();
+      _isGoogleInitialized = true;
+    } catch (e, st) {
+      // If initialization failed, allow a future retry attempt.
+      _googleInitFuture = null;
+      // ignore: avoid_print
+      print('GoogleSignIn initialize failed (mobile): $e\n$st');
+      rethrow;
+    }
   }
 
   AuthUser? _toAuthUser(User? user) {
@@ -25,23 +42,25 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  AuthUser? get currentUser => _toAuthUser(_firebaseAuth.currentUser);
+  AuthUser? get currentUser => _toAuthUser(_auth.currentUser);
 
   @override
   Stream<AuthUser?> get authStateChanges =>
-      _firebaseAuth.authStateChanges().map(_toAuthUser);
+      _auth.authStateChanges().map(_toAuthUser);
 
   @override
   Future<AuthUser?> signInWithGoogle() async {
     // Guard: jeśli sesja już istnieje, nie uruchamiaj ponownie flow logowania.
-    final existing = _firebaseAuth.currentUser;
+    final existing = _auth.currentUser;
     if (existing != null) return _toAuthUser(existing);
 
     try {
+      await _ensureGoogleInitialized();
+
       if (kIsWeb) {
         // On web, use Firebase Auth popup directly
         final provider = GoogleAuthProvider();
-        final userCredential = await _firebaseAuth.signInWithPopup(provider);
+        final userCredential = await _auth.signInWithPopup(provider);
         return _toAuthUser(userCredential.user);
       } else {
         // On mobile, use google_sign_in package
@@ -49,7 +68,7 @@ class FirebaseAuthService implements AuthService {
         final googleAccount = await GoogleSignIn.instance.authenticate();
         final auth = googleAccount.authentication;
         final credential = GoogleAuthProvider.credential(idToken: auth.idToken);
-        final userCredential = await _firebaseAuth.signInWithCredential(
+        final userCredential = await _auth.signInWithCredential(
           credential,
         );
         return _toAuthUser(userCredential.user);
@@ -64,7 +83,7 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<AuthUser?> signUpWithEmail(String email, String password) async {
-    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+    final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -73,7 +92,7 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<AuthUser?> signInWithEmail(String email, String password) async {
-    final credential = await _firebaseAuth.signInWithEmailAndPassword(
+    final credential = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -82,7 +101,19 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<void> resetPassword(String email) async {
-    await _firebaseAuth.sendPasswordResetEmail(email: email);
+    await _auth.sendPasswordResetEmail(email: email);
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      await _auth.currentUser?.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw const AuthRequiresRecentLoginException();
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -90,6 +121,6 @@ class FirebaseAuthService implements AuthService {
     if (!kIsWeb) {
       await GoogleSignIn.instance.signOut();
     }
-    await _firebaseAuth.signOut();
+    await _auth.signOut();
   }
 }

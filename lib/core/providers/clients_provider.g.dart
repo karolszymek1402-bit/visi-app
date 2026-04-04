@@ -6,7 +6,7 @@ part of 'clients_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$clientsHash() => r'23826f16cd742bdb2240a77ce7f16c930859effb';
+String _$clientsHash() => r'e4887045fad636c3bfebc7ddc5bde1f61a74e7c3';
 
 /// `AsyncValue<List<Client>>` — reaktywny, wspierający loading/error UI.
 ///

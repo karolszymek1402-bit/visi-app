@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/database/database_service.dart';
+import '../../../app/providers/global/database_provider.dart';
 import '../../../core/models/visit.dart';
 import '../../../core/services/finance_service.dart';
 import '../../../core/services/rrule_service.dart';
 import '../../calendar/providers/calendar_provider.dart';
 import '../../../core/providers/clients_provider.dart';
-import '../../../core/providers/date_provider.dart';
+import 'current_month_provider.dart';
 
 final _financeService = FinanceService();
 final _rruleService = RRuleService();
@@ -14,7 +14,7 @@ final _rruleService = RRuleService();
 /// Automatycznie odświeża się gdy zmieni się data lub wizyty.
 final monthlyFinanceProvider = Provider<MonthlyFinanceSummary>((ref) {
   final db = ref.watch(databaseProvider);
-  final selectedDate = ref.watch(selectedDateProvider);
+  final selectedDate = ref.watch(currentMonthProvider);
   final clients = ref.watch(clientsMapProvider);
 
   // Odśwież gdy wizyty się zmienią (np. completeVisit)

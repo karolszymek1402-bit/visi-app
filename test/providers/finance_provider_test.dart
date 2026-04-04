@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/core/models/visit.dart';
+import 'package:visi/features/finance/providers/current_month_provider.dart';
 import 'package:visi/features/finance/providers/finance_provider.dart';
-import 'package:visi/core/providers/date_provider.dart';
 import '../helpers/fake_database_service.dart';
 
 void main() {
@@ -54,8 +54,8 @@ void main() {
 
       // Ustaw datę na marzec
       container
-          .read(selectedDateProvider.notifier)
-          .setDate(DateTime(2026, 3, 15));
+          .read(currentMonthProvider.notifier)
+          .setMonth(DateTime(2026, 3, 15));
 
       final summary = container.read(monthlyFinanceProvider);
 
@@ -70,8 +70,8 @@ void main() {
       () {
         // Ustaw datę na marzec (ma 5 poniedziałków: 2,9,16,23,30)
         container
-            .read(selectedDateProvider.notifier)
-            .setDate(DateTime(2026, 3, 15));
+            .read(currentMonthProvider.notifier)
+            .setMonth(DateTime(2026, 3, 15));
 
         final summary = container.read(monthlyFinanceProvider);
 
@@ -84,14 +84,14 @@ void main() {
 
     test('should update when date changes to different month', () {
       container
-          .read(selectedDateProvider.notifier)
-          .setDate(DateTime(2026, 3, 15));
+          .read(currentMonthProvider.notifier)
+          .setMonth(DateTime(2026, 3, 15));
       final marchSummary = container.read(monthlyFinanceProvider);
       expect(marchSummary.month, 3);
 
       container
-          .read(selectedDateProvider.notifier)
-          .setDate(DateTime(2026, 4, 10));
+          .read(currentMonthProvider.notifier)
+          .setMonth(DateTime(2026, 4, 10));
       final aprilSummary = container.read(monthlyFinanceProvider);
       expect(aprilSummary.month, 4);
     });
@@ -114,8 +114,8 @@ void main() {
       );
 
       container
-          .read(selectedDateProvider.notifier)
-          .setDate(DateTime(2026, 3, 15));
+          .read(currentMonthProvider.notifier)
+          .setMonth(DateTime(2026, 3, 15));
 
       final report = container.read(monthlyReportProvider);
 

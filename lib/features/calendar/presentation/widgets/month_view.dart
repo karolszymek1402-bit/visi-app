@@ -30,84 +30,99 @@ class MonthView extends ConsumerWidget {
     final totalCells = (startWeekday - 1) + daysInMonth;
     final rows = (totalCells / 7).ceil();
 
-    return Column(
-      children: [
-        // Calendar grid
-        Expanded(
-          child: Column(
-            children: List.generate(rows, (row) {
-              return Expanded(
-                child: Row(
-                  children: List.generate(7, (col) {
-                    final cellIndex = row * 7 + col;
-                    final dayNumber = cellIndex - (startWeekday - 1) + 1;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const minCellHeight = 72.0;
+        final gridMinHeight = rows * minCellHeight;
+        final gridHeight = constraints.maxHeight > gridMinHeight
+            ? constraints.maxHeight
+            : gridMinHeight;
 
-                    if (dayNumber < 1 || dayNumber > daysInMonth) {
-                      return const Expanded(child: SizedBox.shrink());
-                    }
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: SizedBox(
+            height: gridHeight,
+            child: Column(
+              children: List.generate(rows, (row) {
+                return Expanded(
+                  child: Row(
+                    children: List.generate(7, (col) {
+                      final cellIndex = row * 7 + col;
+                      final dayNumber = cellIndex - (startWeekday - 1) + 1;
 
-                    final day = DateTime(year, month, dayNumber);
-                    final visits = monthVisits[day] ?? [];
-                    final isSelected = _isSameDay(day, selectedDate);
-                    final isToday = _isSameDay(day, today);
+                      if (dayNumber < 1 || dayNumber > daysInMonth) {
+                        return const Expanded(child: SizedBox.shrink());
+                      }
 
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          ref.read(selectedDateProvider.notifier).setDate(day);
-                          ref
-                              .read(calendarViewModeProvider.notifier)
-                              .setMode(CalendarViewMode.day);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.all(1),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary.withValues(alpha: 0.08)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: isToday
-                                ? Border.all(
-                                    color: AppColors.primary,
-                                    width: 1.5,
-                                  )
-                                : null,
-                          ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                '$dayNumber',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: isToday
-                                      ? FontWeight.bold
-                                      : FontWeight.w400,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : isToday
-                                      ? AppColors.primary
-                                      : (isDark ? Colors.white70 : AppColors.textLight),
+                      final day = DateTime(year, month, dayNumber);
+                      final visits = monthVisits[day] ?? [];
+                      final isSelected = _isSameDay(day, selectedDate);
+                      final isToday = _isSameDay(day, today);
+
+                      return Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            ref.read(selectedDateProvider.notifier).setDate(day);
+                            ref
+                                .read(calendarViewModeProvider.notifier)
+                                .setMode(CalendarViewMode.day);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary.withValues(alpha: 0.08)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: isToday
+                                  ? Border.all(
+                                      color: AppColors.primary,
+                                      width: 1.5,
+                                    )
+                                  : null,
+                            ),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  '$dayNumber',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isToday
+                                        ? FontWeight.bold
+                                        : FontWeight.w400,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : isToday
+                                        ? AppColors.primary
+                                        : (isDark
+                                              ? Colors.white70
+                                              : AppColors.textLight),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Expanded(
-                                child: Center(
-                                  child: _DotIndicators(visits: visits, clients: clients),
+                                const SizedBox(height: 2),
+                                Expanded(
+                                  child: Center(
+                                    child: _DotIndicators(
+                                      visits: visits,
+                                      clients: clients,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
-                ),
-              );
-            }),
+                      );
+                    }),
+                  ),
+                );
+              }),
+            ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 

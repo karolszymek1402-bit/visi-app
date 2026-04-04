@@ -6,8 +6,28 @@ import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/features/clients/presentation/clients_screen.dart';
 import 'package:visi/features/clients/presentation/edit_client_screen.dart';
+import 'package:visi/features/finance/data/finance_repository.dart';
+import 'package:visi/features/finance/domain/models/transaction.dart';
 import 'package:visi/l10n/app_localizations.dart';
 import '../helpers/fake_database_service.dart';
+
+class _FakeFinanceRepository extends FinanceRepository {
+  _FakeFinanceRepository({List<Transaction>? seed})
+    : _seed = List<Transaction>.from(seed ?? const []);
+
+  final List<Transaction> _seed;
+
+  @override
+  Future<List<Transaction>> getTransactions() async {
+    final sorted = [..._seed]..sort((a, b) => b.date.compareTo(a.date));
+    return sorted;
+  }
+
+  @override
+  Stream<List<Transaction>> watchTransactions() async* {
+    yield await getTransactions();
+  }
+}
 
 void main() {
   late FakeDatabaseService fakeDb;
@@ -42,7 +62,7 @@ void main() {
       routes: [
         GoRoute(
           path: '/clients',
-          builder: (_, __) => const ClientsScreen(),
+          builder: (context, state) => const ClientsScreen(),
         ),
         GoRoute(
           path: '/edit-client',
@@ -53,7 +73,10 @@ void main() {
     );
 
     return ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(fakeDb)],
+      overrides: [
+        databaseProvider.overrideWithValue(fakeDb),
+        financeRepositoryProvider.overrideWith((ref) => _FakeFinanceRepository()),
+      ],
       child: MaterialApp.router(
         routerConfig: router,
         locale: const Locale('pl'),

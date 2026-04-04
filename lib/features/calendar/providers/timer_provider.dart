@@ -1,9 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/models/visit.dart';
 import 'calendar_provider.dart';
+
+part 'timer_provider.g.dart';
 
 /// Stan aktywnego stopera — null oznacza brak trwającej wizyty.
 class TimerState {
@@ -29,11 +31,10 @@ class TimerState {
 /// Mechanizm "Survival": `actualStartTime` jest zapisany w Hive.
 /// Po ponownym otwarciu aplikacji provider automatycznie wznawia
 /// odliczanie na podstawie różnicy czasu.
-final timerProvider = NotifierProvider<TimerNotifier, TimerState?>(
-  TimerNotifier.new,
-);
+final timerProvider = timerNotifierProvider;
 
-class TimerNotifier extends Notifier<TimerState?> {
+@Riverpod(keepAlive: true)
+class TimerNotifier extends _$TimerNotifier {
   Timer? _ticker;
 
   @override

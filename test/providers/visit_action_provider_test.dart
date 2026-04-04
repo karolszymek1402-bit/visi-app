@@ -142,7 +142,7 @@ void main() {
 
     // ─── SMS Formatting (L10n) ──────────────
 
-    test('formatSmsBody replaces {data} and {godzina} with PL locale', () {
+    test('formatSmsBody generates localized PL reminder', () {
       container.dispose();
       container = buildContainer(locale: 'pl');
 
@@ -150,12 +150,10 @@ void main() {
           .read(visitActionProvider.notifier)
           .formatSmsBody(visit: scheduledVisit, client: testClient);
 
-      // PL: "niedziela, 22 marca" pattern (day of week, date month)
       expect(body, contains('10:00')); // 24h time
-      expect(body, contains('Hei!')); // Template preserved
-      expect(body, contains('kl.')); // Template preserved
-      // Date should contain Polish day/month names
-      expect(body, contains('marca')); // March in Polish
+      expect(body, contains('Cześć Anna Nordman'));
+      expect(body, contains('przypominam o naszej wizycie'));
+      expect(body, contains('mar')); // March (short format) in Polish
     });
 
     test('formatSmsBody uses EN locale when set', () {
@@ -166,8 +164,9 @@ void main() {
           .read(visitActionProvider.notifier)
           .formatSmsBody(visit: scheduledVisit, client: testClient);
 
-      expect(body, contains('March'));
-      expect(body, contains('Sunday'));
+      expect(body, contains('Hi Anna Nordman'));
+      expect(body, contains('just a reminder about our visit'));
+      expect(body, contains('Mar'));
     });
 
     test('formatSmsBody uses NB (Bokmål) locale when set', () {
@@ -178,11 +177,12 @@ void main() {
           .read(visitActionProvider.notifier)
           .formatSmsBody(visit: scheduledVisit, client: testClient);
 
-      expect(body, contains('mars')); // March in Norwegian
-      expect(body, contains('søndag')); // Sunday in Norwegian
+      expect(body, contains('Hei Anna Nordman'));
+      expect(body, contains('minner om avtalen vår'));
+      expect(body, contains('mars'));
     });
 
-    test('formatSmsBody uses default template when client has none', () {
+    test('formatSmsBody works when client has no custom template', () {
       final clientNoTemplate = Client(
         id: 'c2',
         name: 'Test',
@@ -194,9 +194,9 @@ void main() {
           .read(visitActionProvider.notifier)
           .formatSmsBody(visit: scheduledVisit, client: clientNoTemplate);
 
-      // Default template: "{data} {godzina}"
       expect(body, contains('10:00'));
-      expect(body, contains('marca'));
+      expect(body, contains('Cześć Test'));
+      expect(body, contains('mar'));
     });
 
     // ─── Send SMS (SMS + L10n + Baza) ───────
@@ -209,7 +209,7 @@ void main() {
       expect(sent, isTrue);
       expect(fakeSms.sentMessages, hasLength(1));
       expect(fakeSms.sentMessages.first.phoneNumber, '+4791234567');
-      expect(fakeSms.sentMessages.first.message, contains('Hei!'));
+      expect(fakeSms.sentMessages.first.message, contains('Cześć Anna Nordman'));
       expect(fakeSms.sentMessages.first.message, contains('10:00'));
 
       final state = container.read(visitActionProvider);

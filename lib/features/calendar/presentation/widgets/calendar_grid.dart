@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../core/models/visit.dart';
 import '../../providers/calendar_provider.dart';
 import '../../../../core/providers/clients_provider.dart';
-import '../../../../core/providers/date_provider.dart';
 import 'minute_picker.dart';
+import '../../providers/selected_date_provider.dart';
 import 'visit_block.dart';
 
 /// Edge zone width in logical pixels — dragging into this zone triggers a day flip.

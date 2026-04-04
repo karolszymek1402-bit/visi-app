@@ -105,6 +105,9 @@
   "invalidNameOrRate": "Podaj nazwę i prawidłową stawkę",
   "delete": "Usuń",
   "cancel": "Anuluj",
+  "commonCancel": "Anuluj",
+  "commonDiscardChanges": "Porzucić zmiany?",
+  "commonDiscardConfirm": "Czy na pewno chcesz opuścić formularz bez zapisywania?",
   "deleteClient": "Usuń klienta",
   "deleteClientConfirm": "Czy na pewno chcesz usunąć \"{name}\"?",
   "@deleteClientConfirm": {
@@ -223,6 +226,10 @@
   "authErrorUnknown": "Błąd logowania. Spróbuj ponownie.",
   "authErrorPopupClosed": "Okno logowania zostało zamknięte. Spróbuj ponownie.",
   "authErrorPopupBlocked": "Przeglądarka zablokowała okno logowania. Odblokuj wyskakujące okna dla tej strony.",
+  "authRegistrationSuccess": "Konto utworzone! Możesz się zalogować.",
+  "authDeleteAccount": "Usuń konto",
+  "authDeleteAccountConfirm": "Czy na pewno? Wszystkie dane zostaną bezpowrotnie usunięte.",
+  "authReauthenticateRequired": "Wymagane ponowne zalogowanie przed usunięciem konta.",
   "navCalendar": "Kalendarz",
   "navClients": "Klienci",
   "navFinance": "Finanse",
@@ -231,6 +238,7 @@
   "settingsProfile": "Profil",
   "settingsAppearance": "Wygląd",
   "settingsLanguage": "Język",
+  "settingsCurrency": "Waluta",
   "settingsAccount": "Konto",
   "settingsThemeSystem": "Systemowy",
   "settingsThemeLight": "Jasny",
@@ -303,5 +311,15 @@
     }
   },
   "financeLinkedToVisit": "Powiązane z wizytą",
-  "financeCreateFromVisit": "Rozlicz wizytę"
+  "financeCreateFromVisit": "Rozlicz wizytę",
+  "clientPaymentHistory": "Historia płatności",
+  "clientNoPaymentHistory": "Brak historii płatności",
+  "clientLtv": "LTV: {amount}",
+  "@clientLtv": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

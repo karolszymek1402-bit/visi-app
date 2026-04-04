@@ -240,6 +240,8 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
   }
 
   Future<void> _completeAndHandlePayment(bool hasLinkedTransaction) async {
+    final hostContext = Navigator.of(context, rootNavigator: true).context;
+
     await ref
         .read(calendarProvider.notifier)
         .completeVisit(
@@ -251,8 +253,10 @@ class _CompleteVisitSheetState extends ConsumerState<CompleteVisitSheet> {
     if (!mounted) return;
     Navigator.pop(context);
 
-    if (hasLinkedTransaction || !mounted) return;
-    await _openPaymentSheet(context);
+    if (hasLinkedTransaction) return;
+    await Future<void>.delayed(Duration.zero);
+    if (!hostContext.mounted) return;
+    await _openPaymentSheet(hostContext);
   }
 
   Future<void> _openPaymentSheet(BuildContext context) async {

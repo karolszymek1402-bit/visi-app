@@ -8,10 +8,7 @@ class FakeSmsService extends SmsService {
   FakeSmsService({this.shouldSucceed = true}) : super.forTesting();
 
   @override
-  Future<bool> sendSms({
-    required String phoneNumber,
-    required String message,
-  }) async {
+  Future<bool> sendSms(String phoneNumber, String message) async {
     sentMessages.add((phoneNumber: phoneNumber, message: message));
     return shouldSucceed;
   }

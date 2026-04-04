@@ -5,9 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/models/client.dart';
-import '../../../core/navigation/app_router.dart';
+import '../../../core/presentation/widgets/account_menu_button.dart';
+import 'package:visi/app/router/app_router.dart';
 import '../../../core/providers/clients_provider.dart';
-import '../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import 'widgets/client_tile.dart';
 
@@ -61,6 +62,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           l10n.clientsDatabase,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: const [AccountMenuButton()],
         elevation: 0,
         scrolledUnderElevation: 0,
         // Pasek wyszukiwania osadzony w AppBar.bottom

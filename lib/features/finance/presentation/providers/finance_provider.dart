@@ -63,3 +63,30 @@ class FinanceTransactions extends _$FinanceTransactions {
 Future<double> financeTotalBalance(Ref ref) async {
   return ref.watch(financeRepositoryProvider).getTotalBalance();
 }
+
+@riverpod
+List<Transaction> financeTransactionsForClient(
+  Ref ref,
+  String clientId,
+) {
+  final allTransactions = ref.watch(
+    financeTransactionsProvider.select(
+      (async) => async.valueOrNull ?? const <Transaction>[],
+    ),
+  );
+
+  return allTransactions
+      .where((transaction) => transaction.clientId == clientId)
+      .toList(growable: false);
+}
+
+@riverpod
+double financeClientIncomeLtv(
+  Ref ref,
+  String clientId,
+) {
+  final transactions = ref.watch(financeTransactionsForClientProvider(clientId));
+  return transactions
+      .where((transaction) => transaction.type == TransactionType.income)
+      .fold<double>(0, (sum, transaction) => sum + transaction.amount);
+}

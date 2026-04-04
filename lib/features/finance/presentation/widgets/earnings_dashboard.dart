@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/finance_service.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Gradient dashboard z zarobkami, planowanymi i godzinami.

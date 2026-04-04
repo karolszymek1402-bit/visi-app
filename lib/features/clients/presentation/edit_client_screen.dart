@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,8 +29,21 @@ class EditClientScreen extends ConsumerWidget {
         ? client!.name[0].toUpperCase()
         : '+';
 
-    return Scaffold(
-      appBar: AppBar(
+    return Shortcuts(
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          DismissIntent: CallbackAction<DismissIntent>(
+            onInvoke: (intent) {
+              Navigator.of(context).maybePop();
+              return null;
+            },
+          ),
+        },
+        child: Scaffold(
+          appBar: AppBar(
         // ── Hero Avatar — morphuje się z kafelka na liście ──────────────────
         leading: Padding(
           padding: const EdgeInsets.all(8),
@@ -87,14 +101,18 @@ class EditClientScreen extends ConsumerWidget {
           _isNew ? l10n.newClient : l10n.editClient,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          if (!_isNew)
-            IconButton(
-              tooltip: l10n.deleteClient,
-              icon: const Icon(Icons.delete_outline_rounded),
-              onPressed: () => _handleDelete(context, ref, l10n),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              child: Text(l10n.commonCancel),
             ),
-        ],
+            if (!_isNew)
+              IconButton(
+                tooltip: l10n.deleteClient,
+                icon: const Icon(Icons.delete_outline_rounded),
+                onPressed: () => _handleDelete(context, ref, l10n),
+              ),
+          ],
         elevation: 0,
         scrolledUnderElevation: 0,
         // Subtelny akcent na tle AppBara w ciemnym motywie
@@ -102,9 +120,11 @@ class EditClientScreen extends ConsumerWidget {
             ? AppColors.surfaceDark
             : AppColors.backgroundLight,
       ),
-      body: ClientFormBody(
-        client: client,
-        onClose: context.pop,
+          body: ClientFormBody(
+            client: client,
+            onClose: context.pop,
+          ),
+        ),
       ),
     );
   }

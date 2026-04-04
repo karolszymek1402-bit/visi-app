@@ -508,6 +508,24 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonDiscardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get commonDiscardChanges;
+
+  /// No description provided for @commonDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to leave this form without saving?'**
+  String get commonDiscardConfirm;
+
   /// No description provided for @deleteClient.
   ///
   /// In en, this message translates to:
@@ -946,6 +964,30 @@ abstract class AppLocalizations {
   /// **'Browser blocked the sign-in popup. Allow popups for this site.'**
   String get authErrorPopupBlocked;
 
+  /// No description provided for @authRegistrationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created! You can now sign in.'**
+  String get authRegistrationSuccess;
+
+  /// No description provided for @authDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get authDeleteAccount;
+
+  /// No description provided for @authDeleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure? All data will be permanently deleted.'**
+  String get authDeleteAccountConfirm;
+
+  /// No description provided for @authReauthenticateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-authentication is required before deleting the account.'**
+  String get authReauthenticateRequired;
+
   /// No description provided for @navCalendar.
   ///
   /// In en, this message translates to:
@@ -993,6 +1035,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Language'**
   String get settingsLanguage;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
 
   /// No description provided for @settingsAccount.
   ///
@@ -1203,6 +1251,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settle visit'**
   String get financeCreateFromVisit;
+
+  /// No description provided for @clientPaymentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment history'**
+  String get clientPaymentHistory;
+
+  /// No description provided for @clientNoPaymentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment history'**
+  String get clientNoPaymentHistory;
+
+  /// No description provided for @clientLtv.
+  ///
+  /// In en, this message translates to:
+  /// **'LTV: {amount}'**
+  String clientLtv(String amount);
 }
 
 class _AppLocalizationsDelegate

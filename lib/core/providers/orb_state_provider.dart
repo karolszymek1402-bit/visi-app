@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'orb_state_provider.g.dart';
 
 /// Stany reaktywnego orba — mapowane na kolory i prędkość animacji.
 enum OrbState { idle, offline, saving, success, error }
 
-final orbStateNotifierProvider =
-    NotifierProvider<OrbStateNotifier, OrbState>(OrbStateNotifier.new);
-
-class OrbStateNotifier extends Notifier<OrbState> {
+@Riverpod(keepAlive: true)
+class OrbStateNotifier extends _$OrbStateNotifier {
   Timer? _resetTimer;
 
   @override

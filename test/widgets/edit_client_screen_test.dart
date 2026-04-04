@@ -4,19 +4,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
-import 'package:visi/core/providers/clients_provider.dart';
 import 'package:visi/core/repositories/client_repository.dart';
 import 'package:visi/features/clients/presentation/edit_client_screen.dart';
+import 'package:visi/features/finance/data/finance_repository.dart';
+import 'package:visi/features/finance/domain/models/transaction.dart';
 import 'package:visi/l10n/app_localizations.dart';
 
 import '../helpers/fake_database_service.dart';
 
 class _FailingClientRepository extends ClientRepository {
   _FailingClientRepository({
-    required DatabaseService db,
+    required super.db,
     required List<Client> seedClients,
   }) : _seedClients = seedClients,
-       super(db: db, cloud: null, sync: null);
+       super(cloud: null, sync: null);
 
   final List<Client> _seedClients;
 
@@ -26,6 +27,24 @@ class _FailingClientRepository extends ClientRepository {
   @override
   Future<void> deleteClient(String id) async {
     throw Exception('Delete failed');
+  }
+}
+
+class _FakeFinanceRepository extends FinanceRepository {
+  _FakeFinanceRepository({List<Transaction>? seed})
+    : _seed = List<Transaction>.from(seed ?? const []);
+
+  final List<Transaction> _seed;
+
+  @override
+  Future<List<Transaction>> getTransactions() async {
+    final sorted = [..._seed]..sort((a, b) => b.date.compareTo(a.date));
+    return sorted;
+  }
+
+  @override
+  Stream<List<Transaction>> watchTransactions() async* {
+    yield await getTransactions();
   }
 }
 
@@ -65,7 +84,10 @@ void main() {
       ],
     );
 
-    final overrides = <Override>[databaseProvider.overrideWithValue(fakeDb)];
+    final overrides = <Override>[
+      databaseProvider.overrideWithValue(fakeDb),
+      financeRepositoryProvider.overrideWith((ref) => _FakeFinanceRepository()),
+    ];
     if (repositoryOverride != null) {
       overrides.add(
         clientRepositoryProvider.overrideWith((ref) => repositoryOverride),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:visi/app/theme/app_theme.dart';
 import 'package:visi/features/finance/domain/models/transaction.dart';
@@ -48,9 +49,22 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
+    return Shortcuts(
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          DismissIntent: CallbackAction<DismissIntent>(
+            onInvoke: (intent) {
+              Navigator.of(context).maybePop();
+              return null;
+            },
+          ),
+        },
+        child: SafeArea(
+          top: false,
+          child: Padding(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
@@ -64,13 +78,24 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.addTransaction,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.textDark : AppColors.textLight,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.addTransaction,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppColors.textDark : AppColors.textLight,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.commonCancel,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 if (widget.initialTransaction?.visitId != null)
@@ -168,6 +193,8 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                 ),
               ],
             ),
+          ),
+        ),
           ),
         ),
       ),

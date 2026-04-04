@@ -7,12 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants.dart';
 import '../../../../core/models/client.dart';
 import '../../../../core/models/visit.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../l10n/app_localizations.dart';
-import '../../providers/calendar_provider.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../providers/timer_provider.dart';
 import 'complete_visit_sheet.dart';
-import 'move_visit_sheet.dart';
+import 'visit_block_overlays.dart';
 
 class VisitBlock extends ConsumerStatefulWidget {
   final Visit visit;
@@ -205,10 +203,15 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
               if (!isCompleted && !isInProgress) ...[
                 Positioned(
                   top: 4,
-                  right: 28,
-                  child: _MoveButton(visit: visit, client: client),
+                  right: 96,
+                  child: VisitBlockMoveButton(visit: visit, client: client),
                 ),
-                Positioned(top: 4, right: 4, child: _BellButton(visit: visit)),
+                Positioned(top: 4, right: 36, child: VisitBlockBellButton(visit: visit)),
+                Positioned(
+                  top: 3,
+                  right: 4,
+                  child: VisitBlockSmsReminderButton(visit: visit, client: client),
+                ),
               ],
               if (isInProgress)
                 Positioned(
@@ -237,46 +240,48 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
 
   /// Feedback tile with live-updating time via ValueNotifier.
   Widget _buildDragFeedbackTile(Color accentColor, bool isCompleted) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.4),
-              width: 1.5,
-            ),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                client.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isCompleted ? AppColors.completed : Colors.white,
-                  fontSize: 15,
-                ),
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.4),
+                width: 1.5,
               ),
-              const SizedBox(height: 4),
-              ValueListenableBuilder<String>(
-                valueListenable: _liveTimeNotifier,
-                builder: (_, timeText, _) => Text(
-                  timeText,
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  client.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? AppColors.completed : Colors.white,
+                    fontSize: 15,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                ValueListenableBuilder<String>(
+                  valueListenable: _liveTimeNotifier,
+                  builder: (_, timeText, _) => Text(
+                    timeText,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -298,202 +303,95 @@ class _VisitBlockState extends ConsumerState<VisitBlock>
     bool isInProgress = false,
     Duration? elapsed,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: isCompleted ? 0.1 : 0.15),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.3),
-              width: 1,
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: isCompleted ? 0.1 : 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Stack(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    client.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isCompleted
-                          ? AppColors.completed
-                          : AppColors.textLight,
-                      fontSize: 15,
+            padding: const EdgeInsets.all(12),
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      client.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isCompleted
+                            ? AppColors.completed
+                            : AppColors.textLight,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  if (isInProgress && elapsed != null)
-                    AnimatedBuilder(
-                      animation: _pulseAnimation,
-                      builder: (_, _) => Text(
-                        _formatElapsed(elapsed),
-                        style: TextStyle(
-                          color: accentColor.withValues(
-                            alpha: 0.6 + _pulseAnimation.value * 0.4,
+                    const SizedBox(height: 4),
+                    if (isInProgress && elapsed != null)
+                      AnimatedBuilder(
+                        animation: _pulseAnimation,
+                        builder: (_, _) => Text(
+                          _formatElapsed(elapsed),
+                          style: TextStyle(
+                            color: accentColor.withValues(
+                              alpha: 0.6 + _pulseAnimation.value * 0.4,
+                            ),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 20,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 20,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      )
+                    else
+                      Text(
+                        "${visit.scheduledStart.hour}:${visit.scheduledStart.minute.toString().padLeft(2, '0')} - ${visit.scheduledEnd.hour}:${visit.scheduledEnd.minute.toString().padLeft(2, '0')}",
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
-                    )
-                  else
-                    Text(
-                      "${visit.scheduledStart.hour}:${visit.scheduledStart.minute.toString().padLeft(2, '0')} - ${visit.scheduledEnd.hour}:${visit.scheduledEnd.minute.toString().padLeft(2, '0')}",
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                    if (client.address != null && !isInProgress) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        client.address!,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  if (client.address != null && !isInProgress) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      client.address!,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                    ),
+                    ],
                   ],
-                ],
-              ),
-              // Pionowy pasek statusu (akcent 3D)
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    color: accentColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
+                ),
+                // Pionowy pasek statusu (akcent 3D)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Przycisk dzwonka do ustawiania przypomnień.
-class _BellButton extends ConsumerWidget {
-  final Visit visit;
-
-  const _BellButton({required this.visit});
-
-  static const _options = [15, 30, 60];
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hasReminder = visit.reminderMinutesBefore != null;
-
-    return GestureDetector(
-      onTap: () => _showReminderMenu(context, ref),
-      child: Icon(
-        hasReminder ? Icons.notifications_active : Icons.notifications_none,
-        size: 18,
-        color: hasReminder ? AppColors.primary : AppColors.textSecondaryLight,
-      ),
-    );
-  }
-
-  void _showReminderMenu(BuildContext context, WidgetRef ref) {
-    final currentMinutes = visit.reminderMinutesBefore;
-    final l10n = AppLocalizations.of(context)!;
-
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l10n.reminder,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            for (final min in _options)
-              ListTile(
-                leading: Icon(
-                  min == currentMinutes
-                      ? Icons.check_circle
-                      : Icons.circle_outlined,
-                  color: min == currentMinutes
-                      ? AppColors.primary
-                      : AppColors.textSecondaryLight,
-                ),
-                title: Text(
-                  min < 60 ? l10n.minBefore(min) : l10n.hourBefore(min ~/ 60),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  ref
-                      .read(calendarProvider.notifier)
-                      .setReminder(visit.id, min);
-                },
-              ),
-            if (currentMinutes != null)
-              ListTile(
-                leading: const Icon(
-                  Icons.notifications_off,
-                  color: AppColors.textSecondaryLight,
-                ),
-                title: Text(l10n.disableReminder),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  ref.read(calendarProvider.notifier).clearReminder(visit.id);
-                },
-              ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Przycisk "Przenieś" — otwiera precyzyjny selektor czasu.
-class _MoveButton extends StatelessWidget {
-  final Visit visit;
-  final Client client;
-
-  const _MoveButton({required this.visit, required this.client});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          builder: (_) => MoveVisitSheet(visit: visit, client: client),
-        );
-      },
-      child: const Icon(
-        Icons.schedule,
-        size: 18,
-        color: AppColors.textSecondaryLight,
       ),
     );
   }

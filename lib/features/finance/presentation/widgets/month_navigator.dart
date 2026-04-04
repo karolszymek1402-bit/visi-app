@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 
 /// Nawigacja po miesiącach — strzałki lewo/prawo + nazwa miesiąca.
 class MonthNavigator extends StatelessWidget {

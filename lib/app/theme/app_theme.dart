@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Główny motyw aplikacji
   static const Color primary = Color(0xFF5B8FB9); // Skandynawski błękit
-  static const Color accent = Color(0xFF6BA3D6);  // Jasny błękit — akcenty UI
+  static const Color accent = Color(0xFF6BA3D6); // Jasny błękit — akcenty UI
 
   // Statusy i tła
   static const Color completed = Color(0xFF9E9E9E);
@@ -23,9 +23,9 @@ class AppColors {
 
   // Ciemny motyw — Material 3 dark baseline (nie czysty czarny)
   static const Color backgroundDark = Color(0xFF121212); // M3 dark surface
-  static const Color surfaceDark = Color(0xFF1D1D1D);    // M3 dark surface+1
-  static const Color elevatedDark = Color(0xFF2C2C2C);   // dialogi, karty
-  static const Color textDark = Color(0xFFE8EAED);       // ~white87
+  static const Color surfaceDark = Color(0xFF1D1D1D); // M3 dark surface+1
+  static const Color elevatedDark = Color(0xFF2C2C2C); // dialogi, karty
+  static const Color textDark = Color(0xFFE8EAED); // ~white87
   static const Color textSecondaryDark = Color(0xFF9AA0A6); // ~white60
   static const Color borderDark = Color(0xFF3C3C3C);
 }
@@ -78,6 +78,40 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surfaceLight,
         indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final active = states.contains(WidgetState.selected);
+          return TextStyle(
+            color: active ? const Color(0xFF2E4A67) : AppColors.textSecondaryLight,
+            fontSize: 12,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+          );
+        }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        floatingLabelStyle: const TextStyle(
+          color: Color(0xFF2E4A67),
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        labelStyle: const TextStyle(
+          color: Color(0xFF566070),
+          fontSize: 14,
+        ),
+        hintStyle: const TextStyle(color: Color(0x80607080), fontSize: 14),
+        contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
       ),
     );
   }
@@ -97,7 +131,7 @@ class AppTheme {
         onSurface: AppColors.textDark,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.surfaceDark,   // 0xFF1D1D1D
+        backgroundColor: AppColors.surfaceDark, // 0xFF1D1D1D
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -150,10 +184,17 @@ class AppTheme {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        floatingLabelBehavior: FloatingLabelBehavior.always,
         filled: true,
         fillColor: AppColors.elevatedDark,
         hintStyle: const TextStyle(color: Color(0x66FFFFFF)),
         labelStyle: const TextStyle(color: Color(0x99FFFFFF)),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.accent,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.borderDark),

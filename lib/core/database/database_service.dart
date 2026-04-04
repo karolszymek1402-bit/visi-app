@@ -12,6 +12,7 @@ const _visitsSyncQueueBoxName = 'visits_sync_queue';
 
 /// Serwis bazy danych — Hive (NoSQL, offline-first)
 class DatabaseService {
+  bool _initialized = false;
   late Box<Visit> _visitsBox;
   late Box<Client> _clientsBox;
   late Box<String> _settingsBox;
@@ -33,11 +34,7 @@ class DatabaseService {
     _settingsBox = await Hive.openBox<String>(_settingsBoxName);
     _syncQueueBox = await Hive.openBox<String>(_syncQueueBoxName);
     _visitsSyncQueueBox = await Hive.openBox<String>(_visitsSyncQueueBoxName);
-
-    // Seedujemy klientów jeśli baza jest pusta (pierwszy start)
-    if (_clientsBox.isEmpty) {
-      await _seedClients();
-    }
+    _initialized = true;
   }
 
   // ─── Visits CRUD ───
@@ -147,31 +144,18 @@ class DatabaseService {
   /// Czy kolejka synchronizacji wizyt jest pusta?
   bool isVisitSyncQueueEmpty() => _visitsSyncQueueBox.isEmpty;
 
-  // ─── Seed Data ───
-
-  Future<void> _seedClients() async {
-    await _clientsBox.putAll({
-      '1': Client(
-        id: '1',
-        name: 'Hamar Kommune',
-        customRate: 250,
-        colorValue: 0xFF2F58CD,
-        recurrencePattern: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
-        defaultStartHour: 8,
-        defaultDurationMinutes: 120,
-      ),
-      '2': Client(
-        id: '2',
-        name: 'Anna Nordman',
-        address: 'Storhamar 12',
-        customRate: 300,
-        colorValue: 0xFFFF7B54,
-        recurrencePattern: 'FREQ=WEEKLY;BYDAY=TU,TH',
-        defaultStartHour: 14,
-        defaultDurationMinutes: 120,
-      ),
-    });
+  /// Czyści dane domenowe zależne od użytkownika.
+  ///
+  /// Używane przy wylogowaniu lub zmianie konta, aby uniknąć "przecieku"
+  /// klientów/wizyt między użytkownikami na tym samym urządzeniu.
+  Future<void> clearUserScopedData() async {
+    if (!_initialized) return;
+    await _clientsBox.clear();
+    await _visitsBox.clear();
+    await _syncQueueBox.clear();
+    await _visitsSyncQueueBox.clear();
   }
+
 }
 
 /// Globalny provider bazy danych (inicjalizowany w main.dart)

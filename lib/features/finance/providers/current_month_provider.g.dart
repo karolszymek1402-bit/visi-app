@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'date_provider.dart';
+part of 'current_month_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedDateControllerHash() =>
-    r'a57de1bae4e92b80d3003caa29dafda827f17645';
+String _$currentMonthControllerHash() =>
+    r'0d5b8a8c7abeaccdb2cea7476666897a97121936';
 
-/// See also [SelectedDateController].
-@ProviderFor(SelectedDateController)
-final selectedDateControllerProvider =
-    AutoDisposeNotifierProvider<SelectedDateController, DateTime>.internal(
-  SelectedDateController.new,
-  name: r'selectedDateControllerProvider',
+/// See also [CurrentMonthController].
+@ProviderFor(CurrentMonthController)
+final currentMonthControllerProvider =
+    NotifierProvider<CurrentMonthController, DateTime>.internal(
+  CurrentMonthController.new,
+  name: r'currentMonthControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$selectedDateControllerHash,
+      : _$currentMonthControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$SelectedDateController = AutoDisposeNotifier<DateTime>;
+typedef _$CurrentMonthController = Notifier<DateTime>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

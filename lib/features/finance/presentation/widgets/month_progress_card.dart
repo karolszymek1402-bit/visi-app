@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/finance_service.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Karta postępu miesiąca — progress bar + procent ukończonych wizyt.

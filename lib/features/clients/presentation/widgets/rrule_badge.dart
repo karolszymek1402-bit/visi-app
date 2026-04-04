@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Czytelna plakietka RRule — wyświetla regułę powtarzalności w czytelny sposób.

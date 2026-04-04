@@ -105,6 +105,9 @@
   "invalidNameOrRate": "Enter a name and valid rate",
   "delete": "Delete",
   "cancel": "Cancel",
+  "commonCancel": "Cancel",
+  "commonDiscardChanges": "Discard changes?",
+  "commonDiscardConfirm": "Are you sure you want to leave this form without saving?",
   "deleteClient": "Delete client",
   "deleteClientConfirm": "Are you sure you want to delete \"{name}\"?",
   "@deleteClientConfirm": {
@@ -223,6 +226,10 @@
   "authErrorUnknown": "Sign-in error. Please try again.",
   "authErrorPopupClosed": "Sign-in window was closed. Please try again.",
   "authErrorPopupBlocked": "Browser blocked the sign-in popup. Allow popups for this site.",
+  "authRegistrationSuccess": "Account created! You can now sign in.",
+  "authDeleteAccount": "Delete account",
+  "authDeleteAccountConfirm": "Are you sure? All data will be permanently deleted.",
+  "authReauthenticateRequired": "Re-authentication is required before deleting the account.",
   "navCalendar": "Calendar",
   "navClients": "Clients",
   "navFinance": "Finance",
@@ -231,6 +238,7 @@
   "settingsProfile": "Profile",
   "settingsAppearance": "Appearance",
   "settingsLanguage": "Language",
+  "settingsCurrency": "Currency",
   "settingsAccount": "Account",
   "settingsThemeSystem": "System",
   "settingsThemeLight": "Light",
@@ -303,5 +311,15 @@
     }
   },
   "financeLinkedToVisit": "Linked to visit",
-  "financeCreateFromVisit": "Settle visit"
+  "financeCreateFromVisit": "Settle visit",
+  "clientPaymentHistory": "Payment history",
+  "clientNoPaymentHistory": "No payment history",
+  "clientLtv": "LTV: {amount}",
+  "@clientLtv": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

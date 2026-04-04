@@ -1,0 +1,33 @@
+---
+description: Zasady architektury i standardy kodowania dla projektu Visi Planer
+globs: lib/**/*.dart, test/**/*.dart
+alwaysApply: false
+---
+
+# Visi Planer: Architecture & Quality Standards
+
+Wszystkie zmiany w kodzie muszą być zgodne z poniższymi filarami:
+
+## 1. Architektura (Feature-First)
+- **Struktura:** Każda nowa funkcja ląduje w `lib/features/{feature_name}/`.
+- **Dekompozycja:** Jeśli widget przekracza 150 linii, przenieś jego składowe do folderu `widgets/` wewnątrz danej funkcjonalności.
+- **Izolacja:** Warstwa `presentation` nie może bezpośrednio modyfikować bazy danych. Cała logika przechodzi przez `Provider` -> `Repository`.
+
+## 2. Stan (Riverpod & Async)
+- **Generator:** Używamy `@riverpod`. Nie piszemy ręcznie `StateNotifierProvider` ani `ChangeNotifier`.
+- **AsyncValue:** Każdy widok reagujący na dane asynchroniczne MUSI obsługiwać stany `.when(data: ..., error: ..., loading: ...)`.
+- **Optimistic Updates:** Przy operacjach zapisu (np. usuwanie klienta), najpierw aktualizuj stan lokalny, a potem synchronizuj z chmurą.
+
+## 3. Offline-First & Sync
+- **Hive:** Dane lokalne są źródłem prawdy dla UI.
+- **Firebase:** Chmura służy do synchronizacji i backupu.
+- **Rollback:** Przy błędzie `Cloud Sync`, stan lokalny (Hive + Riverpod) musi zostać przywrócony do poprzedniej wersji.
+
+## 4. Stabilność Web & MacOS
+- **Initialization Guards:** Usługi takie jak Firebase/GSI muszą mieć flagę `_isInitialized`, aby zapobiec duplikacji przy Hot Restart.
+- **Web Layout:** Każdy nowy ekran musi być sprawdzony pod kątem `SingleChildScrollView` i unikania `Overflow` na małych oknach przeglądarki.
+
+## 5. Quality Gate
+- **Analiza:** Zakaz używania `// ignore` bez krytycznego powodu. `flutter analyze` musi być czyste.
+- **Testy:** Nowy Notifier = Testy jednostkowe. Naprawiony błąd UI = Widget Regression Test.
+- **Git:** Commity zgodne z `Conventional Commits` (np. `feat(clients): ...`).

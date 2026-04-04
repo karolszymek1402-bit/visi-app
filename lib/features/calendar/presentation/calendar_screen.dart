@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/presentation/widgets/account_menu_button.dart';
 import '../../../core/presentation/visi_logo.dart';
-import '../../../core/providers/date_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/calendar_view_mode_provider.dart';
+import '../providers/selected_date_provider.dart';
 import 'widgets/calendar_grid.dart';
 import 'widgets/date_navigation_bar.dart';
 import 'widgets/month_view.dart';
@@ -56,6 +57,7 @@ class CalendarScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
+          const AccountMenuButton(),
         ],
         elevation: 0,
         scrolledUnderElevation: 0,

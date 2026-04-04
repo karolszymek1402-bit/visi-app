@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/models/client.dart';
 import '../../../../core/providers/clients_provider.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
+import '../../../../features/finance/presentation/providers/finance_provider.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'client_transaction_item.dart';
+import 'client_form_support_widgets.dart';
 import 'day_selector.dart';
 import 'visi_color_picker.dart';
 
@@ -46,6 +50,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
   late int _durationMinutes;
 
   bool _isSaving = false;
+  bool _allowPop = false;
 
   bool get _isNew => widget.client == null;
 
@@ -155,10 +160,30 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final existingClient = widget.client;
+    final clientTransactions = existingClient == null
+        ? const []
+        : ref.watch(financeTransactionsForClientProvider(existingClient.id));
+    final clientLtv = existingClient == null
+        ? 0.0
+        : ref.watch(financeClientIncomeLtvProvider(existingClient.id));
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final ltvValue = NumberFormat.currency(
+      locale: locale,
+      symbol: '',
+      decimalDigits: 2,
+    ).format(clientLtv).trim();
+    final ltvText = l10n.financeAmountWithCurrency(ltvValue, l10n.financeCurrency);
 
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
+    return PopScope(
+      canPop: _allowPop,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _confirmDiscardAndPop(context, l10n);
+      },
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
         padding: EdgeInsets.only(
           left: 24,
           right: 24,
@@ -168,8 +193,52 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (existingClient != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.elevatedDark.withValues(alpha: 0.75)
+                      : Colors.white.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    width: 0.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        existingClient.name,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.textDark : AppColors.textLight,
+                        ),
+                      ),
+                    ),
+                    Chip(
+                      backgroundColor: AppColors.accent.withValues(alpha: 0.12),
+                      side: BorderSide(
+                        color: AppColors.accent.withValues(alpha: 0.25),
+                      ),
+                      label: Text(
+                        l10n.clientLtv(ltvText),
+                        style: const TextStyle(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+            ],
             // ── Sekcja: Podstawowe ──────────────────────────────────────────
-            _SectionHeader(label: 'Dane podstawowe', isDark: isDark),
+            ClientFormSectionHeader(label: 'Dane podstawowe', isDark: isDark),
 
             // Nazwa (wymagana)
             TextFormField(
@@ -195,7 +264,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             const SizedBox(height: 20),
 
             // ── Sekcja: Kontakt ─────────────────────────────────────────────
-            _SectionHeader(label: 'Kontakt', isDark: isDark),
+            ClientFormSectionHeader(label: 'Kontakt', isDark: isDark),
 
             // Telefon + przycisk dzwonienia
             Row(
@@ -222,7 +291,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
                 const SizedBox(width: 8),
                 ValueListenableBuilder<TextEditingValue>(
                   valueListenable: _phoneCtrl,
-                  builder: (context, value, child) => _ActionButton(
+                  builder: (context, value, child) => ClientFormActionButton(
                     icon: Icons.call_rounded,
                     tooltip: 'Zadzwoń',
                     enabled: value.text.trim().isNotEmpty,
@@ -261,7 +330,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
                 const SizedBox(width: 8),
                 ValueListenableBuilder<TextEditingValue>(
                   valueListenable: _emailCtrl,
-                  builder: (context, value, child) => _ActionButton(
+                  builder: (context, value, child) => ClientFormActionButton(
                     icon: Icons.send_rounded,
                     tooltip: 'Wyślij e-mail',
                     enabled: value.text.trim().isNotEmpty,
@@ -273,8 +342,49 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             ),
             const SizedBox(height: 20),
 
+            // ── Sekcja: Historia płatności ─────────────────────────────────
+            if (existingClient != null) ...[
+              ClientFormSectionHeader(
+                label: l10n.clientPaymentHistory,
+                isDark: isDark,
+              ),
+              if (clientTransactions.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.elevatedDark.withValues(alpha: 0.6)
+                        : Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Text(
+                    l10n.clientNoPaymentHistory,
+                    style: TextStyle(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    for (final transaction in clientTransactions.take(6)) ...[
+                      ClientTransactionItem(transaction: transaction),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
+                ),
+              const SizedBox(height: 20),
+            ],
+
             // ── Sekcja: Stawka ──────────────────────────────────────────────
-            _SectionHeader(label: 'Stawka i harmonogram', isDark: isDark),
+            ClientFormSectionHeader(label: 'Stawka i harmonogram', isDark: isDark),
 
             TextFormField(
               controller: _rateCtrl,
@@ -337,7 +447,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             const SizedBox(height: 8),
             Row(
               children: [
-                _StepButton(
+                ClientFormStepButton(
                   icon: Icons.remove,
                   enabled: _selectedDays.length > 1,
                   color: Color(_selectedColorValue),
@@ -357,7 +467,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _StepButton(
+                ClientFormStepButton(
                   icon: Icons.add,
                   enabled: _selectedDays.length < 7,
                   color: Color(_selectedColorValue),
@@ -418,7 +528,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _StepButton(
+                ClientFormStepButton(
                   icon: Icons.remove,
                   enabled: _durationMinutes > 15,
                   color: AppColors.accent,
@@ -438,7 +548,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                _StepButton(
+                ClientFormStepButton(
                   icon: Icons.add,
                   enabled: _durationMinutes < 480,
                   color: AppColors.accent,
@@ -452,7 +562,7 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             const SizedBox(height: 20),
 
             // ── Sekcja: SMS & Notatki ───────────────────────────────────────
-            _SectionHeader(label: 'SMS & Notatki', isDark: isDark),
+            ClientFormSectionHeader(label: 'SMS & Notatki', isDark: isDark),
 
             TextFormField(
               controller: _messageCtrl,
@@ -530,120 +640,84 @@ class _ClientFormBodyState extends ConsumerState<ClientFormBody> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
-}
 
-// ─── Supporting widgets ───────────────────────────────────────────────────────
+  Future<void> _confirmDiscardAndPop(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final navigator = Navigator.of(context);
+    if (!_hasUnsavedChanges()) {
+      if (!mounted) return;
+      setState(() => _allowPop = true);
+      navigator.pop();
+      return;
+    }
 
-class _SectionHeader extends StatelessWidget {
-  final String label;
-  final bool isDark;
-  const _SectionHeader({required this.label, required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: AppColors.accent,
-            ),
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.commonDiscardChanges),
+        content: Text(l10n.commonDiscardConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Divider(
-              thickness: 1,
-              color: isDark
-                  ? AppColors.borderDark
-                  : AppColors.borderLight,
-            ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.commonDiscardChanges),
           ),
         ],
       ),
     );
+
+    if (discard != true || !mounted) return;
+    setState(() => _allowPop = true);
+    navigator.pop();
   }
-}
 
-/// Кругла кнопка дії (+/-) поруч із текстовим полем.
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String tooltip;
-  final bool enabled;
-  final Color color;
-  final VoidCallback onTap;
+  bool _hasUnsavedChanges() {
+    final existing = widget.client;
+    if (existing == null) {
+      return _nameCtrl.text.trim().isNotEmpty ||
+          _addressCtrl.text.trim().isNotEmpty ||
+          _rateCtrl.text.trim().isNotEmpty ||
+          _phoneCtrl.text.trim().isNotEmpty ||
+          _emailCtrl.text.trim().isNotEmpty ||
+          _messageCtrl.text.trim().isNotEmpty ||
+          _noteCtrl.text.trim().isNotEmpty;
+    }
 
-  const _ActionButton({
-    required this.icon,
-    required this.tooltip,
-    required this.enabled,
-    required this.color,
-    required this.onTap,
-  });
+    final existingRate = existing.customRate;
+    final currentRate = _rateCtrl.text.trim().isEmpty
+        ? null
+        : double.tryParse(_rateCtrl.text.trim());
 
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 48,
-        height: 48,
-        margin: const EdgeInsets.only(top: 4),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: enabled
-              ? color.withValues(alpha: 0.15)
-              : Colors.transparent,
-          border: Border.all(
-            color: enabled ? color : Colors.grey.withValues(alpha: 0.3),
-          ),
-        ),
-        child: IconButton(
-          icon: Icon(icon, size: 20),
-          color: enabled ? color : Colors.grey,
-          onPressed: enabled ? onTap : null,
-        ),
-      ),
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  final IconData icon;
-  final bool enabled;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _StepButton({
-    required this.icon,
-    required this.enabled,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: enabled ? color : Colors.grey.shade300,
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, size: 20, color: Colors.white),
-      ),
-    );
+    return _nameCtrl.text.trim() != existing.name ||
+        (_addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim()) !=
+            existing.address ||
+        currentRate != existingRate ||
+        (_phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim()) !=
+            existing.phone ||
+        (_emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim()) !=
+            existing.email ||
+        (_messageCtrl.text.trim().isEmpty ? null : _messageCtrl.text.trim()) !=
+            existing.smsTemplate ||
+        (_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()) !=
+            existing.notes ||
+        _selectedColorValue != existing.colorValue ||
+        _intervalWeeks != _parseInterval(existing.recurrencePattern) ||
+        _selectedDays.length !=
+            DaySelector.daysFromRRule(existing.recurrencePattern).length ||
+        !_selectedDays.containsAll(
+          DaySelector.daysFromRRule(existing.recurrencePattern),
+        ) ||
+        _selectedTime.hour != existing.defaultStartHour ||
+        _selectedTime.minute != existing.defaultStartMinute ||
+        _durationMinutes != existing.defaultDurationMinutes;
   }
 }

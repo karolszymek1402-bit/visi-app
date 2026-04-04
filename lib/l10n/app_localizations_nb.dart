@@ -229,6 +229,16 @@ class AppLocalizationsNb extends AppLocalizations {
   String get cancel => 'Avbryt';
 
   @override
+  String get commonCancel => 'Avbryt';
+
+  @override
+  String get commonDiscardChanges => 'Forkaste endringer?';
+
+  @override
+  String get commonDiscardConfirm =>
+      'Er du sikker på at du vil forlate skjemaet uten å lagre?';
+
+  @override
   String get deleteClient => 'Slett klient';
 
   @override
@@ -468,6 +478,21 @@ class AppLocalizationsNb extends AppLocalizations {
       'Nettleseren blokkerte innloggingsvinduet. Tillat popup-vinduer for dette nettstedet.';
 
   @override
+  String get authRegistrationSuccess =>
+      'Kontoen ble opprettet! Du kan logge inn nå.';
+
+  @override
+  String get authDeleteAccount => 'Slett konto';
+
+  @override
+  String get authDeleteAccountConfirm =>
+      'Er du sikker? Alle data blir slettet permanent.';
+
+  @override
+  String get authReauthenticateRequired =>
+      'Du må logge inn på nytt før kontoen kan slettes.';
+
+  @override
   String get navCalendar => 'Kalender';
 
   @override
@@ -490,6 +515,9 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Språk';
+
+  @override
+  String get settingsCurrency => 'Valuta';
 
   @override
   String get settingsAccount => 'Konto';
@@ -606,4 +634,15 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get financeCreateFromVisit => 'Gjør opp besøk';
+
+  @override
+  String get clientPaymentHistory => 'Betalingshistorikk';
+
+  @override
+  String get clientNoPaymentHistory => 'Ingen betalingshistorikk';
+
+  @override
+  String clientLtv(String amount) {
+    return 'LTV: $amount';
+  }
 }

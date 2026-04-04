@@ -1,13 +1,13 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'calendar_view_mode_provider.g.dart';
 
 enum CalendarViewMode { day, week, month }
 
-final calendarViewModeProvider =
-    NotifierProvider<CalendarViewModeNotifier, CalendarViewMode>(
-      CalendarViewModeNotifier.new,
-    );
+final calendarViewModeProvider = calendarViewModeNotifierProvider;
 
-class CalendarViewModeNotifier extends Notifier<CalendarViewMode> {
+@Riverpod(keepAlive: true)
+class CalendarViewModeNotifier extends _$CalendarViewModeNotifier {
   @override
   CalendarViewMode build() => CalendarViewMode.day;
 

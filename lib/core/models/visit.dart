@@ -51,6 +51,18 @@ class Visit extends HiveObject {
   @HiveField(10)
   final DateTime updatedAt;
 
+  /// Czy to wizyta cykliczna (master lub wystąpienie serii)
+  @HiveField(11)
+  final bool isRecurring;
+
+  /// RFC 5545 RRULE (np. FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR)
+  @HiveField(12)
+  final String? recurrenceRule;
+
+  /// ID wizyty nadrzędnej (master) dla wystąpień serii
+  @HiveField(13)
+  final String? parentVisitId;
+
   Visit({
     required this.id,
     required this.clientId,
@@ -63,6 +75,9 @@ class Visit extends HiveObject {
     this.reminderMinutesBefore,
     this.actualStartTime,
     DateTime? updatedAt,
+    this.isRecurring = false,
+    this.recurrenceRule,
+    this.parentVisitId,
   }) : updatedAt = updatedAt ?? DateTime.now();
 
   Visit copyWith({
@@ -76,6 +91,11 @@ class Visit extends HiveObject {
     DateTime? actualStartTime,
     bool clearActualStartTime = false,
     DateTime? updatedAt,
+    bool? isRecurring,
+    String? recurrenceRule,
+    bool clearRecurrenceRule = false,
+    String? parentVisitId,
+    bool clearParentVisitId = false,
   }) {
     return Visit(
       id: id,
@@ -93,6 +113,13 @@ class Visit extends HiveObject {
           ? null
           : (actualStartTime ?? this.actualStartTime),
       updatedAt: updatedAt ?? DateTime.now(),
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurrenceRule: clearRecurrenceRule
+          ? null
+          : (recurrenceRule ?? this.recurrenceRule),
+      parentVisitId: clearParentVisitId
+          ? null
+          : (parentVisitId ?? this.parentVisitId),
     );
   }
 
@@ -107,6 +134,9 @@ class Visit extends HiveObject {
     'reminderMinutesBefore': reminderMinutesBefore,
     'actualStartTime': actualStartTime?.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
+    'isRecurring': isRecurring,
+    'recurrenceRule': recurrenceRule ?? recurrenceRuleId,
+    'parentVisitId': parentVisitId,
   };
 
   factory Visit.fromMap(String id, Map<String, dynamic> map) {
@@ -129,6 +159,10 @@ class Visit extends HiveObject {
       updatedAt: map['updatedAt'] != null
           ? DateTime.tryParse(map['updatedAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      isRecurring: map['isRecurring'] as bool? ?? false,
+      recurrenceRule:
+          map['recurrenceRule'] as String? ?? map['recurrenceRuleId'] as String?,
+      parentVisitId: map['parentVisitId'] as String?,
     );
   }
 }
@@ -192,13 +226,16 @@ class VisitAdapter extends TypeAdapter<Visit> {
       reminderMinutesBefore: fields[8] as int?,
       actualStartTime: fields[9] as DateTime?,
       updatedAt: fields[10] as DateTime?,
+      isRecurring: fields[11] as bool? ?? false,
+      recurrenceRule: fields[12] as String?,
+      parentVisitId: fields[13] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Visit obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -220,6 +257,12 @@ class VisitAdapter extends TypeAdapter<Visit> {
       ..writeByte(9)
       ..write(obj.actualStartTime)
       ..writeByte(10)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(11)
+      ..write(obj.isRecurring)
+      ..writeByte(12)
+      ..write(obj.recurrenceRule)
+      ..writeByte(13)
+      ..write(obj.parentVisitId);
   }
 }

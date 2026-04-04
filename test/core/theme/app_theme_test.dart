@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:visi/core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 
 void main() {
   group('AppColors', () {

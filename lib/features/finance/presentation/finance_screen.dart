@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants.dart';
 import '../../../app/providers/global/auth_provider.dart';
 import '../../../app/providers/global/database_provider.dart';
+import '../../../core/presentation/widgets/account_menu_button.dart';
 import '../../../core/providers/clients_provider.dart';
 import '../../../core/services/profile_service.dart';
 import '../../../core/models/visit.dart';
@@ -43,6 +44,7 @@ class FinanceScreen extends ConsumerWidget {
             tooltip: l10n.copyReport,
             onPressed: () => _copyReport(context, ref),
           ),
+          const AccountMenuButton(),
         ],
       ),
       floatingActionButton: FloatingActionButton(

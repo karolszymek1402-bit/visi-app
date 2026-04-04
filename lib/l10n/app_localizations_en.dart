@@ -227,6 +227,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonDiscardChanges => 'Discard changes?';
+
+  @override
+  String get commonDiscardConfirm =>
+      'Are you sure you want to leave this form without saving?';
+
+  @override
   String get deleteClient => 'Delete client';
 
   @override
@@ -465,6 +475,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Browser blocked the sign-in popup. Allow popups for this site.';
 
   @override
+  String get authRegistrationSuccess => 'Account created! You can now sign in.';
+
+  @override
+  String get authDeleteAccount => 'Delete account';
+
+  @override
+  String get authDeleteAccountConfirm =>
+      'Are you sure? All data will be permanently deleted.';
+
+  @override
+  String get authReauthenticateRequired =>
+      'Re-authentication is required before deleting the account.';
+
+  @override
   String get navCalendar => 'Calendar';
 
   @override
@@ -487,6 +511,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsCurrency => 'Currency';
 
   @override
   String get settingsAccount => 'Account';
@@ -602,4 +629,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financeCreateFromVisit => 'Settle visit';
+
+  @override
+  String get clientPaymentHistory => 'Payment history';
+
+  @override
+  String get clientNoPaymentHistory => 'No payment history';
+
+  @override
+  String clientLtv(String amount) {
+    return 'LTV: $amount';
+  }
 }

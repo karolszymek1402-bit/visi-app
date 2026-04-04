@@ -3,16 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../features/auth/presentation/language_screen.dart';
-import '../../features/auth/presentation/welcome_screen.dart';
-import '../../features/clients/presentation/edit_client_screen.dart';
-import '../../features/profile/presentation/profile_setup_screen.dart';
-import '../models/client.dart';
-import '../presentation/main_shell.dart';
-import '../providers/auth_provider.dart';
-import '../providers/locale_provider.dart';
-import '../theme/app_theme.dart';
+import 'package:visi/app/providers/global/auth_provider.dart';
+import 'package:visi/app/providers/global/locale_provider.dart';
+import 'package:visi/app/theme/app_theme.dart';
+import 'package:visi/core/models/client.dart';
+import 'package:visi/core/presentation/main_shell.dart';
+import 'package:visi/features/auth/presentation/language_screen.dart';
+import 'package:visi/features/auth/presentation/welcome_screen.dart';
+import 'package:visi/features/clients/presentation/edit_client_screen.dart';
+import 'package:visi/features/profile/presentation/profile_setup_screen.dart';
+import 'package:visi/features/settings/presentation/providers/settings_provider.dart';
 
 // ─── Ścieżki ─────────────────────────────────────────────────────────────────
 
@@ -87,8 +87,18 @@ GoRouterRedirect _redirect(Ref ref) {
       return AppRoutes.welcome;
     }
 
-    // ── Zalogowany, brak profilu → onboarding ────────────────────────────────
-    if (!auth.profileComplete) {
+    final settingsAsync = ref.read(settingsProvider);
+    if (settingsAsync.isLoading || settingsAsync.hasError) {
+      return loc == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    final settings = settingsAsync.valueOrNull;
+    if (settings == null) {
+      return loc == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    // ── Zalogowany, onboarding nieukończony → onboarding ────────────────────
+    if (!settings.hasSeenOnboarding) {
       return loc == AppRoutes.onboarding ? null : AppRoutes.onboarding;
     }
 
@@ -123,7 +133,15 @@ final _routes = <RouteBase>[
   ),
   GoRoute(
     path: AppRoutes.onboarding,
-    builder: (ctx, state) => const ProfileSetupScreen(),
+    pageBuilder: (context, state) => CustomTransitionPage<void>(
+      key: state.pageKey,
+      transitionDuration: const Duration(milliseconds: 320),
+      reverseTransitionDuration: const Duration(milliseconds: 220),
+      child: const ProfileSetupScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+    ),
   ),
   GoRoute(
     path: AppRoutes.app,
@@ -217,6 +235,9 @@ class _AuthRouterNotifier extends ChangeNotifier {
       notifyListeners();
     });
     ref.listen<bool>(languageSelectedProvider, (prev, next) {
+      notifyListeners();
+    });
+    ref.listen<AsyncValue<dynamic>>(settingsProvider, (prev, next) {
       notifyListeners();
     });
   }

@@ -105,6 +105,9 @@
   "invalidNameOrRate": "Skriv inn navn og gyldig pris",
   "delete": "Slett",
   "cancel": "Avbryt",
+  "commonCancel": "Avbryt",
+  "commonDiscardChanges": "Forkaste endringer?",
+  "commonDiscardConfirm": "Er du sikker på at du vil forlate skjemaet uten å lagre?",
   "deleteClient": "Slett klient",
   "deleteClientConfirm": "Er du sikker på at du vil slette \"{name}\"?",
   "@deleteClientConfirm": {
@@ -223,6 +226,10 @@
   "authErrorUnknown": "Innloggingsfeil. Prøv igjen.",
   "authErrorPopupClosed": "Innloggingsvinduet ble lukket. Prøv igjen.",
   "authErrorPopupBlocked": "Nettleseren blokkerte innloggingsvinduet. Tillat popup-vinduer for dette nettstedet.",
+  "authRegistrationSuccess": "Kontoen ble opprettet! Du kan logge inn nå.",
+  "authDeleteAccount": "Slett konto",
+  "authDeleteAccountConfirm": "Er du sikker? Alle data blir slettet permanent.",
+  "authReauthenticateRequired": "Du må logge inn på nytt før kontoen kan slettes.",
   "navCalendar": "Kalender",
   "navClients": "Klienter",
   "navFinance": "Økonomi",
@@ -231,6 +238,7 @@
   "settingsProfile": "Profil",
   "settingsAppearance": "Utseende",
   "settingsLanguage": "Språk",
+  "settingsCurrency": "Valuta",
   "settingsAccount": "Konto",
   "settingsThemeSystem": "System",
   "settingsThemeLight": "Lyst",
@@ -303,5 +311,15 @@
     }
   },
   "financeLinkedToVisit": "Koblet til besøk",
-  "financeCreateFromVisit": "Gjør opp besøk"
+  "financeCreateFromVisit": "Gjør opp besøk",
+  "clientPaymentHistory": "Betalingshistorikk",
+  "clientNoPaymentHistory": "Ingen betalingshistorikk",
+  "clientLtv": "LTV: {amount}",
+  "@clientLtv": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

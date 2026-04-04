@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 
 /// Quick-picker minutowy wyświetlany przy long-press na godzinę.
 /// Pokazuje kółka z minutami co 5 minut (00, 05, 10 … 55).

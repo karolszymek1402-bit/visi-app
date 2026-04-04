@@ -55,6 +55,7 @@ class WeekView extends ConsumerWidget {
                     builder: (context, candidateData, rejectedData) {
                       final isHovering = candidateData.isNotEmpty;
                       return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           ref.read(selectedDateProvider.notifier).setDate(day);
                           ref

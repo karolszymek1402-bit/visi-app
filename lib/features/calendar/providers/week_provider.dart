@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/visit.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/providers/clients_provider.dart';
-import '../../../core/providers/date_provider.dart';
 import '../../../core/services/rrule_service.dart';
+import 'selected_date_provider.dart';
 
 /// Visits for the selected week (Mon–Sun), grouped by day.
 final weekVisitsProvider = Provider<Map<DateTime, List<Visit>>>((ref) {

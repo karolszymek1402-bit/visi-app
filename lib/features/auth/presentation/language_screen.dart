@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/database/database_service.dart';
+import 'package:visi/app/router/app_router.dart';
 import '../../../core/presentation/visi_logo.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -54,7 +56,9 @@ class LanguageScreen extends ConsumerWidget {
                 children: [
                   const Spacer(flex: 2),
                   // KOMPOZYCJA 3D: ORB + FACETED LOGO + TILT
-                  Visi3DLogo(orbSize: maxLogoSize, logoSize: logoTextSize),
+                  RepaintBoundary(
+                    child: Visi3DLogo(orbSize: maxLogoSize, logoSize: logoTextSize),
+                  ),
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 350),
@@ -93,17 +97,26 @@ class LanguageScreen extends ConsumerWidget {
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: () {
-                              ref
+                            onPressed: () async {
+                              // Najpierw trwały zapis do Hive, potem stan Riverpod.
+                              await ref
                                   .read(databaseProvider)
                                   .saveSetting(
                                     'language_screen_completed',
                                     'true',
                                   );
                               ref
-                                      .read(languageSelectedProvider.notifier)
-                                      .state =
-                                  true;
+                                  .read(languageSelectedProvider.notifier)
+                                  .setCompleted(true);
+
+                              // Fallback na Web: nie czekamy wyłącznie na redirect-listener.
+                              // Nawet jeśli listener nie odpali natychmiast, idziemy dalej.
+                              if (context.mounted) {
+                                final router = GoRouter.maybeOf(context);
+                                if (router != null) {
+                                  context.go(AppRoutes.welcome);
+                                }
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4A7FB5),

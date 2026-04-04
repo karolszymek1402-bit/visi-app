@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/client.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:visi/app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'client_form_body.dart';
 

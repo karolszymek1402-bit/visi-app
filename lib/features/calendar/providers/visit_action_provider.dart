@@ -1,12 +1,14 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/models/client.dart';
 import '../../../core/models/visit.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/clients_provider.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../../core/services/sms_service.dart';
 import 'calendar_provider.dart';
 import 'timer_provider.dart';
+
+part 'visit_action_provider.g.dart';
 
 /// Provider SMS-service — nadpisywany w testach.
 final smsServiceProvider = Provider<SmsService>((ref) {
@@ -22,12 +24,10 @@ class VisitActionState {
 }
 
 /// „Mózg" panelu akcji — koordynuje Bazę, SMS, Timer i L10n.
-final visitActionProvider =
-    NotifierProvider<VisitActionNotifier, VisitActionState>(
-      VisitActionNotifier.new,
-    );
+final visitActionProvider = visitActionNotifierProvider;
 
-class VisitActionNotifier extends Notifier<VisitActionState> {
+@Riverpod(keepAlive: true)
+class VisitActionNotifier extends _$VisitActionNotifier {
   @override
   VisitActionState build() => const VisitActionState();
 
@@ -64,18 +64,16 @@ class VisitActionNotifier extends Notifier<VisitActionState> {
 
   // ─── SMS (SMS + L10n + Baza) ───
 
-  /// Sformatuj treść SMS na podstawie szablonu klienta, z datą/godziną
-  /// w bieżącym locale (PL/EN/NB).
+  /// Sformatuj treść SMS przypomnienia wg bieżącego locale (PL/EN/NB).
   String formatSmsBody({required Visit visit, required Client client}) {
-    final template = client.smsTemplate ?? '{data} {godzina}';
-    final locale = ref.read(localeProvider).languageCode;
-
-    final dateStr = _formatLocalizedDate(visit.scheduledStart, locale);
-    final timeStr = _formatLocalizedTime(visit.scheduledStart, locale);
-
-    return template
-        .replaceAll('{data}', dateStr)
-        .replaceAll('{godzina}', timeStr);
+    final locale = ref.read(localeProvider);
+    final userName = ref.read(authProvider).valueOrNull?.displayName;
+    return ref.read(smsServiceProvider).generateReminderMessage(
+      visit,
+      client,
+      locale,
+      userName: userName,
+    );
   }
 
   /// Wyślij SMS z treścią automatycznie sformatowaną wg locale.
@@ -90,10 +88,7 @@ class VisitActionNotifier extends Notifier<VisitActionState> {
 
     final body = formatSmsBody(visit: visit, client: client);
     final sms = ref.read(smsServiceProvider);
-    final sent = await sms.sendSms(
-      phoneNumber: client.phone!,
-      message: body,
-    );
+    final sent = await sms.sendSms(client.phone!, body);
 
     if (sent) {
       state = VisitActionState(lastAction: 'smsSent', lastVisitId: visitId);
@@ -114,17 +109,5 @@ class VisitActionNotifier extends Notifier<VisitActionState> {
         .read(calendarProvider.notifier)
         .moveVisit(visitId, newHour, minute: minute, newDate: newDate);
     state = VisitActionState(lastAction: 'moved', lastVisitId: visitId);
-  }
-
-  // ─── Formatowanie daty / godziny wg locale ───
-
-  /// "wtorek, 22 marca" / "Tuesday, March 22" / "tirsdag 22. mars"
-  String _formatLocalizedDate(DateTime date, String locale) {
-    return DateFormat.MMMMEEEEd(locale).format(date);
-  }
-
-  /// "10:00" (24h) — standard dla PL i NB; "10:00 AM" dla EN.
-  String _formatLocalizedTime(DateTime date, String locale) {
-    return DateFormat.Hm(locale).format(date);
   }
 }

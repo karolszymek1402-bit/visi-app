@@ -3,13 +3,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:visi/app/router/app_router.dart';
 
 import '../../features/calendar/presentation/calendar_screen.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/clients/presentation/clients_screen.dart';
-import '../navigation/app_router.dart';
 import '../../features/finance/presentation/finance_screen.dart';
-import '../../features/settings/presentation/settings_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/connectivity_provider.dart';
 import '../services/sync_service.dart';
@@ -33,7 +32,6 @@ class _MainShellState extends ConsumerState<MainShell> {
     CalendarScreen(),
     ClientsScreen(),
     FinanceScreen(),
-    SettingsScreen(),
   ];
 
   @override
@@ -55,6 +53,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Reactively track connectivity changes to drive the banner
     ref.listen<bool>(connectivityProvider, (prev, next) {
       final wasOffline = !(prev ?? true);
@@ -83,7 +82,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF060E1A),
+      backgroundColor: isDark ? const Color(0xFF060E1A) : const Color(0xFFF2F5F9),
       extendBody: true,
       body: Stack(
         children: [
@@ -95,7 +94,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildGlassNavBar(),
+      bottomNavigationBar: _buildGlassNavBar(isDark),
       floatingActionButton: _selectedIndex == 1
           ? FloatingActionButton(
               onPressed: () => context.push(AppRoutes.editClient),
@@ -108,32 +107,42 @@ class _MainShellState extends ConsumerState<MainShell> {
     );
   }
 
-  Widget _buildGlassNavBar() {
+  Widget _buildGlassNavBar(bool isDark) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 90,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-                width: 1.5,
+      child: RepaintBoundary(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : const Color(0xFFD8DEE8),
+                  width: 1.5,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(0, Icons.calendar_today_rounded, l10n.navCalendar),
-                _navItem(1, Icons.people_alt_rounded, l10n.navClients),
-                _navItem(2, Icons.payments_rounded, l10n.navFinance),
-                _navItem(3, Icons.settings_rounded, l10n.navSettings),
-              ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _navItem(
+                    0,
+                    Icons.calendar_today_rounded,
+                    l10n.navCalendar,
+                    isDark,
+                  ),
+                  _navItem(1, Icons.people_alt_rounded, l10n.navClients, isDark),
+                  _navItem(2, Icons.payments_rounded, l10n.navFinance, isDark),
+                ],
+              ),
             ),
           ),
         ),
@@ -141,8 +150,11 @@ class _MainShellState extends ConsumerState<MainShell> {
     );
   }
 
-  Widget _navItem(int index, IconData icon, String label) {
+  Widget _navItem(int index, IconData icon, String label, bool isDark) {
     final isSelected = _selectedIndex == index;
+    const selectedLight = Color(0xFF2E4A67);
+    const unselectedLight = Color(0xFF667184);
+
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       behavior: HitTestBehavior.opaque,
@@ -156,15 +168,19 @@ class _MainShellState extends ConsumerState<MainShell> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF2E5B8A).withValues(alpha: 0.2)
+                    ? (isDark
+                          ? const Color(0xFF2E5B8A).withValues(alpha: 0.2)
+                          : const Color(0xFF2E4A67).withValues(alpha: 0.12))
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 icon,
                 color: isSelected
-                    ? const Color(0xFF4A7FB5)
-                    : Colors.white.withValues(alpha: 0.4),
+                    ? (isDark ? const Color(0xFF4A7FB5) : selectedLight)
+                    : (isDark
+                          ? Colors.white.withValues(alpha: 0.4)
+                          : unselectedLight),
                 size: 24,
               ),
             ),
@@ -173,8 +189,10 @@ class _MainShellState extends ConsumerState<MainShell> {
               duration: const Duration(milliseconds: 300),
               style: TextStyle(
                 color: isSelected
-                    ? const Color(0xFF4A7FB5)
-                    : Colors.white.withValues(alpha: 0.35),
+                    ? (isDark ? const Color(0xFF4A7FB5) : selectedLight)
+                    : (isDark
+                          ? Colors.white.withValues(alpha: 0.35)
+                          : unselectedLight),
                 fontSize: 11,
                 fontWeight:
                     isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -219,53 +237,55 @@ class _OfflineBanner extends StatelessWidget {
           opacity: visible ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 300),
           child: Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isOffline
-                        ? const Color(0xFFF59E0B).withValues(alpha: 0.15)
-                        : const Color(0xFF4A7FB5).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isOffline
-                          ? const Color(0xFFF59E0B).withValues(alpha: 0.5)
-                          : const Color(0xFF4A7FB5).withValues(alpha: 0.5),
-                      width: 1,
+            child: RepaintBoundary(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isOffline
-                            ? Icons.cloud_off_rounded
-                            : Icons.sync_rounded,
+                    decoration: BoxDecoration(
+                      color: isOffline
+                          ? const Color(0xFFF59E0B).withValues(alpha: 0.15)
+                          : const Color(0xFF4A7FB5).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
                         color: isOffline
-                            ? const Color(0xFFF59E0B)
-                            : const Color(0xFF4A7FB5),
-                        size: 15,
+                            ? const Color(0xFFF59E0B).withValues(alpha: 0.5)
+                            : const Color(0xFF4A7FB5).withValues(alpha: 0.5),
+                        width: 1,
                       ),
-                      const SizedBox(width: 7),
-                      Text(
-                        isOffline
-                            ? '${l10n.statusOffline} · ${l10n.statusOfflineHint}'
-                            : l10n.statusSyncing,
-                        style: TextStyle(
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isOffline
+                              ? Icons.cloud_off_rounded
+                              : Icons.sync_rounded,
                           color: isOffline
                               ? const Color(0xFFF59E0B)
                               : const Color(0xFF4A7FB5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          size: 15,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 7),
+                        Text(
+                          isOffline
+                              ? '${l10n.statusOffline} · ${l10n.statusOfflineHint}'
+                              : l10n.statusSyncing,
+                          style: TextStyle(
+                            color: isOffline
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFF4A7FB5),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

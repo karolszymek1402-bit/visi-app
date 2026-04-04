@@ -4,10 +4,30 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/presentation/main_shell.dart';
 import 'package:visi/core/services/auth_service.dart';
+import 'package:visi/features/finance/data/finance_repository.dart';
+import 'package:visi/features/finance/domain/models/transaction.dart';
 import 'package:visi/l10n/app_localizations.dart';
 
 import '../helpers/fake_auth_service.dart';
 import '../helpers/fake_database_service.dart';
+
+class _FakeFinanceRepository extends FinanceRepository {
+  _FakeFinanceRepository({List<Transaction>? seed})
+    : _seed = List<Transaction>.from(seed ?? const []);
+
+  final List<Transaction> _seed;
+
+  @override
+  Future<List<Transaction>> getTransactions() async {
+    final sorted = [..._seed]..sort((a, b) => b.date.compareTo(a.date));
+    return sorted;
+  }
+
+  @override
+  Stream<List<Transaction>> watchTransactions() async* {
+    yield await getTransactions();
+  }
+}
 
 void main() {
   late FakeDatabaseService fakeDb;
@@ -23,6 +43,7 @@ void main() {
       overrides: [
         databaseProvider.overrideWithValue(fakeDb),
         authServiceProvider.overrideWithValue(fakeAuth),
+        financeRepositoryProvider.overrideWith((ref) => _FakeFinanceRepository()),
       ],
       child: MaterialApp(
         locale: const Locale('pl'),
@@ -34,7 +55,7 @@ void main() {
   }
 
   group('MainShell', () {
-    testWidgets('renders glass navigation bar with 4 items', (tester) async {
+    testWidgets('renders glass navigation bar with 3 items', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -42,11 +63,11 @@ void main() {
       await tester.pumpWidget(buildMainShell());
       await tester.pump();
 
-      // 4 nav items
+      // 3 nav items
       expect(find.byIcon(Icons.calendar_today_rounded), findsOneWidget);
       expect(find.byIcon(Icons.people_alt_rounded), findsOneWidget);
       expect(find.byIcon(Icons.payments_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.settings_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.settings_rounded), findsNothing);
     });
 
     testWidgets('starts with calendar screen (index 0)', (tester) async {
@@ -61,7 +82,7 @@ void main() {
       expect(find.byType(IndexedStack), findsOneWidget);
     });
 
-    testWidgets('tapping settings shows settings screen', (tester) async {
+    testWidgets('tapping finance keeps shell stable', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -69,15 +90,14 @@ void main() {
       await tester.pumpWidget(buildMainShell());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.settings_rounded));
+      await tester.tap(find.byIcon(Icons.payments_rounded));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      // Settings screen has "Ustawienia" text
-      expect(find.text('Ustawienia'), findsOneWidget);
+      expect(find.byType(IndexedStack), findsOneWidget);
     });
 
-    testWidgets('has dark background color', (tester) async {
+    testWidgets('uses light-mode scaffold background by default', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -85,9 +105,9 @@ void main() {
       await tester.pumpWidget(buildMainShell());
       await tester.pump();
 
-      // Navy background
+      // buildMainShell() uses ThemeMode.light in tests
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
-      expect(scaffold.backgroundColor, const Color(0xFF060E1A));
+      expect(scaffold.backgroundColor, const Color(0xFFF2F5F9));
     });
 
     testWidgets('uses IndexedStack for screen persistence', (tester) async {
@@ -101,7 +121,7 @@ void main() {
       final indexedStack = tester.widget<IndexedStack>(
         find.byType(IndexedStack),
       );
-      expect(indexedStack.children.length, 4);
+      expect(indexedStack.children.length, 3);
     });
 
     testWidgets('no FAB on calendar tab (default)', (tester) async {

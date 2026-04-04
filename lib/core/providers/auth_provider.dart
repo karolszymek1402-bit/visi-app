@@ -40,13 +40,14 @@ final authStateProvider = StreamProvider<AuthUser?>((ref) {
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
   static const _nameKey = 'auth_display_name';
+  static const _activeUserKey = 'active_user_uid';
 
   /// Klucz flagi onboardingu jest UID-zależny — każdy użytkownik ma własny.
   /// Dzięki temu logout nie kasuje faktu ukończenia onboardingu.
   static String _profileCompleteKey(String uid) => 'profile_complete_$uid';
 
   @override
-  FutureOr<AuthState> build() {
+  FutureOr<AuthState> build() async {
     final authService = ref.watch(authServiceProvider);
     final db = ref.read(databaseProvider);
     final user = authService.currentUser;
@@ -57,8 +58,13 @@ class Auth extends _$Auth {
     });
 
     if (user == null) {
+      await db.clearUserScopedData();
+      await db.saveSetting(_activeUserKey, '');
       return const AuthState(status: AuthStatus.unauthenticated);
     }
+
+    await _clearLocalDataIfUserChanged(user.uid);
+    await db.saveSetting(_activeUserKey, user.uid);
 
     final profileDone =
         db.getSetting(_profileCompleteKey(user.uid)) == 'true';
@@ -70,13 +76,18 @@ class Auth extends _$Auth {
     );
   }
 
-  void _handleAuthChanged(AuthUser? user) {
+  Future<void> _handleAuthChanged(AuthUser? user) async {
     final db = ref.read(databaseProvider);
 
     if (user == null) {
+      await db.clearUserScopedData();
+      await db.saveSetting(_activeUserKey, '');
       state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
       return;
     }
+
+    await _clearLocalDataIfUserChanged(user.uid);
+    await db.saveSetting(_activeUserKey, user.uid);
 
     final profileDone =
         db.getSetting(_profileCompleteKey(user.uid)) == 'true';
@@ -108,6 +119,8 @@ class Auth extends _$Auth {
         return;
       }
 
+      await _clearLocalDataIfUserChanged(user.uid);
+      await db.saveSetting(_activeUserKey, user.uid);
       final name = user.displayName ?? displayName ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
@@ -142,6 +155,8 @@ class Auth extends _$Auth {
         return;
       }
 
+      await _clearLocalDataIfUserChanged(user.uid);
+      await db.saveSetting(_activeUserKey, user.uid);
       final name = user.displayName ?? user.email ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
@@ -174,6 +189,8 @@ class Auth extends _$Auth {
         return;
       }
 
+      await _clearLocalDataIfUserChanged(user.uid);
+      await db.saveSetting(_activeUserKey, user.uid);
       final name = user.displayName ?? user.email ?? 'Użytkownik';
       await db.saveSetting(_nameKey, name);
 
@@ -254,7 +271,30 @@ class Auth extends _$Auth {
     final db = ref.read(databaseProvider);
     final authService = ref.read(authServiceProvider);
     await authService.signOut();
+    await db.clearUserScopedData();
+    await db.saveSetting(_activeUserKey, '');
     await db.saveSetting(_nameKey, '');
     state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+  }
+
+  /// Usuń konto użytkownika z backendu auth.
+  /// Przy sukcesie czyści lokalny stan sesji.
+  Future<void> deleteAccount() async {
+    final db = ref.read(databaseProvider);
+    final authService = ref.read(authServiceProvider);
+    await authService.deleteAccount();
+    await db.clearUserScopedData();
+    await db.saveSetting(_activeUserKey, '');
+    await db.saveSetting(_nameKey, '');
+    state = const AsyncData(AuthState(status: AuthStatus.unauthenticated));
+  }
+
+  Future<void> _clearLocalDataIfUserChanged(String newUid) async {
+    final db = ref.read(databaseProvider);
+    final previousUid = db.getSetting(_activeUserKey);
+    if (previousUid == null || previousUid.isEmpty || previousUid == newUid) {
+      return;
+    }
+    await db.clearUserScopedData();
   }
 }
