@@ -85,8 +85,8 @@ void main() {
       expect(map['1']!.customRate ?? 0, 275);
     });
 
-    test('deleteClient should remove client and refresh state', () async {
-      await container.read(clientsProvider.notifier).deleteClient('2');
+    test('removeClient should remove client and update local state', () async {
+      await container.read(clientsProvider.notifier).removeClient('2');
 
       final map = readMap();
       expect(map.length, 1);
@@ -94,8 +94,8 @@ void main() {
       expect(map['1']!.name, 'Hamar Kommune');
     });
 
-    test('deleteClient with nonexistent id should be safe', () async {
-      await container.read(clientsProvider.notifier).deleteClient('999');
+    test('removeClient with nonexistent id should be safe', () async {
+      await container.read(clientsProvider.notifier).removeClient('999');
 
       expect(readMap().length, 2);
     });

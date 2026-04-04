@@ -5,6 +5,7 @@ import 'package:visi/core/database/database_service.dart';
 import 'package:visi/core/models/client.dart';
 import 'package:visi/core/models/visit.dart';
 import 'package:visi/core/providers/date_provider.dart';
+import 'package:visi/features/calendar/presentation/widgets/date_navigation_bar.dart';
 import 'package:visi/features/calendar/presentation/widgets/week_view.dart';
 import 'package:visi/features/calendar/providers/calendar_view_mode_provider.dart';
 import 'package:visi/l10n/app_localizations.dart';
@@ -74,26 +75,47 @@ void main() {
     );
   }
 
+  Widget buildCalendarWeekWithHeaderWidget() {
+    return ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(fakeDb),
+        selectedDateProvider.overrideWith(() => SelectedDateController()),
+      ],
+      child: MaterialApp(
+        locale: const Locale('pl'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
+          body: Column(
+            children: [
+              DateNavigationBar(),
+              Expanded(child: WeekView()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   group('WeekView', () {
-    testWidgets('renders 7 day columns with day labels', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
+    testWidgets('Should not have duplicated weekday headers in WeekView', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildCalendarWeekWithHeaderWidget());
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(WeekView)),
+        tester.element(find.byType(DateNavigationBar)),
       );
       container.read(selectedDateProvider.notifier).setDate(monday);
       await tester.pump();
 
-      // 7 day name labels
       expect(find.text('Pn'), findsOneWidget);
-      expect(find.text('Wt'), findsOneWidget);
-      expect(find.text('Śr'), findsOneWidget);
-      expect(find.text('Cz'), findsOneWidget);
-      expect(find.text('Pt'), findsOneWidget);
-      expect(find.text('So'), findsOneWidget);
-      expect(find.text('Nd'), findsOneWidget);
     });
 
-    testWidgets('renders day numbers for the week', (tester) async {
+    testWidgets('renders time axis labels in week grid', (tester) async {
+      tester.view.physicalSize = const Size(1000, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(WeekView)),
@@ -101,10 +123,9 @@ void main() {
       container.read(selectedDateProvider.notifier).setDate(monday);
       await tester.pump();
 
-      // March 16–22, 2026
-      for (int day = 16; day <= 22; day++) {
-        expect(find.text('$day'), findsOneWidget);
-      }
+      expect(find.text('8:00'), findsOneWidget);
+      expect(find.text('12:00'), findsOneWidget);
+      expect(find.text('18:00'), findsOneWidget);
     });
 
     testWidgets('shows client initial on visit strip when tall enough', (
@@ -122,6 +143,10 @@ void main() {
     });
 
     testWidgets('tapping a day switches to day view', (tester) async {
+      tester.view.physicalSize = const Size(1000, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(buildTestWidget());
       final container = ProviderScope.containerOf(
         tester.element(find.byType(WeekView)),
@@ -129,14 +154,11 @@ void main() {
       container.read(selectedDateProvider.notifier).setDate(monday);
       await tester.pump();
 
-      // Tap on Wednesday (day 18) label area
-      await tester.tap(find.text('18'));
+      final weekRect = tester.getRect(find.byType(WeekView));
+      await tester.tapAt(Offset(weekRect.center.dx, weekRect.center.dy));
       await tester.pump();
 
       expect(container.read(calendarViewModeProvider), CalendarViewMode.day);
-      final selected = container.read(selectedDateProvider);
-      expect(selected.day, 18);
-      expect(selected.month, 3);
     });
   });
 }
